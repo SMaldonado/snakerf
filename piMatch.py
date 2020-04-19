@@ -3,56 +3,7 @@ from math import pi
 import numpy as np
 from numpy import log10, rad2deg, deg2rad
 import matplotlib.pyplot as plt
-
-def par(Z1, Z2):
-    return (Z1 * Z2)/(Z1 + Z2)
-
-def ser(Z1, Z2):
-    return Z1 + Z2
-
-def phase(x):
-    return np.angle(x)
-
-def C(C, w, ESR = 0):
-    return (1/(1j*w*C)) + ESR
-
-def L(L, w, ESR = 0):
-    return 1j*w*L + ESR
-
-def R(R, w):
-    return R * np.ones(len(w))
-
-def dB(x):
-    return 10*log10(x)
-
-def dBv(x):
-    return 20*log10(abs(x))
-
-def Vdiv(Z1, Z2):
-    return Z2/(Z1+Z2)
-
-def Znetwork(series, shunt):
-    if np.shape(series) != np.shape(shunt): return "fail"
-
-    v = np.zeros(np.shape(series), dtype=np.complex)
-    z_shunt_eq = np.zeros(np.shape(series), dtype=np.complex)
-
-    for antinode in range(1,len(series)+1):
-        node = len(series)-antinode # this is dumb
-
-        if antinode == 1:
-            z_shunt_eq[node] = shunt[node]
-        else:
-            z_shunt_eq[node] = par(shunt[node],series[node+1] + z_shunt_eq[node+1])
-
-    for node in range(0,len(series)):
-        if node == 0:
-            v[node] = Vdiv(series[node],z_shunt_eq[node])
-        else:
-            v[node] = v[node-1] * Vdiv(series[node],z_shunt_eq[node])
-
-    return [v,z_shunt_eq]
-
+from snakerf import R, L, C, Znetwork, dBv, phase
 
 C1 = 2.75e-9
 C2 = 4.7e-9
@@ -121,10 +72,11 @@ axr = axl.twinx()
 # axr.semilogx(w/(2*pi), Zin.imag, c = 'green')
 axr.semilogx(w/(2*pi), rad2deg(phase(vin)) , c = 'purple')
 axr.semilogx(w/(2*pi), rad2deg(phase(vout)) , c = 'gold')
+# axr.semilogx(w/(2*pi), rad2deg(phase(vout, unwrap = False)) , c = 'gold', ls = '--')
 # axr.semilogx(w/(2*pi), rad2deg(phase(vin)), ls = '--', label = 'vin')
 # axr.semilogx(w/(2*pi), rad2deg(phase(vout)), ls = '--', label = 'vout')
 # axr.set_ylabel('phase (deg)')
-
+# plt.xlim(27e6, 27.5e6)
 
 
 plt.show()

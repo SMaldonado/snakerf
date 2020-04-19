@@ -9,8 +9,12 @@ def par(Z1, Z2):
 def ser(Z1, Z2):
     return Z1 + Z2
 
-def phase(x):
-    return np.angle(x)
+def phase(x, unwrap = True):
+    if unwrap:
+        return np.unwrap(np.angle(x))
+    else:
+        return np.angle(x)
+
 
 # passive component frequency responses
 
