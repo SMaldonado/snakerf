@@ -3,6 +3,7 @@ from math import pi
 import numpy as np
 from numpy import log10, rad2deg, deg2rad
 import matplotlib.pyplot as plt
+import snakerf
 from snakerf import R, L, C, Znetwork, dBv, phase
 
 C1 = 2.75e-9
@@ -29,8 +30,6 @@ fig = plt.figure(figsize=(10,5))
 # double T
 series = [R(50, w), L(L1, w, ESR = ESR_L), L(L2, w, ESR = ESR_L), C(CHPF, w, ESR = ESR_C)]
 shunt  = [C(C1, w, ESR = ESR_C), C(C2, w, ESR = ESR_C), C(C3, w, ESR = ESR_C), R(50, w)]
-
-
 
 # C1 = 6.045e-12
 # C2 = 6.567e-9
@@ -72,6 +71,7 @@ axr = axl.twinx()
 # axr.semilogx(w/(2*pi), Zin.imag, c = 'green')
 axr.semilogx(w/(2*pi), rad2deg(phase(vin)) , c = 'purple')
 axr.semilogx(w/(2*pi), rad2deg(phase(vout)) , c = 'gold')
+plt.gca().xaxis.set_major_formatter(snakerf.HzFormatter)
 # axr.semilogx(w/(2*pi), rad2deg(phase(vout, unwrap = False)) , c = 'gold', ls = '--')
 # axr.semilogx(w/(2*pi), rad2deg(phase(vin)), ls = '--', label = 'vin')
 # axr.semilogx(w/(2*pi), rad2deg(phase(vout)), ls = '--', label = 'vout')

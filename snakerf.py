@@ -2,8 +2,13 @@ import math
 from math import pi, inf
 import numpy as np
 from numpy import log10, rad2deg, deg2rad, sqrt
+import matplotlib.ticker as ticker
 
+@np.vectorize
 def par(Z1, Z2):
+    if Z1 == inf: return Z2
+    if Z2 == inf: return Z1
+    if Z1+Z2 == 0: return inf
     return (Z1 * Z2)/(Z1 + Z2)
 
 def ser(Z1, Z2):
@@ -13,19 +18,17 @@ def mag(x):
     return np.abs(x)
 
 def phase(x, unwrap = True, deg = False):
-    if unwrap:
-        angle = np.unwrap(np.angle(x))
-    else:
-        angle = np.angle(x)
+    if unwrap: angle = np.unwrap(np.angle(x))
+    else: angle = np.angle(x)
 
-    if deg:
-        return rad2deg(angle)
-    else:
-        return angle
+    if deg: return rad2deg(angle)
+    else: return angle
 
 # passive component frequency responses
 
 def C(C, w, ESR = 0):
+    if C == inf: return np.zeros(len(w)) + ESR
+    if C == 0: return np.ones(len(w)) + inf
     return (1/(1j*w*C)) + ESR
 
 def L(L, w, ESR = 0, Cpar = 0, Gpar = 0, Qref = inf, fQref = inf, srf = inf, Zsrf = inf):
@@ -39,53 +42,48 @@ def L(L, w, ESR = 0, Cpar = 0, Gpar = 0, Qref = inf, fQref = inf, srf = inf, Zsr
     # Gpar can be provided or calculated from a known Q at a known frequency
     # (or a known maximum impedance at resonance)
 
-    if Cpar != 0 and Gpar !=0: # use explicitly specified parasitics if available
-        return par(1j*w*L + ESR, par(C(Cpar, w), R(1/Gpar, w)))
-    else:
-        Cpar_eff = Cpar
-        Gpar_eff = Gpar
+    Cpar_eff = Cpar
+    Gpar_eff = Gpar
 
-        if Qref != inf and fQref != inf: # calculate Gpar from measured Q
-            wQref = f2w(fQref)
+    if Gpar_eff == 0 and Qref != inf and fQref != inf: # calculate Gpar from measured Q
+        wQref = f2w(fQref)
 
-            if ESR == 0:
-                Lp = L
-                Rp = Qref * wQref * Lp
-                Gpar_eff = 1/Rp
-            else: # transform series RL to parallel RL
-                Qs = wQref*L/ESR
-                Lp = L * (1 + Qs**2.0) / (Qs**2.0)
-                ESRp = (1 + Qs**2.0)*ESR
-                Rp = Qref * wQref * Lp
-                Gpar_eff = (1/Rp) - (1/ESRp)
+        if ESR == 0:
+            Lp = L
+            Rp = Qref * wQref * Lp
+            Gpar_eff = 1/Rp
+        else: # transform series RL to parallel RL
+            Qs = wQref*L/ESR
+            Lp = L * (1 + Qs**2.0) / (Qs**2.0)
+            ESRp = (1 + Qs**2.0)*ESR
+            Rp = Qref * wQref * Lp
+            Gpar_eff = (1/Rp) - (1/ESRp)
 
-        if srf != inf and (ESR != 0 or Gpar_eff != 0 or Zsrf != inf):
-            wsrf = f2w(srf)
+    if Cpar_eff == 0 and srf != inf:
+        wsrf = f2w(srf)
 
-            if ESR == 0:
-                Lp = L
-                if Zsrf != inf and Gpar_eff == 0:
-                    Gpar_eff = 1/Zsrf
+        if ESR == 0:
+            Lp = L
+            if Zsrf != inf and Gpar_eff == 0:
+                Gpar_eff = 1/Zsrf
 
-            else: # transform series RL to parallel RL
-                Qs = wsrf*L/ESR
-                Lp = L * (1 + Qs**2.0) / (Qs**2.0)
-                ESRp = (1 + Qs**2.0)*ESR
-                if Zsrf != inf and Gpar_eff == 0:
-                    Gpar_eff = (1/Zsrf) - (1/ESRp)
+        else: # transform series RL to parallel RL
+            Qs = wsrf*L/ESR
+            Lp = L * (1 + Qs**2.0) / (Qs**2.0)
+            ESRp = (1 + Qs**2.0)*ESR
+            if Zsrf != inf and Gpar_eff == 0:
+                Gpar_eff = (1/Zsrf) - (1/ESRp)
 
-            Cpar_eff = 1/(Lp * wsrf**2.0)
+        Cpar_eff = 1/(Lp * wsrf**2.0)
 
-        if Cpar_eff != 0 and Gpar_eff !=0:
-            return par(1j*w*L + ESR, par(C(Cpar_eff, w), R(1/Gpar_eff, w)))
-        if Cpar_eff != 0:
-            return par(1j*w*L + ESR, C(Cpar_eff, w))
-        if Gpar_eff != 0:
-            return par(1j*w*L + ESR, R(1.0/Gpar_eff, w))
-        return 1j*w*L + ESR
+    return par(1j*w*L + ESR, par(C(Cpar_eff, w), G(Gpar_eff, w)))
 
 def R(R, w):
     return R * np.ones(len(w))
+
+def G(G, w):
+    if G == 0: return inf * np.ones(len(w))
+    return (1.0/G) * np.ones(len(w))
 
 # dB handling
 
@@ -147,3 +145,24 @@ def Znetwork(series, shunt):
             v[node] = v[node-1] * Vdiv(series[node],z_shunt_eq[node])
 
     return [v,z_shunt_eq]
+
+# matplotlib x-axis labeling
+
+@ticker.FuncFormatter
+def HzFormatter(x, pos):
+    if x >= 1e12:
+        hz = 'THz'
+        f = x/1.0e6
+    elif x >= 1e9:
+        hz = 'GHz'
+        f = x/1.0e9
+    elif x >= 1e6:
+        hz = 'MHz'
+        f = x/1.0e6
+    elif x >= 1e3:
+        hz = 'kHz'
+        f = x/1.0e3
+    else:
+        hz = 'Hz'
+        f = x
+    return "{:.1f} {}".format(f, hz)
