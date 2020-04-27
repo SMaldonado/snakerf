@@ -68,7 +68,7 @@ def L(L, w, ESR = 0, Cpar = 0, Gpar = 0, Qref = inf, fQref = inf, srf = inf, Zsr
                     Gpar_eff = 1/Zsrf
 
             else: # transform series RL to parallel RL
-                Qs = wQref*L/ESR
+                Qs = wsrf*L/ESR
                 Lp = L * (1 + Qs**2.0) / (Qs**2.0)
                 ESRp = (1 + Qs**2.0)*ESR
                 if Zsrf != inf and Gpar_eff == 0:
@@ -81,7 +81,7 @@ def L(L, w, ESR = 0, Cpar = 0, Gpar = 0, Qref = inf, fQref = inf, srf = inf, Zsr
         if Cpar_eff != 0:
             return par(1j*w*L + ESR, C(Cpar_eff, w))
         if Gpar_eff != 0:
-            return par(1j*w*L + ESR, R(1/Gpar_eff, w))
+            return par(1j*w*L + ESR, R(1.0/Gpar_eff, w))
         return 1j*w*L + ESR
 
 def R(R, w):
