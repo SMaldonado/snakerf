@@ -85,6 +85,9 @@ def G(G, w):
     if G == 0: return inf * np.ones(len(w))
     return (1.0/G) * np.ones(len(w))
 
+def Zopen(w):
+    return inf * np.ones(len(w))
+
 # dB handling
 
 def dB(x): # linear power gain to dB power gain
@@ -121,7 +124,9 @@ def dBm2Vp(dBm,  Z0 = 50): # power [dBm] to sine wave voltage amplitude [V]
 
 # Network voltages
 
+@np.vectorize
 def Vdiv(Z1, Z2):
+    if Z2 == 0: return 0
     return Z2/(Z1+Z2)
 
 def Znetwork(series, shunt):
