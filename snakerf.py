@@ -4,6 +4,8 @@ import numpy as np
 from numpy import log10, rad2deg, deg2rad, sqrt
 import matplotlib.ticker as ticker
 
+c = 299792458.0 # speed of light in vacuum, m/s
+
 @np.vectorize
 def par(Z1, Z2):
     if Z1 == inf: return Z2
@@ -122,6 +124,29 @@ def Vp2dBm(Vp,  Z0 = 50): # sine wave voltage amplitude [V] to power [dBm]
 def dBm2Vp(dBm,  Z0 = 50): # power [dBm] to sine wave voltage amplitude [V]
     return sqrt(dBm2W(dBm) * 2.0 * Z0)
 
+# Spectra handling
+
+def Vf2Pf(Vf, Z0 = 50): # f-domain voltage to f-domain power
+    return abs(Vf) * (Vf.real + 1j*Vf.imag) / (2*Z0)
+
+def Pf2Vf(Pf, Z0 = 50): # f-domain power to f-domain voltage
+    magnitude = sqrt(abs(Pf) * 2*Z0)
+    phase = Pf / abs(Pf)
+    return magnitude * (phase.real + 1j*phase.imag)
+
+def Vt2Vf(Vt, ns): # time-domain voltage to f-domain voltage
+    # see https://www.sjsu.edu/people/burford.furman/docs/me120/FFT_tutorial_NI.pdf
+    return np.fft.fft(v)* 2/ns # numpy fft scaling; see https://numpy.org/doc/stable/reference/routines.fft.html#normalization
+
+def Vf2Vt(Vf, ns): # f-domain voltage to time-domain voltage
+    return np.fft.ifft(Vf * ns/2) # numpy fft scaling; see https://numpy.org/doc/stable/reference/routines.fft.html#normalization
+
+def Vt2Pf(Vt, ns, Z0 = 50): # time-domain voltage to f-domain power
+    return Vf2Pf(Vt2Vf(Vt, ns), Z0)
+
+def Pf2Vt(Pf, ns, Z0 = 50): # f-domain power to time-domain voltage
+    return Vf2Vt(Pf2Vf(Pf, Z0), ns)
+
 # Network voltages
 
 @np.vectorize
@@ -150,6 +175,12 @@ def Znetwork(series, shunt):
             v[node] = v[node-1] * Vdiv(series[node],z_shunt_eq[node])
 
     return [v,z_shunt_eq]
+
+# RF propagation
+
+def fspl(d, w, dB = True):
+    if dB: return dBv(2.0*w*d/c)
+    return (2.0*w*d/c)**2.0
 
 # matplotlib x-axis labeling
 
