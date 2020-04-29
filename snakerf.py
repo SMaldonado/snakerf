@@ -132,6 +132,7 @@ def Vf2Pf(Vf, Z0 = 50): # f-domain voltage to f-domain power
 def Pf2Vf(Pf, Z0 = 50): # f-domain power to f-domain voltage
     magnitude = sqrt(abs(Pf) * 2*Z0)
     phase = Pf / abs(Pf)
+
     return magnitude * (phase.real + 1j*phase.imag)
 
 def Vt2Vf(Vt, ns): # time-domain voltage to f-domain voltage
@@ -146,6 +147,20 @@ def Vt2Pf(Vt, ns, Z0 = 50): # time-domain voltage to f-domain power
 
 def Pf2Vt(Pf, ns, Z0 = 50): # f-domain power to time-domain voltage
     return Vf2Vt(Pf2Vf(Pf, Z0), ns)
+
+def Vt_noise(t, dBm, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified power level
+    # TODO: Mathematically verify (currently kind of hand-wavy)
+    W_noise = dBm2W(dBm)
+    V_stddev_noise = sqrt(W_noise * 2*abs(Z0))
+
+    return np.random.normal(0, V_stddev_noise, len(t))
+
+
+def power_combine(Vts, ns, Z0 = 50, out_Pf = False): # power combine array of time-domain voltages Vts
+    Pf = np.sum([Vt2Pf(Vt, ns) for Vt in Vts])
+
+    if out_Pf: return Pf
+    return Pf2Vt(Pf, ns, Z0)
 
 # Network voltages
 
