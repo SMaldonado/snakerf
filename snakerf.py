@@ -155,7 +155,6 @@ def Vt_noise(t, dBm, Z0 = 50): # create sampled time-domain additive white Gauss
 
     return np.random.normal(0, V_stddev_noise, len(t))
 
-
 def power_combine(Vts, ns, Z0 = 50, out_Pf = False): # power combine array of time-domain voltages Vts
     Pf = np.sum([Vt2Pf(Vt, ns) for Vt in Vts])
 
@@ -217,3 +216,9 @@ def HzFormatter(x, pos):
         hz = 'Hz'
         f = x
     return "{:.1f} {}".format(f, hz)
+
+# Gold code generation
+
+def gold_codes(x,y,N):
+    # see https://web.archive.org/web/20070112230234/http://paginas.fe.up.pt/~hmiranda/cm/Pseudo_Noise_Sequences.pdf page 14
+    return [x ^ ( ((y >> m)|(y << N-m)) & (2**N - 1) ) for m in range(N)] + [x, y]
