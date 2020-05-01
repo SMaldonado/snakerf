@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import inf, pi, log2
 
+print(srf.max_length_sequence(3))
 print(['{:07b}'.format(c) for c in srf.gold_codes(0b1001011, 0b1001110, 7)])
 
 

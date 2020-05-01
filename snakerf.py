@@ -219,6 +219,27 @@ def HzFormatter(x, pos):
 
 # Gold code generation
 
+def max_length_sequence(m):
+    N = 2**m - 1
+
+    reg = np.zeros(m)
+    reg[0] = 1 # to create nonzero initial conditions
+
+    out = np.zeros(N)
+
+    if m == 3:
+        prim_poly = np.array([1, 1, 0]) # ignore degree-m coefficient
+
+    for x in range(N):
+        out[x] = reg[0]
+        fb = sum(prim_poly * reg) % 2
+        print('{} {} {}'.format(reg, out[x], fb))
+        reg = np.roll(reg, -1)
+        reg[-1] = fb
+
+    return out
+
+
 def gold_codes(x,y,N):
     # see https://web.archive.org/web/20070112230234/http://paginas.fe.up.pt/~hmiranda/cm/Pseudo_Noise_Sequences.pdf page 14
     return [x ^ ( ((y >> m)|(y << N-m)) & (2**N - 1) ) for m in range(N)] + [x, y]
