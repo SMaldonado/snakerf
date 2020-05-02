@@ -3,9 +3,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import inf, pi, log2
 
-print(srf.max_length_sequence(3))
-print(['{:07b}'.format(c) for c in srf.gold_codes(0b1001011, 0b1001110, 7)])
+# print(srf.max_length_sequences(3))
+# print(['{:07b}'.format(c) for c in srf.gold_codes(0b1001011, 0b1001110, 7)])
+m = 5
+N = 2**m - 1
 
+codes = srf.gold_codes(m)
+if m < 13: print(['{0:0{1}b}'.format(c, N) for c in codes]) # takes forever for m >= 14
 
 # from snakerf import R, L, C, Zopen, Znetwork, w2f, dBv
 #

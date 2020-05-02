@@ -219,27 +219,110 @@ def HzFormatter(x, pos):
 
 # Gold code generation
 
-def max_length_sequence(m):
+# def max_length_sequences(m):
+#     if m % 4 == 0: return 'invalid m - no preferred pair'
+#
+#     N = 2**m - 1
+#
+#     reg = np.zeros(m)
+#     reg[0] = 1 # to create nonzero initial conditions
+#
+#     mls1 = np.zeros(N)
+#
+#     if m == 3:
+#         prim_poly = np.array([1, 1, 0]) # ignore degree-m coefficient
+#
+#     for x in range(N):
+#         mls1[x] = reg[0]
+#         fb = sum(prim_poly * reg) % 2
+#         # print('{} {} {}'.format(reg, out[x], fb))
+#         reg = np.roll(reg, -1)
+#         reg[-1] = fb
+#
+#     # see p. 13
+#     if m % 4 == 2: k = 2
+#     else: k = 1
+#
+#     q = 2**k + 1
+#
+#     mls2 = [mls1[(x*q) % N] for x in range(N)] # decimate mls1 by Q; take every qth element
+#
+#     return [mls1, mls2]
+
+
+def gold_codes(m):
+    # see https://web.archive.org/web/2 0070112230234/http://paginas.fe.up.pt/~hmiranda/cm/Pseudo_Noise_Sequences.pdf page 14
+    # m % 4 != 0
+
+    if m % 4 == 0 or m >= 16: return 'fail - invalid m'
+
     N = 2**m - 1
 
     reg = np.zeros(m)
     reg[0] = 1 # to create nonzero initial conditions
 
-    out = np.zeros(N)
+    mls1 = np.zeros(N)
 
     if m == 3:
         prim_poly = np.array([1, 1, 0]) # ignore degree-m coefficient
+    if m == 5:
+        prim_poly = np.array([1, 0, 1, 0, 0])
+    if m == 6:
+        prim_poly = np.array([1, 1, 0, 0, 0, 0])
+    if m == 7:
+        prim_poly = np.array([1, 1, 0, 0, 0, 0, 0])
+    if m == 9:
+        prim_poly = np.array([1, 0, 0, 0, 1, 0, 0, 0, 0])
+    if m == 10:
+        prim_poly = np.array([1, 0, 0, 1, 0, 0, 0, 0, 0, 0])
+    if m == 11:
+        prim_poly = np.array([1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+    if m == 13:
+        prim_poly = np.array([1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+    if m == 14:
+        prim_poly = np.array([1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0])
+    if m == 15:
+        prim_poly = np.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-    for x in range(N):
-        out[x] = reg[0]
+    # larger values of m take a _very_ long time to generate and consume significant memory and are not recommended
+    #
+    # if m == 17:
+    #     prim_poly = np.array([1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    # if m == 18:
+    #     prim_poly = np.array([1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    # if m == 19:
+    #     prim_poly = np.array([1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    # if m == 21:
+    #     prim_poly = np.array([1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    # if m == 22:
+    #     prim_poly = np.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    # if m == 23:
+    #     prim_poly = np.array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+
+
+    for i in range(N):
+        mls1[i] = reg[0]
         fb = sum(prim_poly * reg) % 2
-        print('{} {} {}'.format(reg, out[x], fb))
+        # print('{} {} {}'.format(reg, out[x], fb))
         reg = np.roll(reg, -1)
         reg[-1] = fb
 
-    return out
+    # see p. 13
+    if m % 4 == 2: k = 2
+    else: k = 1
 
+    q = 2**k + 1
 
-def gold_codes(x,y,N):
-    # see https://web.archive.org/web/20070112230234/http://paginas.fe.up.pt/~hmiranda/cm/Pseudo_Noise_Sequences.pdf page 14
+    mls2 = [mls1[(i*q) % N] for i in range(N)] # decimate mls1 by Q; take every qth element
+
+    x = 0b0
+    y = 0b0
+
+    for i in range(N):
+        x = (x<<1) | int(mls1[i])
+        y = (y<<1) | int(mls2[i])
+
+    # print('{:07b} {:07b}'.format(x,y))
+
     return [x ^ ( ((y >> m)|(y << N-m)) & (2**N - 1) ) for m in range(N)] + [x, y]
