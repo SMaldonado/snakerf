@@ -3,13 +3,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import inf, pi, log2
 
-# print(srf.max_length_sequences(3))
-# print(['{:07b}'.format(c) for c in srf.gold_codes(0b1001011, 0b1001110, 7)])
-m = 5
-N = 2**m - 1
 
-codes = srf.gold_codes(m)
-if m < 13: print(['{0:0{1}b}'.format(c, N) for c in codes]) # takes forever for m >= 14
+t = np.linspace(0,0.1,10000)
+f = 1000
+
+v1 = np.sin(srf.f2w(f) * t)
+v2 =  np.sin(srf.f2w(2*f) * t)
+v3 =  np.sin(srf.f2w(3*f) * t)
+y1 = v1 + v2 + v3
+y2 = srf.power_combine([v1, v2, v3], t)
+
+srf.plot_power_spectrum(plt.gca(), t, y1, time = True)
+srf.plot_power_spectrum(plt.gca(), t, y2, time = True)
+plt.show()
+
+# m = 10
+# N = 2**m - 1
+#
+# codes = srf.gold_codes(m)
+# if m < 13: print(['{0:0{1}b}'.format(c, N) for c in codes]) # takes forever for m >= 14
 
 # from snakerf import R, L, C, Zopen, Znetwork, w2f, dBv
 #

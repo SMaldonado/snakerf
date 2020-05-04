@@ -126,6 +126,9 @@ def dBm2Vp(dBm,  Z0 = 50): # power [dBm] to sine wave voltage amplitude [V]
 
 # Spectra handling
 
+def fft_fs(t_sample):
+    return np.fft.fftfreq(len(t_sample)) * len(t_sample)/(max(t_sample) - min(t_sample))
+
 def Vf2Pf(Vf, Z0 = 50): # f-domain voltage to f-domain power
     return abs(Vf) * (Vf.real + 1j*Vf.imag) / (2*Z0)
 
@@ -137,7 +140,7 @@ def Pf2Vf(Pf, Z0 = 50): # f-domain power to f-domain voltage
 
 def Vt2Vf(Vt, ns): # time-domain voltage to f-domain voltage
     # see https://www.sjsu.edu/people/burford.furman/docs/me120/FFT_tutorial_NI.pdf
-    return np.fft.fft(v)* 2/ns # numpy fft scaling; see https://numpy.org/doc/stable/reference/routines.fft.html#normalization
+    return np.fft.fft(Vt)* 2/ns # numpy fft scaling; see https://numpy.org/doc/stable/reference/routines.fft.html#normalization
 
 def Vf2Vt(Vf, ns): # f-domain voltage to time-domain voltage
     return np.fft.ifft(Vf * ns/2) # numpy fft scaling; see https://numpy.org/doc/stable/reference/routines.fft.html#normalization
@@ -155,8 +158,9 @@ def Vt_noise(t, dBm, Z0 = 50): # create sampled time-domain additive white Gauss
 
     return np.random.normal(0, V_stddev_noise, len(t))
 
-def power_combine(Vts, ns, Z0 = 50, out_Pf = False): # power combine array of time-domain voltages Vts
-    Pf = np.sum([Vt2Pf(Vt, ns) for Vt in Vts])
+def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of time-domain voltages Vts
+    ns = len(ts)
+    Pf = np.sum([Vt2Pf(Vt, ns) for Vt in Vts], axis = 0) # sum elementwise
 
     if out_Pf: return Pf
     return Pf2Vt(Pf, ns, Z0)
@@ -196,7 +200,17 @@ def fspl(d, w, dB = True):
     if dB: return dBv(2.0*w*d/c)
     return (2.0*w*d/c)**2.0
 
-# matplotlib x-axis labeling
+# plotting
+
+def plot_power_spectrum(ax, x, y, time = False, Z0 = 50):
+    if not time:
+        fs = x
+        Pf = y
+        ax.plot(np.fft.fftshift(fs), np.fft.fftshift(W2dBm(abs(Pf))))
+    if time:
+        fs = fft_fs(x) # x = ts
+        Pf = Vt2Pf(y, len(x), Z0)
+        ax.plot(np.fft.fftshift(fs), np.fft.fftshift(W2dBm(abs(Pf))))
 
 @ticker.FuncFormatter
 def HzFormatter(x, pos):
@@ -219,40 +233,10 @@ def HzFormatter(x, pos):
 
 # Gold code generation
 
-# def max_length_sequences(m):
-#     if m % 4 == 0: return 'invalid m - no preferred pair'
-#
-#     N = 2**m - 1
-#
-#     reg = np.zeros(m)
-#     reg[0] = 1 # to create nonzero initial conditions
-#
-#     mls1 = np.zeros(N)
-#
-#     if m == 3:
-#         prim_poly = np.array([1, 1, 0]) # ignore degree-m coefficient
-#
-#     for x in range(N):
-#         mls1[x] = reg[0]
-#         fb = sum(prim_poly * reg) % 2
-#         # print('{} {} {}'.format(reg, out[x], fb))
-#         reg = np.roll(reg, -1)
-#         reg[-1] = fb
-#
-#     # see p. 13
-#     if m % 4 == 2: k = 2
-#     else: k = 1
-#
-#     q = 2**k + 1
-#
-#     mls2 = [mls1[(x*q) % N] for x in range(N)] # decimate mls1 by Q; take every qth element
-#
-#     return [mls1, mls2]
-
-
 def gold_codes(m):
+    # Generates 2^m + 1 Gold codes, each of length 2^m - 1
+    # Valid for m % 4 != 0, practical for m < 16
     # see https://web.archive.org/web/2 0070112230234/http://paginas.fe.up.pt/~hmiranda/cm/Pseudo_Noise_Sequences.pdf page 14
-    # m % 4 != 0
 
     if m % 4 == 0 or m >= 16: return 'fail - invalid m'
 
@@ -298,8 +282,6 @@ def gold_codes(m):
     #     prim_poly = np.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     # if m == 23:
     #     prim_poly = np.array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-
-
 
     for i in range(N):
         mls1[i] = reg[0]
