@@ -4,17 +4,19 @@ import numpy as np
 from math import inf, pi, log2
 
 
-t = np.linspace(0,0.1,10000)
+t = np.linspace(0,0.1,1000000)
 f = 1000
 
 v1 = np.sin(srf.f2w(f) * t)
-v2 =  np.sin(srf.f2w(2*f) * t)
-v3 =  np.sin(srf.f2w(3*f) * t)
+v2 =  np.sin(srf.f2w(f) * t)
+v3 =  np.sin(srf.f2w(4*f) * t)
 y1 = v1 + v2 + v3
 y2 = srf.power_combine([v1, v2, v3], t)
+y3 = srf.Vt_noise(t, -10)
 
-srf.plot_power_spectrum(plt.gca(), t, y1, time = True)
-srf.plot_power_spectrum(plt.gca(), t, y2, time = True)
+# srf.plot_power_spectrum(plt.gca(), t, y1, time = True)
+# srf.plot_power_spectrum(plt.gca(), t, y2, time = True)
+srf.plot_power_spectrum(plt.gca(), t, y3, time = True)
 plt.show()
 
 # m = 10

@@ -151,9 +151,9 @@ def Vt2Pf(Vt, ns, Z0 = 50): # time-domain voltage to f-domain power
 def Pf2Vt(Pf, ns, Z0 = 50): # f-domain power to time-domain voltage
     return Vf2Vt(Pf2Vf(Pf, Z0), ns)
 
-def Vt_noise(t, dBm, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified power level
+def Vt_noise(t, dBm_Hz, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified power level
     # TODO: Mathematically verify (currently kind of hand-wavy)
-    W_noise = dBm2W(dBm)
+    W_noise = dBm2W(dBm_Hz)
     V_stddev_noise = sqrt(W_noise * 2*abs(Z0))
 
     return np.random.normal(0, V_stddev_noise, len(t))
