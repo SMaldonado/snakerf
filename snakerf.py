@@ -100,7 +100,7 @@ def undB(x): # dB power gain to linear power gain
     return 10.0**(x/10.0)
 
 def dBv(x): # linear voltage gain to dB gain
-    return 20*log10(abs(x))
+    return 20*log10(mag(x))
 
 def undBv(x): # dB gain to linear voltage gain
     return 10.0**(x/20.0)
@@ -138,11 +138,11 @@ def fft_fs(t_sample):
     return np.fft.fftfreq(len(t_sample), d = timestep)
 
 def Vf2Pf(Vf, Z0 = 50): # f-domain voltage to f-domain power
-    return abs(Vf) * (Vf.real + 1j*Vf.imag) / (2*Z0)
+    return mag(Vf) * (Vf.real + 1j*Vf.imag) / (2*Z0)
 
 def Pf2Vf(Pf, Z0 = 50): # f-domain power to f-domain voltage
-    magnitude = sqrt(abs(Pf) * 2*Z0)
-    phase = Pf / abs(Pf)
+    magnitude = sqrt(mag(Pf) * 2*Z0)
+    phase = Pf / mag(Pf)
 
     return magnitude * (phase.real + 1j*phase.imag)
 
@@ -233,11 +233,11 @@ def plot_power_spectrum(ax, x, y, time = False, Z0 = 50):
     if not time:
         fs = x
         Pf = y
-        ax.plot(np.fft.fftshift(fs), np.fft.fftshift(W2dBm(abs(Pf))))
+        ax.plot(np.fft.fftshift(fs), np.fft.fftshift(W2dBm(mag(Pf))))
     if time:
         fs = fft_fs(x) # x = ts
         Pf = Vt2Pf(y, len(x), Z0)
-        ax.plot(np.fft.fftshift(fs), np.fft.fftshift(W2dBm(abs(Pf))))
+        ax.plot(np.fft.fftshift(fs), np.fft.fftshift(W2dBm(mag(Pf))))
 
     ax.xaxis.set_major_formatter(HzFormatter)
 
