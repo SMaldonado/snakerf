@@ -4,7 +4,7 @@ import numpy as np
 from math import inf, pi, log2
 
 
-t = np.linspace(0,10,10000)
+t = np.linspace(0,10,1000000)
 f = 100
 
 v1 = srf.dBm2Vp(0) * np.sin(srf.f2w(f) * t)
@@ -27,7 +27,7 @@ Pf_noise = srf.Vt2Pf(y3, len(t))
 mean_P_noise = np.mean(np.abs(Pf_noise))
 print(srf.W2dBm(mean_P_noise))
 plt.axhline(srf.W2dBm(mean_P_noise), c = 'black')
-print(srf.W2dBm(mean_P_noise * max(fs)))
+print(srf.W2dBm(mean_P_noise * len(t)/2))
 
 plt.show()
 

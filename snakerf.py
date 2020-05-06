@@ -161,6 +161,7 @@ def Pf2Vt(Pf, ns, Z0 = 50): # f-domain power to time-domain voltage
 
 def Vt_noise(t_sample, dBm, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified total power
     # see: https://www.ti.com/lit/an/slva043b/slva043b.pdf
+    # TODO: more evidence that this is correct
 
     V_stddev_noise = dBm2Vrms(dBm, Z0)
     return np.random.normal(0, V_stddev_noise, len(t_sample))
