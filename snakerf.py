@@ -5,6 +5,7 @@ from numpy import log10, rad2deg, deg2rad, sqrt
 import matplotlib.ticker as ticker
 
 c = 299792458.0 # speed of light in vacuum, m/s
+kb = 1.380649E-23 # Boltzmann constant, J/K
 
 @np.vectorize
 def par(Z1, Z2):
@@ -124,10 +125,17 @@ def Vp2dBm(Vp,  Z0 = 50): # sine wave voltage amplitude [V] to power [dBm]
 def dBm2Vp(dBm,  Z0 = 50): # power [dBm] to sine wave voltage amplitude [V]
     return sqrt(dBm2W(dBm) * 2.0 * Z0)
 
+def dBm2Vrms(dBm,  Z0 = 50): # power [dBm] to sine wave rms voltage [V]
+    return dBm2Vp(dBm, Z0)/sqrt(2)
+
+def Vrms2dBm(Vrms,  Z0 = 50): # sine wave rms voltage [V] to power [dBm]
+    return Vp2dBm(Vrms * sqrt(2), Z0)
+
 # Spectra handling
 
 def fft_fs(t_sample):
-    return np.fft.fftfreq(len(t_sample)) * len(t_sample)/(max(t_sample) - min(t_sample))
+    timestep = (max(t_sample) - min(t_sample))/len(t_sample)
+    return np.fft.fftfreq(len(t_sample), d = timestep)
 
 def Vf2Pf(Vf, Z0 = 50): # f-domain voltage to f-domain power
     return abs(Vf) * (Vf.real + 1j*Vf.imag) / (2*Z0)
@@ -151,12 +159,11 @@ def Vt2Pf(Vt, ns, Z0 = 50): # time-domain voltage to f-domain power
 def Pf2Vt(Pf, ns, Z0 = 50): # f-domain power to time-domain voltage
     return Vf2Vt(Pf2Vf(Pf, Z0), ns)
 
-def Vt_noise(t, dBm_Hz, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified power level
-    # TODO: Mathematically verify (currently kind of hand-wavy)
-    W_noise = dBm2W(dBm_Hz)
-    V_stddev_noise = sqrt(W_noise * 2*abs(Z0))
+def Vt_noise(t_sample, dBm, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified total power
+    # see: https://www.ti.com/lit/an/slva043b/slva043b.pdf
 
-    return np.random.normal(0, V_stddev_noise, len(t))
+    V_stddev_noise = dBm2Vrms(dBm, Z0)
+    return np.random.normal(0, V_stddev_noise, len(t_sample))
 
 def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of time-domain voltages Vts
     ns = len(ts)
@@ -202,6 +209,25 @@ def fspl(d, w, dB = True):
 
 # plotting
 
+@ticker.FuncFormatter
+def HzFormatter(x, pos):
+    if abs(x) >= 1e12:
+        hz = 'THz'
+        f = x/1.0e6
+    elif abs(x) >= 1e9:
+        hz = 'GHz'
+        f = x/1.0e9
+    elif abs(x) >= 1e6:
+        hz = 'MHz'
+        f = x/1.0e6
+    elif abs(x) >= 1e3:
+        hz = 'kHz'
+        f = x/1.0e3
+    else:
+        hz = 'Hz'
+        f = x
+    return "{:.1f} {}".format(f, hz)
+
 def plot_power_spectrum(ax, x, y, time = False, Z0 = 50):
     if not time:
         fs = x
@@ -212,24 +238,7 @@ def plot_power_spectrum(ax, x, y, time = False, Z0 = 50):
         Pf = Vt2Pf(y, len(x), Z0)
         ax.plot(np.fft.fftshift(fs), np.fft.fftshift(W2dBm(abs(Pf))))
 
-@ticker.FuncFormatter
-def HzFormatter(x, pos):
-    if x >= 1e12:
-        hz = 'THz'
-        f = x/1.0e6
-    elif x >= 1e9:
-        hz = 'GHz'
-        f = x/1.0e9
-    elif x >= 1e6:
-        hz = 'MHz'
-        f = x/1.0e6
-    elif x >= 1e3:
-        hz = 'kHz'
-        f = x/1.0e3
-    else:
-        hz = 'Hz'
-        f = x
-    return "{:.1f} {}".format(f, hz)
+    ax.xaxis.set_major_formatter(HzFormatter)
 
 # Gold code generation
 
