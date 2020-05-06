@@ -7,7 +7,7 @@ from math import inf, pi, log2
 t = np.linspace(0,0.1,10000)
 f = 100
 
-v1 = srf.dBm2Vp(0) * np.sin(srf.f2w(f) * t)
+v1 = np.sin(srf.f2w(f) * t)
 v2 =  np.sin(srf.f2w(f) * t)
 v3 =  np.sin(srf.f2w(4*f) * t)
 y1 = v1 + v2 + v3
@@ -16,11 +16,11 @@ y2 = srf.power_combine([v1, v2, v3], t)
 dBm_noise = 0
 y3 = srf.power_combine([srf.Vt_noise(t, dBm_noise), v1], t)
 
-plt.plot(t,y3.real)
+# plt.plot(t,y3.real)
 
 # srf.plot_power_spectrum(plt.gca(), t, v1, time = True)
 # # srf.plot_power_spectrum(plt.gca(), t, y2, time = True)
-# srf.plot_power_spectrum(plt.gca(), t, y3, time = True)
+srf.plot_power_spectrum(plt.gca(), t, y3, time = True)
 
 # Pf_noise = srf.Vt2Pf(y3, len(t))
 # fs = srf.fft_fs(t)
