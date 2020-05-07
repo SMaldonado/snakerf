@@ -4,31 +4,30 @@ import numpy as np
 from math import inf, pi, log2
 
 
-t = np.linspace(0,0.1,10000)
+t = np.linspace(0,1,1000000)
 f = 100
+#
+# v1 = np.sin(srf.f2w(f) * t)
+# v2 =  np.sin(srf.f2w(f) * t)
+# v3 =  np.sin(srf.f2w(4*f) * t)
+# y1 = v1 + v2 + v3
+# y2 = srf.power_combine([v1, v2, v3], t)
 
-v1 = np.sin(srf.f2w(f) * t)
-v2 =  np.sin(srf.f2w(f) * t)
-v3 =  np.sin(srf.f2w(4*f) * t)
-y1 = v1 + v2 + v3
-y2 = srf.power_combine([v1, v2, v3], t)
-
-dBm_noise = 0
-y3 = srf.power_combine([srf.Vt_noise(t, dBm_noise), v1], t)
+v4 = srf.Vt_noise(t, 273.15)
+# y3 = srf.power_combine([v4, v1], t)
 
 # plt.plot(t,y3.real)
 
 # srf.plot_power_spectrum(plt.gca(), t, v1, time = True)
 # # srf.plot_power_spectrum(plt.gca(), t, y2, time = True)
-srf.plot_power_spectrum(plt.gca(), t, y3, time = True)
+srf.plot_power_spectrum(plt.gca(), t, v4, time = True)
 
-# Pf_noise = srf.Vt2Pf(y3, len(t))
-# fs = srf.fft_fs(t)
-# # plt.axhline(srf.W2dBm(np.mean(srf.dBm2W(Pf_noise))))
+Pf_noise = srf.Vt2Pf(v4, len(t))
+fs = srf.fft_fs(t)
 #
-# mean_P_noise = np.mean(np.abs(Pf_noise))
-# print(srf.W2dBm(mean_P_noise))
-# plt.axhline(srf.W2dBm(mean_P_noise), c = 'black')
+mean_P_noise = np.mean(np.abs(Pf_noise))
+print(srf.W2dBm(mean_P_noise))
+plt.axhline(srf.W2dBm(mean_P_noise), c = 'black')
 # print(srf.W2dBm(mean_P_noise * len(t)/2))
 
 plt.show()

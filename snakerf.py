@@ -5,7 +5,7 @@ from numpy import log10, rad2deg, deg2rad, sqrt
 import matplotlib.ticker as ticker
 
 c = 299792458.0 # speed of light in vacuum, m/s
-kb = 1.380649E-23 # Boltzmann constant, J/K
+kB = 1.380649E-23 # Boltzmann constant, J/K
 
 @np.vectorize
 def par(Z1, Z2):
@@ -133,6 +133,8 @@ def Vrms2dBm(Vrms,  Z0 = 50): # sine wave rms voltage [V] to power [dBm]
 
 # Spectra handling
 
+# TODO: convert everything to rfft to save space and to agree better with voltage noise PSDs
+
 def fft_fs(t_sample):
     timestep = (max(t_sample) - min(t_sample))/len(t_sample)
     return np.fft.fftfreq(len(t_sample), d = timestep)
@@ -159,11 +161,22 @@ def Vt2Pf(Vt, ns, Z0 = 50): # time-domain voltage to f-domain power
 def Pf2Vt(Pf, ns, Z0 = 50): # f-domain power to time-domain voltage
     return Vf2Vt(Pf2Vf(Pf, Z0), ns)
 
-def Vt_noise(t_sample, dBm, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified total power
+def Vt_noise(t_sample, T_noise, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
     # see: https://www.ti.com/lit/an/slva043b/slva043b.pdf
-    # TODO: more evidence that this is correct
+    # see: https://en.wikipedia.org/wiki/Noise_temperature
+    # see: https://www.ietlabs.com/pdf/GR_Appnote/IN-103%20Useful%20Formulas,%20Tables%20&%20Curves%20for.pdf
+    # see: https://en.wikipedia.org/wiki/Noise_spectral_density
+    # see: https://training.ti.com/system/files/docs/1312%20-%20Noise%202%20-%20slides.pdf
 
-    V_stddev_noise = dBm2Vrms(dBm, Z0)
+    # TODO: hand-wring some more about if this is correct (but I think it is)
+
+    # Noise voltage variance (usually ̅V^2) as a single-sided spectral density usually equals:
+    # ̅V^2/B = 4*kB*T*R
+    V2_noise_Hz = 4 * kB*T_noise*mag(Z0)
+
+    # fill full sampling bandwidth of t_sample with white noise - note that this may not always be desired
+    f_sample = len(t_sample)/(max(t_sample) - min(t_sample))
+    V_stddev_noise = sqrt(V2_noise_Hz * f_sample / 2)
     return np.random.normal(0, V_stddev_noise, len(t_sample))
 
 def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of time-domain voltages Vts
