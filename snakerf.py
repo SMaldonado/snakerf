@@ -153,7 +153,7 @@ def Vt2Vf(Vt, ns): # time-domain voltage to f-domain voltage
     return np.fft.fft(Vt)* 2/ns # numpy fft scaling; see https://numpy.org/doc/stable/reference/routines.fft.html#normalization
 
 def Vf2Vt(Vf, ns): # f-domain voltage to time-domain voltage
-    return np.fft.ifft(Vf * ns/2) # numpy fft scaling; see https://numpy.org/doc/stable/reference/routines.fft.html#normalization
+    return np.fft.ifft(Vf * ns/2).real # numpy fft scaling; see https://numpy.org/doc/stable/reference/routines.fft.html#normalization
 
 def Vt2Pf(Vt, ns, Z0 = 50): # time-domain voltage to f-domain power
     return Vf2Pf(Vt2Vf(Vt, ns), Z0)
@@ -167,8 +167,10 @@ def Vt_noise(t_sample, T_noise, Z0 = 50): # create sampled time-domain additive 
     # see: https://www.ietlabs.com/pdf/GR_Appnote/IN-103%20Useful%20Formulas,%20Tables%20&%20Curves%20for.pdf
     # see: https://en.wikipedia.org/wiki/Noise_spectral_density
     # see: https://training.ti.com/system/files/docs/1312%20-%20Noise%202%20-%20slides.pdf
+    # see: https://electronics.stackexchange.com/questions/303337/fourier-transform-of-additive-white-gaussian-noise
+    # see: https://www.gaussianwaves.com/2013/11/simulation-and-analysis-of-white-noise-in-matlab/   --- explains non-flat spectrum
+    # tl;dr: appropriately mathematically representing white noise is hard. Buyer beware.
 
-    # TODO: hand-wring some more about if this is correct (but I think it is)
 
     # Noise voltage variance (usually ̅V^2) as a single-sided spectral density usually equals:
     # ̅V^2/B = 4*kB*T*R
@@ -176,7 +178,9 @@ def Vt_noise(t_sample, T_noise, Z0 = 50): # create sampled time-domain additive 
 
     # fill full sampling bandwidth of t_sample with white noise - note that this may not always be desired
     f_sample = len(t_sample)/(max(t_sample) - min(t_sample))
+    # print(f_sample)
     V_stddev_noise = sqrt(V2_noise_Hz * f_sample / 2)
+    # print(V_stddev_noise * 3)
     return np.random.normal(0, V_stddev_noise, len(t_sample))
 
 def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of time-domain voltages Vts

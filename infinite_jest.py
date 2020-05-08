@@ -16,21 +16,22 @@ f = 100
 v4 = srf.Vt_noise(t, 273.15)
 # y3 = srf.power_combine([v4, v1], t)
 
-# plt.plot(t,y3.real)
+# plt.hist(v4, 24)
 
-# srf.plot_power_spectrum(plt.gca(), t, v1, time = True)
-# # srf.plot_power_spectrum(plt.gca(), t, y2, time = True)
-srf.plot_power_spectrum(plt.gca(), t, v4, time = True)
+# plt.plot(t,v4.real)
+# plt.show()
 
-Pf_noise = srf.Vt2Pf(v4, len(t))
-fs = srf.fft_fs(t)
-#
-mean_P_noise = np.mean(np.abs(Pf_noise))
-print(srf.W2dBm(mean_P_noise))
-plt.axhline(srf.W2dBm(mean_P_noise), c = 'black')
-# print(srf.W2dBm(mean_P_noise * len(t)/2))
+plt.subplot(2,1,1)
+plt.plot(t,v4)
+# srf.plot_power_spectrum(plt.gca(), t, v4, time = True)
+
+plt.subplot(2,1,2)
+Pf_noise = srf.Vt2Pf(v4, len(t)) * 10
+Vt_from_Pf_noise = srf.Pf2Vt(Pf_noise, len(t))
+plt.plot(t, Vt_from_Pf_noise)
 
 plt.show()
+
 
 
 # m = 10
