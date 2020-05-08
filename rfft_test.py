@@ -4,19 +4,30 @@ import numpy as np
 from math import inf, pi, log2
 
 
-t = np.linspace(0,0.001,1000000)
-f = 100000
+t = np.linspace(0,0.1,1000000)
+f = 10000
+
+fs = srf.fft_fs(t)
+ws = srf.f2w(fs)
 
 v1 = srf.dBm2Vp(-100) * np.sin(srf.f2w(f) * t)
 v2 = srf.Vt_noise(t)
-v3 = srf.power_combine([v1,v2], t)
+v3 = srf.power_combine([v1,v2], t, out_Pf = True)
+# print(srf.C(1e-9, ws))
+R1 = 1e3
+C1 = 10e-9
+v4 = v3 * srf.Vdiv(srf.R(R1, ws), srf.C(C1, ws))
 
-plt.subplot(4,1,1)
-srf.plot_power_spectrum(plt.gca(), t, v1, time = True)
-plt.subplot(4,1,2)
-srf.plot_power_spectrum(plt.gca(), t, v2, time = True)
-plt.subplot(4,1,3)
-srf.plot_power_spectrum(plt.gca(), t, v3, time = True)
-plt.subplot(4,1,4)
-plt.plot(t, v3)
+print(srf.w2f(1/(R1*C1)))
+
+# plt.subplot(4,1,1)
+# srf.plot_power_spectrum(plt.gca(), t, v1, time = True)
+# plt.subplot(4,1,2)
+# srf.plot_power_spectrum(plt.gca(), t, v2, time = True)
+plt.subplot(2,1,1)
+srf.plot_power_spectrum(plt.gca(), fs, v3, time = False)
+srf.plot_power_spectrum(plt.gca(), fs, v4, time = False)
+plt.subplot(2,1,2)
+plt.plot(t, srf.Pf2Vt(v3, len(t)))
+plt.plot(t, srf.Pf2Vt(v4, len(t)))
 plt.show()

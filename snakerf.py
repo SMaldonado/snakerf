@@ -30,10 +30,14 @@ def phase(x, unwrap = True, deg = False):
 
 # passive component frequency responses
 
-def C(C, w, ESR = 0):
-    if C == inf: return np.zeros(len(w)) + ESR
-    if C == 0: return np.ones(len(w)) + inf
+# @np.vectorize
+def C_proto(C, w, ESR = 0):
+    if C == inf: return ESR
+    if C == 0 or w == 0: return inf
     return (1/(1j*w*C)) + ESR
+
+C = np.vectorize(C_proto, otypes = [np.complex])
+
 
 def L(L, w, ESR = 0, Cpar = 0, Gpar = 0, Qref = inf, fQref = inf, srf = inf, Zsrf = inf):
 
@@ -188,10 +192,13 @@ def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of ti
 
 # Network voltages
 
-@np.vectorize
-def Vdiv(Z1, Z2):
-    if Z2 == 0: return 0
+# @np.vectorize
+def Vdiv_proto(Z1, Z2):
+    if Z1 == inf or Z2 == 0: return 0
+    if Z2 == inf: return 1
     return Z2/(Z1+Z2)
+
+Vdiv = np.vectorize(Vdiv_proto, otypes = [np.complex])
 
 def Znetwork(series, shunt):
     if np.shape(series) != np.shape(shunt): return "fail"
