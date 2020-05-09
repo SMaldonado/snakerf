@@ -1,7 +1,7 @@
 import math
 from math import pi, inf
 import numpy as np
-from numpy import log10, rad2deg, deg2rad, sqrt
+from numpy import log10, log2, rad2deg, deg2rad, sqrt
 import matplotlib.ticker as ticker
 
 c = 299792458.0 # speed of light in vacuum, m/s
@@ -164,6 +164,15 @@ def Vt2Pf(Vt, ns, Z0 = 50): # time-domain voltage to f-domain power
 def Pf2Vt(Pf, ns, Z0 = 50): # f-domain power to time-domain voltage
     return Vf2Vt(Pf2Vf(Pf, Z0), ns)
 
+def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of time-domain voltages Vts
+    ns = len(ts)
+    Pf = np.sum([Vt2Pf(Vt, ns) for Vt in Vts], axis = 0) # sum elementwise
+
+    if out_Pf: return Pf
+    return Pf2Vt(Pf, ns, Z0)
+
+# Useful time-domain voltages
+
 def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
     # see: https://www.ti.com/lit/an/slva043b/slva043b.pdf
     # see: https://en.wikipedia.org/wiki/Noise_temperature
@@ -183,13 +192,14 @@ def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50): # create sampled time-doma
     V_stddev_noise = sqrt(V2_noise_Hz * f_sample / 2)
     return np.random.normal(0, V_stddev_noise, len(t_sample))
 
-def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of time-domain voltages Vts
-    ns = len(ts)
-    Pf = np.sum([Vt2Pf(Vt, ns) for Vt in Vts], axis = 0) # sum elementwise
+def V_psk(t_sample, fc, f_mod, data, dBm, n = 2): # create n-PSK modulated signal, with carrier fc and symbol rate f_mod
+    # expected data format: [x1, x2, ... xm], 0 <= xi < n
+    d_phi = 2*pi/n # get phase step
+    T_bit = 1/f_mod # get bit time
 
-    if out_Pf: return Pf
-    return Pf2Vt(Pf, ns, Z0)
+    phi = d_phi * np.array([data[int(t/T_bit)] for t in t_sample])
 
+    return dBm2Vp(dBm) * np.sin((f2w(fc) * t_sample) + phi)
 # Network voltages
 
 # @np.vectorize

@@ -4,13 +4,16 @@ import numpy as np
 from math import inf, pi, log2
 
 
-t = np.linspace(0,0.01,1000000)
+t = np.linspace(0,0.039,100000)
 f = 1000
 
 fs = srf.fft_fs(t)
 ws = srf.f2w(fs)
 
-v1 = srf.dBm2Vp(-100) * np.sin(srf.f2w(f) * t)
+# print(srf.gold_codes(3))
+
+#
+v1 = srf.V_psk(t, f, f/10, [1,0,0,1], -100)
 v2 = srf.Vt_noise(t)
 v3 = srf.power_combine([v1,v2], t, out_Pf = True)
 # print(srf.C(1e-9, ws))
