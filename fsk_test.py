@@ -4,23 +4,21 @@ import numpy as np
 from math import inf, pi, log2
 
 
-t = np.linspace(0,0.019,100000)
+t = np.linspace(0,0.0399,100000)
 f = 1000
 
 fs = srf.fft_fs(t)
 ws = srf.f2w(fs)
 
-# print(srf.gold_codes(3))
-
-#
-
-f_bit = f/2
+f_bit = f/2.1
 T_bit = 1/f_bit
 h = 0.5
 f_dev = h/(2*T_bit)
 print(f_dev)
 
-v1 = srf.V_fsk(t, f, f_bit, f_dev, [1,-1,-1,1,-1,1,1,-1,1,-1], -100)
+data = [1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,1,1,-1,-1,-1,-1]
+
+v1 = srf.V_fsk(t, f, f_bit, f_dev, data, -100)
 v2 = srf.Vt_noise(t)
 v3 = srf.power_combine([v1,v2], t, out_Pf = True)
 # print(srf.C(1e-9, ws))
@@ -40,4 +38,6 @@ srf.plot_power_spectrum(plt.gca(), fs, v4, time = False)
 plt.subplot(2,1,2)
 plt.plot(t, srf.Pf2Vt(v3, len(t)))
 plt.plot(t, srf.Pf2Vt(v4, len(t)))
+for i in range(len(data)):
+    plt.axvline(T_bit * i, ls = '--', c = 'black')
 plt.show()

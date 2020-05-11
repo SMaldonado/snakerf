@@ -201,7 +201,7 @@ def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated 
 
     phi = d_phi * np.array([data[int(t/T_sym)] for t in t_sample])
 
-    return dBm2Vp(dBm) * np.cos((f2w(fc) * t_sample) + phi)
+    return dBm2Vp(dBm) * np.sin((f2w(fc) * t_sample) + phi)
 
 def V_fsk(t_sample, fc, f_sym, f_dev, data, dBm, n = 1): # create (2**n)-FSK modulated signal, with carrier fc, symbol rate f_sym, deviation f_dev
     # expected data format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
@@ -209,17 +209,28 @@ def V_fsk(t_sample, fc, f_sym, f_dev, data, dBm, n = 1): # create (2**n)-FSK mod
     m = 2**n # number of different states per symbol
     T_sym = 1/f_sym # get symbol time
 
-    df = f_dev * np.array([data[int(t/T_sym)] for t in t_sample])
+    f = fc + f_dev * np.array([data[int(t/T_sym)] for t in t_sample])
 
-    return dBm2Vp(dBm) * np.cos((f2w(fc + df) * t_sample))
+    return dBm2Vp(dBm) * np.sin((f2w(f) * t_sample))
 
-# def V_msk(t_sample, fc, f_sym, data, dBm): # create MSK modulated signal
-#     # see: https://www.dsprelated.com/showarticle/1016.php
-#     # see https://www.slideshare.net/mahinthjoe/lecture-5-1580898
-#
-#     T_sym = 1/f_sym # get bit time
+def V_msk(t_sample, fc, f_sym, data, dBm): # create MSK modulated signal, n = 1, m = 2
+    # expected data format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
+    # see: https://www.dsprelated.com/showarticle/1016.php
+    # see https://www.slideshare.net/mahinthjoe/lecture-5-1580898
 
+    T_sym = 1/f_sym # get bit time
+    h = 0.5
+    f_dev = h/(2*T_sym)
 
+    odd_bits = [data[2*i] for i in range(len(data)//2)]
+    even_bits = [-1] + [data[2*i + 1] for i in range(len(data)//2)]
+
+    inverted = np.array([odd_bits[int(t/(2*T_sym))] for t in t_sample])
+    delta = np.array([(abs(odd_bits[int(t/(2*T_sym))] + even_bits[int((t+T_sym)/(2*T_sym))]) - 1) for t in t_sample])
+
+    return dBm2Vp(dBm) * (inverted * delta * -1) * np.sin((f2w(fc + (delta * f_dev)) * t_sample))
+    # Extremely verbose debug return
+    # return (dBm2Vp(dBm) * (inverted * delta * -1) * np.sin((f2w(fc + (delta * f_dev)) * t_sample)), dBm2Vp(dBm) * inverted, dBm2Vp(dBm) * delta, np.array([dBm2Vp(dBm) * odd_bits[int(t/(2*T_sym))] for t in t_sample]), np.array([dBm2Vp(dBm) * even_bits[int((t+T_sym)/(2*T_sym))] for t in t_sample]), np.array([dBm2Vp(dBm) * data[int(t/T_sym)] for t in t_sample]))
 
 # Network voltages
 
