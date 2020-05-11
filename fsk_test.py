@@ -18,8 +18,9 @@ f_bit = f/2
 T_bit = 1/f_bit
 h = 0.5
 f_dev = h/(2*T_bit)
+print(f_dev)
 
-v1 = srf.V_fsk(t, f, f_bit, f_dev, [1,0,0,1,0,1,1,0,1,0], -100)
+v1 = srf.V_fsk(t, f, f_bit, f_dev, [1,-1,-1,1,-1,1,1,-1,1,-1], -100)
 v2 = srf.Vt_noise(t)
 v3 = srf.power_combine([v1,v2], t, out_Pf = True)
 # print(srf.C(1e-9, ws))

@@ -193,26 +193,33 @@ def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50): # create sampled time-doma
     return np.random.normal(0, V_stddev_noise, len(t_sample))
 
 def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated signal, with carrier fc and symbol rate f_sym
-    # expected data format: [x1, x2, ... xm], 0 <= xi < 2**n
+    # expected data format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
 
     m = 2**n
-    d_phi = 2*pi/m # get phase step
-    T_sym = 1/f_sym # get bit time
+    d_phi = pi/m # get phase step
+    T_sym = 1/f_sym # get symbol time
 
     phi = d_phi * np.array([data[int(t/T_sym)] for t in t_sample])
 
-    return dBm2Vp(dBm) * np.sin((f2w(fc) * t_sample) + phi)
+    return dBm2Vp(dBm) * np.cos((f2w(fc) * t_sample) + phi)
 
 def V_fsk(t_sample, fc, f_sym, f_dev, data, dBm, n = 1): # create (2**n)-FSK modulated signal, with carrier fc, symbol rate f_sym, deviation f_dev
-    # expected data format: [x1, x2, ... xm], 0 <= xi < 2**n
+    # expected data format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
 
-    m = 2**n
-    T_sym = 1/f_sym # get bit time
+    m = 2**n # number of different states per symbol
+    T_sym = 1/f_sym # get symbol time
 
-    df = np.array([2 * f_dev * data[int(t/T_sym)] for t in t_sample])
-    fc_0 = fc - (f_dev * m/2) # shifts fc to fc - f_dev, so that f_devs can be added onto it
+    df = f_dev * np.array([data[int(t/T_sym)] for t in t_sample])
 
-    return dBm2Vp(dBm) * np.cos((f2w(fc_0 + df) * t_sample))
+    return dBm2Vp(dBm) * np.cos((f2w(fc + df) * t_sample))
+
+# def V_msk(t_sample, fc, f_sym, data, dBm): # create MSK modulated signal
+#     # see: https://www.dsprelated.com/showarticle/1016.php
+#     # see https://www.slideshare.net/mahinthjoe/lecture-5-1580898
+#
+#     T_sym = 1/f_sym # get bit time
+
+
 
 # Network voltages
 

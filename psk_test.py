@@ -13,7 +13,7 @@ ws = srf.f2w(fs)
 # print(srf.gold_codes(3))
 
 #
-v1 = srf.V_psk(t, f, f/10, [1,0,0,1], -100)
+v1 = srf.V_psk(t, f, f/10, [1,-1,-1,1], -100)
 v2 = srf.Vt_noise(t)
 v3 = srf.power_combine([v1,v2], t, out_Pf = True)
 # print(srf.C(1e-9, ws))
