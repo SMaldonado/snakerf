@@ -192,8 +192,9 @@ def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50): # create sampled time-doma
     V_stddev_noise = sqrt(V2_noise_Hz * f_sample / 2)
     return np.random.normal(0, V_stddev_noise, len(t_sample))
 
+# TODO: update to accept data, convert to symbols
 def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated signal, with carrier fc and symbol rate f_sym
-    # expected data format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
+    # expected symbols format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
 
     m = 2**n
     d_phi = pi/m # get phase step
@@ -203,8 +204,9 @@ def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated 
 
     return dBm2Vp(dBm) * np.sin((f2w(fc) * t_sample) + phi)
 
+# TODO: update to accept data, convert to symbols
 def V_fsk(t_sample, fc, f_sym, f_dev, data, dBm, n = 1): # create (2**n)-FSK modulated signal, with carrier fc, symbol rate f_sym, deviation f_dev
-    # expected data format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
+    # expected symbols format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
 
     m = 2**n # number of different states per symbol
     T_sym = 1/f_sym # get symbol time
@@ -213,8 +215,9 @@ def V_fsk(t_sample, fc, f_sym, f_dev, data, dBm, n = 1): # create (2**n)-FSK mod
 
     return dBm2Vp(dBm) * np.sin((f2w(f) * t_sample))
 
+# TODO: update to accept data, convert to symbols
 def V_msk(t_sample, fc, f_sym, data, dBm): # create MSK modulated signal, n = 1, m = 2
-    # expected data format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
+    # expected symbols format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
     # see: https://www.dsprelated.com/showarticle/1016.php
     # see https://www.slideshare.net/mahinthjoe/lecture-5-1580898
 
@@ -231,6 +234,18 @@ def V_msk(t_sample, fc, f_sym, data, dBm): # create MSK modulated signal, n = 1,
     return dBm2Vp(dBm) * (inverted * delta * -1) * np.sin((f2w(fc + (delta * f_dev)) * t_sample))
     # Extremely verbose debug return
     # return (dBm2Vp(dBm) * (inverted * delta * -1) * np.sin((f2w(fc + (delta * f_dev)) * t_sample)), dBm2Vp(dBm) * inverted, dBm2Vp(dBm) * delta, np.array([dBm2Vp(dBm) * odd_bits[int(t/(2*T_sym))] for t in t_sample]), np.array([dBm2Vp(dBm) * even_bits[int((t+T_sym)/(2*T_sym))] for t in t_sample]), np.array([dBm2Vp(dBm) * data[int(t/T_sym)] for t in t_sample]))
+
+def data2sym(data, n = 1): # convert string of 1's and 0's to symbols format
+    # output symbols format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0, m = 2**n
+
+    bs = "".join(data.split()) # remove internal spaces
+    if len(bs) % n != 0: return 'fail'
+
+    m = 2**n # number of different states per symbol
+
+    return [int(bs[i:i+n],2) - int(m/2) + int(bs[i]) for i in range(0, len(bs), n)]
+
+
 
 # Network voltages
 
