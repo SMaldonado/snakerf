@@ -197,7 +197,7 @@ def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated 
     # expected symbols format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
 
     m = 2**n
-    d_phi = pi/m # get phase step
+    d_phi = pi/m # get phase step # TODO: fix for n > 1; currently wrong
     T_sym = 1/f_sym # get symbol time
 
     phi = d_phi * np.array([data[int(t/T_sym)] for t in t_sample])
@@ -208,7 +208,7 @@ def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated 
 def V_fsk(t_sample, fc, f_sym, f_dev, data, dBm, n = 1): # create (2**n)-FSK modulated signal, with carrier fc, symbol rate f_sym, deviation f_dev
     # expected symbols format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0
 
-    m = 2**n # number of different states per symbol
+    # m = 2**n # number of different states per symbol
     T_sym = 1/f_sym # get symbol time
 
     f = fc + f_dev * np.array([data[int(t/T_sym)] for t in t_sample])
@@ -241,11 +241,15 @@ def data2sym(data, n = 1): # convert string of 1's and 0's to symbols format
     bs = "".join(data.split()) # remove internal spaces
     if len(bs) % n != 0: return 'fail'
 
-    m = 2**n # number of different states per symbol
+    k = 2**(n-1) # number of different states per symbol
 
-    return [int(bs[i:i+n],2) - int(m/2) + int(bs[i]) for i in range(0, len(bs), n)]
+    return [int(bs[i:i+n],2) - int(k) + int(bs[i]) for i in range(0, len(bs), n)]
 
+def sym2data(sym, n = 1):
+    k = 2**(n-1) # number of different states per symbol
+    if max(np.abs(sym)) > k: return fail
 
+    return " ".join(["{:0{}b}".format(s+k-(1 if s>0 else 0), n) for s in sym])
 
 # Network voltages
 
