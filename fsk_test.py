@@ -3,27 +3,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import inf, pi, log2
 
+data = '011110010001'
+f = 2500000
 
-t = np.linspace(0,0.0399,100000)
-f = 1000
-
-fs = srf.fft_fs(t)
-ws = srf.f2w(fs)
-
-f_bit = f/2.1
+f_bit = 10000
 T_bit = 1/f_bit
 h = 0.5
 f_dev = h/(2*T_bit)
 print(f_dev)
 
-data = [1,-1,-1,1,-1,1,1,-1,1,-1,1,-1,1,-1,1,1,-1,-1,-1,-1]
+t = np.linspace(0,len(data)*T_bit - T_bit/100,100000)
+fs = srf.fft_fs(t)
+ws = srf.f2w(fs)
 
 v1 = srf.V_fsk(t, f, f_bit, f_dev, data, -100)
 v2 = srf.Vt_noise(t)
 v3 = srf.power_combine([v1,v2], t, out_Pf = True)
 # print(srf.C(1e-9, ws))
 R1 = 1e3
-C1 = 10e-9
+C1 = 25e-12
 v4 = v3 * srf.Vdiv(srf.R(R1, ws), srf.C(C1, ws))
 
 # print(srf.w2f(1/(R1*C1)))
