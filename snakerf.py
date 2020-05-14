@@ -225,7 +225,7 @@ def V_msk(t_sample, fc, f_sym, data, dBm): # create MSK modulated signal, n = 1,
     h = 0.5
     f_dev = h/(2*T_sym)
 
-    odd_bits = [syms[2*i] for i in range(len(syms)//2)]
+    odd_bits = [syms[2*i] for i in range(int(math.ceil(len(syms)/2)))]
     even_bits = [-1] + [syms[2*i + 1] for i in range(len(syms)//2)]
 
     inverted = np.array([odd_bits[int(t/(2*T_sym))] for t in t_sample])

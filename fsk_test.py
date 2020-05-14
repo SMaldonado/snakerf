@@ -4,6 +4,7 @@ import numpy as np
 from math import inf, pi, log2
 
 data = '011110010001'
+n = 1
 f = 2500000
 
 f_bit = 10000
@@ -12,11 +13,11 @@ h = 0.5
 f_dev = h/(2*T_bit)
 print(f_dev)
 
-t = np.linspace(0,len(data)*T_bit - T_bit/100,100000)
+t = np.linspace(0,len(data)*T_bit/n - T_bit/100,100000)
 fs = srf.fft_fs(t)
 ws = srf.f2w(fs)
 
-v1 = srf.V_fsk(t, f, f_bit, f_dev, data, -100)
+v1 = srf.V_fsk(t, f, f_bit, f_dev, data, -100, n)
 v2 = srf.Vt_noise(t)
 v3 = srf.power_combine([v1,v2], t, out_Pf = True)
 # print(srf.C(1e-9, ws))
