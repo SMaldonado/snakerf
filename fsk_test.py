@@ -23,7 +23,7 @@ v3 = srf.power_combine([v1,v2], t, out_Pf = True)
 # print(srf.C(1e-9, ws))
 R1 = 1e3
 C1 = 25e-12
-v4 = v3 * srf.Vdiv(srf.R(R1, ws), srf.C(C1, ws))
+v4 = v3 * srf.Pdiv(srf.R(R1, ws), srf.C(C1, ws))
 
 # print(srf.w2f(1/(R1*C1)))
 

@@ -257,9 +257,16 @@ def sym2data(sym, n = 1):
 def Vdiv_proto(Z1, Z2):
     if Z1 == inf or Z2 == 0: return 0
     if Z2 == inf: return 1
+
     return Z2/(Z1+Z2)
 
 Vdiv = np.vectorize(Vdiv_proto, otypes = [np.complex])
+
+def Pdiv_proto(Z1, Z2):
+    rtH = Vdiv_proto(Z1, Z2)
+    return rtH * mag(rtH)
+
+Pdiv = np.vectorize(Pdiv_proto, otypes = [np.complex])
 
 def Znetwork(series, shunt):
     if np.shape(series) != np.shape(shunt): return "fail"

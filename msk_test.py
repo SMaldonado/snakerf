@@ -23,7 +23,7 @@ v3 = srf.power_combine([v1,v2], t, out_Pf = True)
 
 R1 = 1e3
 C1 = 10e-9
-v4 = v3 * srf.Vdiv(srf.R(R1, ws), srf.C(C1, ws))
+v4 = v3 * srf.Pdiv(srf.R(R1, ws), srf.C(C1, ws))
 
 plt.subplot(2,1,1)
 srf.plot_power_spectrum(plt.gca(), t, v1, time = True)
