@@ -8,7 +8,7 @@ The intent of this package is to:
 - Make up for (LT)Spice's poor handling of scattering parameters and general clunkiness
 - Stop rewriting the same code repeatedly and then losing/forgetting about it/losing access to the iPython server it ran on
 
-## Things that currently "work"[^1]:
+## Things that currently "work":
 - Modeling the frequency response of networks of passive components (basically anything that can be represented as a ladder of impedances)
 - Creating time domain representations of FSK, PSK, and MSK modulated signals
 - Modeling additive white Gaussian noise
@@ -16,7 +16,6 @@ The intent of this package is to:
 - Converting between decibels and linear quantities
 - Generating [Gold codes](https://en.wikipedia.org/wiki/Gold_code) up to length 2^15 + 1 (after which my laptop started throwing memory errors; your mileage may vary)
 
-[^1]: For sufficiently generous definition of "work"
 ## Real goals
 - Demodulators for FSK, PSK, and MSK
 - Mixer/amplifier modeling with noise
