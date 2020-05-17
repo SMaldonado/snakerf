@@ -173,7 +173,7 @@ def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of ti
 
 # Voltage noise
 
-def NF2Tnoise(NF, dB = True, T0 = room_temp): # convert noise figure in dB (or linear noise factor for dB = False) to noise temperature (in K)
+def NF2T_noise(NF, dB = True, T0 = room_temp): # convert noise figure in dB (or linear noise factor for dB = False) to noise temperature (in K)
     # see http://literature.cdn.keysight.com/litweb/pdf/5952-8255E.pdf eqn 1-5
     if dB: F = undB(NF)
     else: F = NF
