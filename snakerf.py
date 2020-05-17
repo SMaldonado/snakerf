@@ -6,7 +6,7 @@ import matplotlib.ticker as ticker
 
 c = 299792458.0 # speed of light in vacuum, m/s
 kB = 1.380649E-23 # Boltzmann constant, J/K
-room_temp = 298.15 # nominal temperature, Kelvin
+room_temp = 290 # noise figure temperature, Kelvin
 
 @np.vectorize
 def par(Z1, Z2):
@@ -171,7 +171,14 @@ def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of ti
     if out_Pf: return Pf
     return Pf2Vt(Pf, ns, Z0)
 
-# Useful time-domain voltages
+# Voltage noise
+
+def NF2Tnoise(NF, dB = True, T0 = room_temp): # convert noise figure in dB (or linear noise factor for dB = False) to noise temperature (in K)
+    # see http://literature.cdn.keysight.com/litweb/pdf/5952-8255E.pdf eqn 1-5
+    if dB: F = undB(NF)
+    else: F = NF
+
+    return T0*(F-1)
 
 def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
     # see: https://www.ti.com/lit/an/slva043b/slva043b.pdf
@@ -192,6 +199,7 @@ def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50): # create sampled time-doma
     V_stddev_noise = sqrt(V2_noise_Hz * f_sample / 2)
     return np.random.normal(0, V_stddev_noise, len(t_sample))
 
+# Useful time-domain voltages
 
 def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated signal (circular constellation), with carrier fc and symbol rate f_sym
     # expected data format: "0100100101..." (spaces permitted for readability, will be ignored)
