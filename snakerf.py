@@ -3,6 +3,7 @@ from math import pi, inf
 import numpy as np
 from numpy import log10, log2, rad2deg, deg2rad, sqrt
 import matplotlib.ticker as ticker
+from copy import deepcopy
 
 c = 299792458.0 # speed of light in vacuum, m/s
 kB = 1.380649E-23 # Boltzmann constant, J/K
@@ -239,8 +240,14 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         self.Pf = Pf
         self.Vt = Pf2Vt(self.Pf, self.ns, self.Z0)
 
-    def add_noise(self, T_noise):
+    def add_noise(self, noise = room_temp, NF = False):
+        if NF: T_noise = NF2T_noise
+        else: T_noise = noise
+        
         self.update_Pf(self.Pf + Vt_noise(self.ts, T_noise = T_noise, Z0 = self.Z0, out_Pf = True))
+
+    def copy(self):
+        return deepcopy(self)
 
 def amplifier(x_in, y_in, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50, time = True): # return y_in with gain applied
     # TODO: this function is missing lots of detail and will need to be heavily rewritten to integrate with other code

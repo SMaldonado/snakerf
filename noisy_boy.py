@@ -16,7 +16,11 @@ ns = 100000
 
 V1 = srf.Signal(ns, t_max)
 V1.update_Vt(srf.V_psk(V1.ts, f, f_bit, data, -90, n = n))
+V1.add_noise()
+V2 = V1.copy()
+V2.add_noise(srf.NF2T_noise(3))
 
+plt.plot(V2.ts, V2.Vt)
 plt.plot(V1.ts, V1.Vt)
 for i in range(len(data)):
     plt.axvline(T_bit * i, ls = '--', c = 'black')
