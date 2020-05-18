@@ -171,6 +171,51 @@ def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of ti
     if out_Pf: return Pf
     return Pf2Vt(Pf, ns, Z0)
 
+# signal class
+# TODO: lots
+
+class Signal: # represents a nodal voltage in a given characteristic impedance
+    def __init__(self, sig, t_max, ns, Z0 = 50, sig_Vt = True):
+        self.ns = ns
+        self.t_max = t_max
+        self.Z0 = Z0
+
+        self.dt = t_max/ns
+        self.time = np.linspace(0, t_max, ns)
+        self.fs = fft_fs(self.time)
+
+        if sig_Vt: # sig = Vt
+            self.Vt = sig
+            self.Pf = Vt2Pf(self.Vt, self.ns, self.Z0)
+        else: # sig = Pf
+            self.Pf = sig
+            self.Vt = Pf2Vt(self.Pf, self.ns, self.Z0)
+
+def amplifier(x_in, y_in, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50, time = True): # return y_in with gain applied
+    # TODO: this function is missing lots of detail and will need to be heavily rewritten to integrate with other code
+
+    print(len(f_gain))
+
+    # TODO: input mismatch, confirm Vf2Pf works for f-dependent Z0
+    if time:
+        t = x_in
+        f = fft_fs(x_in)
+        Pf_in = Vt2Pf(y_in, len(x_in))
+    else:
+        t = x_in
+        f = x_in
+        Pf_in = y_in
+
+    # TODO: f-dependent gain
+    Pf_out = Pf_in * dB_gain
+    Pf_out = Pf_out + Vt_noise()
+
+    # TODO: output mismatch, confirm Pf2Vf works for f-dependent Z0
+    if time:
+        return Pf2Vt(Pf_out, len(x_in))
+    else:
+        return Pf_out
+
 # Voltage noise
 
 def NF2T_noise(NF, dB = True, T0 = room_temp): # convert noise figure in dB (or linear noise factor for dB = False) to noise temperature (in K)
@@ -202,30 +247,6 @@ def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50, out_Pf = False): # create s
     if out_Pf: return Vt2Pf(noise, len(t_sample), Z0 = Z0)
     else: return noise
 
-def amplifier(x_in, y_in, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50, time = True): # return y_in with gain applied
-    # TODO: this function is missing lots of detail and will need to be heavily rewritten to integrate with other code
-
-    print(len(f_gain))
-
-    # TODO: input mismatch, confirm Vf2Pf works for f-dependent Z0
-    if time:
-        t = x_in
-        f = fft_fs(x_in)
-        Pf_in = Vt2Pf(y_in, len(x_in), Z0 = Zin)
-    else:
-        t =
-        f = x_in
-        Pf_in = y_in
-
-    # TODO: f-dependent gain
-    Pf_out = Pf_in * dB_gain
-    Pf_out = Pf_out + Vt_noise()
-
-    # TODO: output mismatch, confirm Pf2Vf works for f-dependent Z0
-    if time:
-        return Pf2Vt(Pf_out, len(x_in), Z0 = Zout)
-    else:
-        return Pf_out
 
 # Useful time-domain voltages
 
