@@ -220,7 +220,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
 
         if sig == 0: # initialize to zero signal
             self.Vt = np.zeros(len(self.ts))
-            self.fs = np.zeros(len(self.fs))
+            self.Pf = np.zeros(len(self.fs))
         else:
             if sig_Vt: # initialize to provided Vt
                 self.update_Vt(sig)
