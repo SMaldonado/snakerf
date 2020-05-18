@@ -208,9 +208,6 @@ def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50, out_Pf = False): # create s
 # signal class
 # TODO: lots
 
-def make_time(ns, t_max):
-    return np.linspace(0, t_max, ns)
-
 class Signal: # represents a nodal voltage in a given characteristic impedance
     def __init__(self, ns, t_max, sig = 0, sig_Vt = True, Z0 = 50):
         self.ns = ns
@@ -243,7 +240,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
     def add_noise(self, noise = room_temp, NF = False):
         if NF: T_noise = NF2T_noise
         else: T_noise = noise
-        
+
         self.update_Pf(self.Pf + Vt_noise(self.ts, T_noise = T_noise, Z0 = self.Z0, out_Pf = True))
 
     def copy(self):
@@ -276,6 +273,9 @@ def amplifier(x_in, y_in, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50, time = T
 
 
 # Useful time-domain voltages
+
+def make_time(ns, t_max):
+    return np.linspace(0, t_max, ns)
 
 def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated signal (circular constellation), with carrier fc and symbol rate f_sym
     # expected data format: "0100100101..." (spaces permitted for readability, will be ignored)
