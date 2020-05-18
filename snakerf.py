@@ -180,7 +180,7 @@ def NF2T_noise(NF, dB = True, T0 = room_temp): # convert noise figure in dB (or 
 
     return T0*(F-1)
 
-def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
+def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50, out_Pf = False): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
     # see: https://www.ti.com/lit/an/slva043b/slva043b.pdf
     # see: https://en.wikipedia.org/wiki/Noise_temperature
     # see: https://www.ietlabs.com/pdf/GR_Appnote/IN-103%20Useful%20Formulas,%20Tables%20&%20Curves%20for.pdf
@@ -197,7 +197,35 @@ def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50): # create sampled time-doma
     # fill full sampling bandwidth of t_sample with white noise - note that this may not always be desired
     f_sample = len(t_sample)/(max(t_sample) - min(t_sample))
     V_stddev_noise = sqrt(V2_noise_Hz * f_sample / 2)
-    return np.random.normal(0, V_stddev_noise, len(t_sample))
+    noise = np.random.normal(0, V_stddev_noise, len(t_sample))
+
+    if out_Pf: return Vt2Pf(noise, len(t_sample), Z0 = Z0)
+    else: return noise
+
+def amplifier(x_in, y_in, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50, time = True): # return y_in with gain applied
+    # TODO: this function is missing lots of detail and will need to be heavily rewritten to integrate with other code
+
+    print(len(f_gain))
+
+    # TODO: input mismatch, confirm Vf2Pf works for f-dependent Z0
+    if time:
+        t = x_in
+        f = fft_fs(x_in)
+        Pf_in = Vt2Pf(y_in, len(x_in), Z0 = Zin)
+    else:
+        t =
+        f = x_in
+        Pf_in = y_in
+
+    # TODO: f-dependent gain
+    Pf_out = Pf_in * dB_gain
+    Pf_out = Pf_out + Vt_noise()
+
+    # TODO: output mismatch, confirm Pf2Vf works for f-dependent Z0
+    if time:
+        return Pf2Vt(Pf_out, len(x_in), Z0 = Zout)
+    else:
+        return Pf_out
 
 # Useful time-domain voltages
 
