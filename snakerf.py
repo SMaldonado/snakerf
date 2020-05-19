@@ -239,10 +239,12 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         self.Vt = Pf2Vt(self.Pf, self.ns, self.Z0)
 
     def add_noise(self, noise = room_temp, NF = False):
-        if NF: T_noise = NF2T_noise
+        if NF: T_noise = NF2T_noise(noise)
         else: T_noise = noise
 
-        self.update_Pf(self.Pf + Vt_noise(self.ts, T_noise = T_noise, Z0 = self.Z0, out_Pf = True))
+        # EXPERIMENTAL: Add noise by directly summing voltages, not power combining
+        # see https://www.mathworks.com/help/signal/ug/power-spectral-density-estimates-using-fft.html
+        self.update_Vt(self.Vt + Vt_noise(self.ts, T_noise = T_noise, Z0 = self.Z0))
 
     def copy(self):
         return deepcopy(self)
@@ -402,15 +404,15 @@ def HzFormatter(x, pos):
         f = x
     return "{:.1f} {}".format(f, hz)
 
-def plot_power_spectrum(ax, x, y, time = False, Z0 = 50):
+def plot_power_spectrum(ax, x, y, time = False, Z0 = 50, **kwargs):
     if not time:
         fs = x
         Pf = y
-        ax.plot(fs, W2dBm(mag(Pf)))
+        ax.plot(fs, W2dBm(mag(Pf)), **kwargs)
     if time:
         fs = fft_fs(x) # x = ts
         Pf = Vt2Pf(y, len(x), Z0)
-        ax.plot(fs, W2dBm(mag(Pf)))
+        ax.plot(fs, W2dBm(mag(Pf)), **kwargs)
 
     ax.xaxis.set_major_formatter(HzFormatter)
 
