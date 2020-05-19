@@ -154,6 +154,7 @@ def Pf2Vf(Pf, Z0 = 50): # f-domain power to f-domain voltage
 
 def Vt2Vf(Vt, ns): # time-domain voltage to f-domain voltage
     # see https://www.sjsu.edu/people/burford.furman/docs/me120/FFT_tutorial_NI.pdf
+    # see also: http://www.cmp.caltech.edu/~mcc/Chaos_Course/Lesson6/Power.pdf#page=7&zoom=100,0,0
     return np.fft.rfft(Vt)* 2/ns # numpy fft scaling; see https://numpy.org/doc/stable/reference/routines.fft.html#normalization
 
 def Vf2Vt(Vf, ns): # f-domain voltage to time-domain voltage
