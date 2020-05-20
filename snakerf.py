@@ -182,7 +182,7 @@ def NF2T_noise(NF, dB = True, T0 = room_temp): # convert noise figure in dB (or 
 
     return T0*(F-1)
 
-def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50, out_Pf = False): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
+def Vt_thermal_noise(ts, fs, T_noise = room_temp, Z0 = 50, out_Pf = False): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
     # see: https://www.ti.com/lit/an/slva043b/slva043b.pdf
     # see: https://en.wikipedia.org/wiki/Noise_temperature
     # see: https://www.ietlabs.com/pdf/GR_Appnote/IN-103%20Useful%20Formulas,%20Tables%20&%20Curves%20for.pdf
@@ -197,19 +197,12 @@ def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50, out_Pf = False): # create s
     V2_noise_Hz = 4 * kB*T_noise*mag(Z0)
 
     # fill full sampling bandwidth of t_sample with white noise - note that this may not always be desired
-    f_sample = len(t_sample)/(max(t_sample) - min(t_sample))
+    f_sample = max(fs)
     V_stddev_noise = sqrt(V2_noise_Hz * f_sample / 2)
-    noise = np.random.normal(0, V_stddev_noise, len(t_sample))
+    noise = np.random.normal(0, V_stddev_noise, len(ts))
 
-    if out_Pf: return Vt2Pf(noise, len(t_sample), Z0 = Z0)
+    if out_Pf: return Vt2Pf(noise, len(ts), Z0 = Z0)
     else: return noise
-
-def Vt_thermal_noise(ts, fs, T_noise = room_temp, Z0 = 50):
-    # see: https://www.youtube.com/watch?v=hOYxzFa5P80
-
-    PSD = T_noise*kB
-
-    pass
 
 def Vt_background_noise(ts, fs, PSD, Z0 = 50):
     # Atmospheric background noise:
@@ -262,7 +255,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
 
         # EXPERIMENTAL: Add noise by directly summing voltages, not power combining
         # see https://www.mathworks.com/help/signal/ug/power-spectral-density-estimates-using-fft.html
-        self.update_Vt(self.Vt + Vt_noise(self.ts, T_noise = T_noise, Z0 = self.Z0))
+        self.update_Vt(self.Vt + Vt__thermal_noise(self.ts, T_noise = T_noise, Z0 = self.Z0))
 
     def copy(self):
         return deepcopy(self)

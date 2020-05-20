@@ -15,22 +15,25 @@ t_max = len(data)*T_bit/n - T_bit/100
 ns = 100000
 
 V1 = srf.Signal(ns, t_max)
-V1.update_Vt(srf.V_psk(V1.ts, f, f_bit, data, -90, n = n))
-V2 = V1.copy()
 
-V1.add_noise(srf.NF2T_noise(6))
-V2.add_noise(srf.NF2T_noise(3))
-V2.add_noise(srf.NF2T_noise(3))
-V2.add_noise(srf.NF2T_noise(3))
+srf.Vt_thermal_noise(V1.ts, V1.fs)
+
+# V1.update_Vt(srf.V_psk(V1.ts, f, f_bit, data, -90, n = n))
+# V2 = V1.copy()
+#
+# V1.add_noise(srf.NF2T_noise(6))
 # V2.add_noise(srf.NF2T_noise(3))
-
-srf.plot_power_spectrum(plt.gca(), V1.fs, V1.Pf, c = 'blue')
-srf.plot_power_spectrum(plt.gca(), V2.fs, V2.Pf, c = 'orange')
-
-plt.axhline(srf.W2dBm(np.mean(srf.mag(V1.Pf))), ls = '--', c = 'blue')
-plt.axhline(srf.W2dBm(np.mean(srf.mag(V2.Pf))), ls = '--', c = 'orange')
-
-plt.show()
+# V2.add_noise(srf.NF2T_noise(3))
+# V2.add_noise(srf.NF2T_noise(3))
+# # V2.add_noise(srf.NF2T_noise(3))
+#
+# srf.plot_power_spectrum(plt.gca(), V1.fs, V1.Pf, c = 'blue')
+# srf.plot_power_spectrum(plt.gca(), V2.fs, V2.Pf, c = 'orange')
+#
+# plt.axhline(srf.W2dBm(np.mean(srf.mag(V1.Pf))), ls = '--', c = 'blue')
+# plt.axhline(srf.W2dBm(np.mean(srf.mag(V2.Pf))), ls = '--', c = 'orange')
+#
+# plt.show()
 
 # for i in range(len(data)):
 #     plt.axvline(T_bit * i, ls = '--', c = 'black')
