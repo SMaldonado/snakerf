@@ -204,7 +204,18 @@ def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50, out_Pf = False): # create s
     if out_Pf: return Vt2Pf(noise, len(t_sample), Z0 = Z0)
     else: return noise
 
+def Vt_background_noise(ts, fs, PSD, Z0 = 50):
+    # Atmospheric background noise:
+    # http://www.dtic.mil/dtic/tr/fulltext/u2/a359931.pdf
+    # https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.372-7-200102-S!!PDF-E.pdf
 
+    # Non-white noise generally:
+    # https://www.tandfonline.com/doi/pdf/10.1080/13873954.2017.1298622
+    # https://groups.google.com/forum/#!topic/comp.dsp/bEwaXTMTmjM
+    # https://www.researchgate.net/post/How_do_I_generate_time_series_data_from_given_PSD_of_random_vibration_input
+    # https://dsp.stackexchange.com/questions/22587/generate-time-domain-random-signal-from-psd
+
+    pass
 
 # signal class
 # TODO: lots
