@@ -204,6 +204,13 @@ def Vt_noise(t_sample, T_noise = room_temp, Z0 = 50, out_Pf = False): # create s
     if out_Pf: return Vt2Pf(noise, len(t_sample), Z0 = Z0)
     else: return noise
 
+def Vt_thermal_noise(ts, fs, T_noise = room_temp, Z0 = 50):
+    # see: https://www.youtube.com/watch?v=hOYxzFa5P80
+
+    PSD = T_noise*kB
+
+    pass
+
 def Vt_background_noise(ts, fs, PSD, Z0 = 50):
     # Atmospheric background noise:
     # http://www.dtic.mil/dtic/tr/fulltext/u2/a359931.pdf
