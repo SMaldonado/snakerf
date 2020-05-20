@@ -7,7 +7,7 @@ from copy import deepcopy
 
 c = 299792458.0 # speed of light in vacuum, m/s
 kB = 1.380649E-23 # Boltzmann constant, J/K
-room_temp = 290 # noise figure temperature, Kelvin
+t0 = 290 # noise figure temperature, Kelvin
 
 @np.vectorize
 def par(Z1, Z2):
@@ -175,14 +175,14 @@ def power_combine(Vts, ts, Z0 = 50, out_Pf = False): # power combine array of ti
 
 # Voltage noise
 
-def NF2T_noise(NF, dB = True, T0 = room_temp): # convert noise figure in dB (or linear noise factor for dB = False) to noise temperature (in K)
+def NF2T_noise(NF, dB = True): # convert noise figure in dB (or linear noise factor for dB = False) to noise temperature (in K)
     # see http://literature.cdn.keysight.com/litweb/pdf/5952-8255E.pdf eqn 1-5
     if dB: F = undB(NF)
     else: F = NF
 
-    return T0*(F-1)
+    return t0*(F-1)
 
-def Vt_thermal_noise(ts, fs, T_noise = room_temp, Z0 = 50, out_Pf = False): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
+def Vt_thermal_noise(ts, fs, T_noise = t0, Z0 = 50, out_Pf = False): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
     # see: https://www.ti.com/lit/an/slva043b/slva043b.pdf
     # see: https://en.wikipedia.org/wiki/Noise_temperature
     # see: https://www.ietlabs.com/pdf/GR_Appnote/IN-103%20Useful%20Formulas,%20Tables%20&%20Curves%20for.pdf
@@ -197,14 +197,14 @@ def Vt_thermal_noise(ts, fs, T_noise = room_temp, Z0 = 50, out_Pf = False): # cr
     V2_noise_Hz = 4 * kB*T_noise*mag(Z0)
 
     # fill full sampling bandwidth of t_sample with white noise - note that this may not always be desired
-    f_sample = max(fs)
-    V_stddev_noise = sqrt(V2_noise_Hz * f_sample / 2)
+    f_nyq = max(fs)
+    V_stddev_noise = sqrt(V2_noise_Hz * f_nyq)
     noise = np.random.normal(0, V_stddev_noise, len(ts))
 
     if out_Pf: return Vt2Pf(noise, len(ts), Z0 = Z0)
     else: return noise
 
-def Vt_background_noise(ts, fs, PSD, Z0 = 50):
+def Vt_background_noise(ts, fs, Z0 = 50):
     # Atmospheric background noise:
     # http://www.dtic.mil/dtic/tr/fulltext/u2/a359931.pdf
     # https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.372-7-200102-S!!PDF-E.pdf
@@ -215,7 +215,25 @@ def Vt_background_noise(ts, fs, PSD, Z0 = 50):
     # https://www.researchgate.net/post/How_do_I_generate_time_series_data_from_given_PSD_of_random_vibration_input
     # https://dsp.stackexchange.com/questions/22587/generate-time-domain-random-signal-from-psd
 
-    pass
+    # low-resolution model of background noise temperature
+    f_ref =  [0, 4, 5, 8.3, 12] # log frequency
+    Fa_ref = [270, 150, 80, 0, 0] # Fa = 10*log10(T_noise/t0)
+
+    T_noise = undB(np.interp(log10(np.maximum(fs,np.ones(len(fs)))), f_ref, Fa_ref)) * t0 # weird thing with ones to avoid log(0)
+    V2_noise_Hz = 4*kB*T_noise*mag(Z0)
+    V2_var_noise = np.trapz(V2_noise_Hz, fs) # integrate total noise power
+    V_stddev_noise = sqrt(V2_var_noise)
+    V_noise_white = np.random.normal(0, 1, len(ts))
+
+    Pf_noise_white = Vt2Pf(V_noise_white, len(ts), Z0 = Z0)
+    H_norm = V2_noise_Hz 
+    Pf_noise = Pf_noise_white * H_norm
+
+    print(V2_var_noise)
+    print(np.mean(H_norm))
+    print(np.var(Pf2Vt(Pf_noise, len(ts), Z0)))
+
+    return Pf_noise
 
 # signal class
 # TODO: lots
@@ -249,7 +267,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         self.Pf = Pf
         self.Vt = Pf2Vt(self.Pf, self.ns, self.Z0)
 
-    def add_noise(self, noise = room_temp, NF = False):
+    def add_noise(self, noise = t0, NF = False):
         if NF: T_noise = NF2T_noise(noise)
         else: T_noise = noise
 

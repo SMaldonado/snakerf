@@ -16,7 +16,16 @@ ns = 100000
 
 V1 = srf.Signal(ns, t_max)
 
-srf.Vt_thermal_noise(V1.ts, V1.fs)
+srf.plot_power_spectrum(plt.gca(), V1.fs, srf.Vt_background_noise(V1.ts, V1.fs))
+# srf.plot_power_spectrum(plt.gca(), V1.ts, np.random.normal(0, 1, len(V1.ts)), time = True)
+
+f_ref =  [0, 4, 5, 8.3, 12] # log frequency
+Fa_ref = [270, 150, 80, 0, 0] # Fa = 10*log10(T_noise/t0)
+
+T_noise = srf.undB(np.interp(np.log10(np.maximum(V1.fs,np.ones(len(V1.fs)))), f_ref, Fa_ref)) * srf.t0 # weird thing with ones to avoid log(0)
+plt.plot(V1.fs, srf.W2dBm(srf.kB*T_noise))
+
+plt.show()
 
 # V1.update_Vt(srf.V_psk(V1.ts, f, f_bit, data, -90, n = n))
 # V2 = V1.copy()
