@@ -226,12 +226,12 @@ def Vt_background_noise(ts, fs, Z0 = 50):
     V_noise_white = np.random.normal(0, 1, len(ts))
 
     Pf_noise_white = Vt2Pf(V_noise_white, len(ts), Z0 = Z0)
-    H_norm = V2_noise_Hz 
+    H_norm = V2_noise_Hz * (fs[1]-fs[0])
     Pf_noise = Pf_noise_white * H_norm
 
-    print(V2_var_noise)
-    print(np.mean(H_norm))
-    print(np.var(Pf2Vt(Pf_noise, len(ts), Z0)))
+    # print(V2_var_noise)
+    # print(np.mean(H_norm))
+    # print(np.var(Pf2Vt(Pf_noise, len(ts), Z0)))
 
     return Pf_noise
 

@@ -15,8 +15,10 @@ t_max = len(data)*T_bit/n - T_bit/100
 ns = 100000
 
 V1 = srf.Signal(ns, t_max)
+V1.update_Pf(srf.Vt_background_noise(V1.ts, V1.fs))
 
-srf.plot_power_spectrum(plt.gca(), V1.fs, srf.Vt_background_noise(V1.ts, V1.fs))
+plt.subplot(2,1,1)
+srf.plot_power_spectrum(plt.gca(), V1.fs, V1.Pf)
 # srf.plot_power_spectrum(plt.gca(), V1.ts, np.random.normal(0, 1, len(V1.ts)), time = True)
 
 f_ref =  [0, 4, 5, 8.3, 12] # log frequency
@@ -24,6 +26,9 @@ Fa_ref = [270, 150, 80, 0, 0] # Fa = 10*log10(T_noise/t0)
 
 T_noise = srf.undB(np.interp(np.log10(np.maximum(V1.fs,np.ones(len(V1.fs)))), f_ref, Fa_ref)) * srf.t0 # weird thing with ones to avoid log(0)
 plt.plot(V1.fs, srf.W2dBm(srf.kB*T_noise))
+
+plt.subplot(2,1,2)
+plt.plot(V1.ts, V1.Vt)
 
 plt.show()
 
