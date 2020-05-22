@@ -451,6 +451,7 @@ def gold_codes(m):
     # Generates 2^m + 1 Gold codes, each of length 2^m - 1
     # Valid for m % 4 != 0, practical for m < 16
     # see https://web.archive.org/web/2 0070112230234/http://paginas.fe.up.pt/~hmiranda/cm/Pseudo_Noise_Sequences.pdf page 14
+    # See also https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.max_len_seq.html#scipy.signal.max_len_seq
 
     if m % 4 == 0 or m >= 16: return 'fail - invalid m'
 
