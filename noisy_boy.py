@@ -24,16 +24,24 @@ amp = 2*np.sqrt(2)
 freq = 1234.0
 noise_power = 0.001 * fs / 2
 time = np.arange(N) / fs
-x = amp*np.sin(2*np.pi*freq*time)
-x += np.random.normal(scale=np.sqrt(noise_power), size=time.shape)
+# x = amp*np.sin(2*np.pi*freq*time)
+x = np.random.normal(scale=np.sqrt(noise_power), size=time.shape)
 
-f, Pxx_spec = signal.periodogram(x, fs, 'boxcar', scaling='spectrum')
+f, Pxx_spec = signal.periodogram(x, fs, scaling='spectrum')
 plt.plot(f, srf.W2dBm(Pxx_spec/50))
+df = (f[1] - f[0])
+mean_noise = np.mean(srf.mag(Pxx_spec/df))
+print(mean_noise)
+plt.axhline(srf.W2dBm(mean_noise * df/50), c = 'purple', ls = '-')
+
 
 V1 = srf.Signal(ns, t_max)
-V1.update_Vt(amp*np.sin(2*np.pi*freq*time))
-V1.add_noise(noise = 0.001 /(4*srf.kB*50))
+# V1.update_Vt(amp*np.sin(2*np.pi*freq*time))
+V1.add_noise(noise = 0.001 /(4 * srf.kB * V1.Z0))
 srf.plot_power_spectrum(plt.gca(), V1.fs, V1.Pf)
+mean_noise = np.mean(srf.mag(V1.Pf * V1.Z0 / V1.df))
+print(mean_noise)
+plt.axhline(srf.W2dBm(mean_noise * V1.df/V1.Z0), c = 'k', ls = '--')
 
 
 # srf.plot_power_spectrum(plt.gca(), V1.ts, np.random.normal(0, 1, len(V1.ts)), time = True)

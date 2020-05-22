@@ -155,6 +155,7 @@ def Pf2Vf(Pf, Z0 = 50): # f-domain power to f-domain voltage
 def Vt2Vf(Vt, ns): # time-domain voltage to f-domain voltage
     # see https://www.sjsu.edu/people/burford.furman/docs/me120/FFT_tutorial_NI.pdf
     # see also: http://www.cmp.caltech.edu/~mcc/Chaos_Course/Lesson6/Power.pdf#page=7&zoom=100,0,0
+    # see also: https://community.sw.siemens.com/s/article/what-is-a-power-spectral-density-psd
     return np.fft.rfft(Vt)* 2/ns # numpy fft scaling; see https://numpy.org/doc/stable/reference/routines.fft.html#normalization
 
 def Vf2Vt(Vf, ns): # f-domain voltage to time-domain voltage
@@ -247,6 +248,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         self.dt = t_max/ns
         self.ts = make_time(ns, t_max)
         self.fs = fft_fs(self.ts)
+        self.df = self.fs[1] - self.fs[0]
 
         if sig == 0: # initialize to zero signal
             self.Vt = np.zeros(len(self.ts))
