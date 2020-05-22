@@ -222,8 +222,8 @@ def Vt_background_noise(ts, fs, Z0 = 50):
 
     T_noise = undB(np.interp(log10(np.maximum(fs,np.ones(len(fs)))), f_ref, Fa_ref)) * t0 # weird thing with ones to avoid log(0)
     V2_noise_Hz = 4*kB*T_noise*mag(Z0)
-    V2_var_noise = np.trapz(V2_noise_Hz, fs) # integrate total noise power
-    V_stddev_noise = sqrt(V2_var_noise)
+    # V2_var_noise = np.trapz(V2_noise_Hz, fs) # integrate total noise power
+    # V_stddev_noise = sqrt(V2_var_noise)
     V_noise_white = np.random.normal(0, 1, len(ts))
 
     df = fs[1]-fs[0]
@@ -233,9 +233,11 @@ def Vt_background_noise(ts, fs, Z0 = 50):
     H_norm = V2_noise_Hz / V2_Hz_mean_noise_white
     Pf_noise = Pf_noise_white * H_norm
 
+    # Total integrated power agrees decently well between PSD and output power spectrum
+    # V2_var_noise = np.trapz(V2_noise_Hz, fs) # integrate total noise power
+    # V2_var_noise_out = np.trapz(mag(Pf_noise * Z0 / df), fs) # integrate total noise power
     # print(V2_var_noise)
-    # print(np.mean(H_norm))
-    # print(np.var(Pf2Vt(Pf_noise, len(ts), Z0)))
+    # print(V2_var_noise_out)
 
     return Pf_noise
 
