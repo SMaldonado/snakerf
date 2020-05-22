@@ -40,4 +40,9 @@ srf.plot_power_spectrum(plt.gca(), V1.fs, V1.Pf)
 T_noise = srf.undB(np.interp(np.log10(np.maximum(V1.fs,np.ones(len(V1.fs)))), f_ref, Fa_ref)) * srf.t0 # weird thing with ones to avoid log(0)
 plt.plot(V1.fs, srf.W2dBm(srf.kB*T_noise*V1.df))
 
+N = 100
+moving_avg = np.convolve(srf.mag(V1.Pf * V1.Z0 / V1.df), np.ones((N,))/N, mode='valid') * V1.df/V1.Z0
+plt.plot(V1.fs[:-N+1], srf.W2dBm(moving_avg))
+
+
 plt.show()
