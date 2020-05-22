@@ -27,11 +27,11 @@ time = np.arange(N) / fs
 x = amp*np.sin(2*np.pi*freq*time)
 x += np.random.normal(scale=np.sqrt(noise_power), size=time.shape)
 
-f, Pxx_spec = signal.periodogram(x, fs, 'flattop', scaling='spectrum')
+f, Pxx_spec = signal.periodogram(x, fs, 'boxcar', scaling='spectrum')
 plt.plot(f, srf.W2dBm(Pxx_spec/50))
 
 V1 = srf.Signal(ns, t_max)
-V1.update_Vt(x)
+V1.update_Vt(amp*np.sin(2*np.pi*freq*time))
 V1.add_noise(noise = 0.001 /(4*srf.kB*50))
 srf.plot_power_spectrum(plt.gca(), V1.fs, V1.Pf)
 
