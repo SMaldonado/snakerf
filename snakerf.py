@@ -273,7 +273,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
 
         # EXPERIMENTAL: Add noise by directly summing voltages, not power combining
         # see https://www.mathworks.com/help/signal/ug/power-spectral-density-estimates-using-fft.html
-        self.update_Vt(self.Vt + Vt_thermal_noise(self.ts, T_noise = T_noise, Z0 = self.Z0))
+        self.update_Vt(self.Vt + Vt_thermal_noise(self.ts, self.fs, T_noise = T_noise, Z0 = self.Z0))
 
     def copy(self):
         return deepcopy(self)
