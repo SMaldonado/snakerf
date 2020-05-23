@@ -6,18 +6,18 @@ from math import inf, pi, log2
 from scipy import signal
 # see https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.periodogram.html#scipy.signal.periodogram
 
-m = 3
+m = 5
 data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1)
 print(data)
 n = 1
-f = 25e6
+f = 5e6
 
 f_bit = 9001
 T_bit = 1/f_bit
-# t_max = len(data)*T_bit/n - T_bit/100
-fs = 1000e6
+t_max = len(data)*T_bit/n - T_bit/100
+# fs = 1000e6
 ns = 100000
-t_max = ns/fs
+# t_max = ns/fs
 
 
 V1 = srf.Signal(ns, t_max)
@@ -54,7 +54,8 @@ plt.plot(V1.ts, V1.Vt)
 
 
 V2 = srf.Signal(ns, t_max)
-V2.update_Vt(srf.dBm2Vp(-80) * np.sin(2*pi*f*V2.ts) + srf.Vt_background_noise(V2.ts, V2.fs))
+# V2.update_Vt(srf.dBm2Vp(-100) * np.sin(2*pi*f*V2.ts) + srf.Vt_background_noise(V2.ts, V2.fs))
+V2.update_Vt(srf.V_psk(V2.ts, f, f_bit, data, -70) + srf.Vt_background_noise(V2.ts, V2.fs))
 
 plt.subplot(2,2,2)
 srf.plot_power_spectrum(plt.gca(), V2.fs, V2.Pf)
