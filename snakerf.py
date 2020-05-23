@@ -212,7 +212,7 @@ def Vt_thermal_noise(ts, fs, T_noise = t0, Z0 = 50, out_Pf = False): # create sa
     if out_Pf: return Vt2Pf(noise, len(ts), Z0 = Z0)
     else: return noise
 
-def Vt_background_noise(ts, fs, Z0 = 50):
+def Vt_background_noise(ts, fs, Z0 = 50, out_Pf = False):
     # Atmospheric background noise:
     # http://www.dtic.mil/dtic/tr/fulltext/u2/a359931.pdf
     # https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.372-7-200102-S!!PDF-E.pdf
@@ -245,7 +245,8 @@ def Vt_background_noise(ts, fs, Z0 = 50):
     # print(V2_var_noise)
     # print(V2_var_noise_out)
 
-    return Pf_noise
+    if out_Pf: return Pf_noise
+    else: return Pf2Vt(Pf_noise, len(ts), Z0)
 
 # signal class
 # TODO: lots
@@ -314,8 +315,11 @@ class Amplifier: # Represents a noisy 2-port object with gain
         if self.f_gain == 0:
             return self.dB_gain * np.ones(len(fs))
 
-        H = interpolate.interp1d(self.f_gain, self.dB_gain, fill_value="extrapolate")
-        return H(fs)
+        H = interpolate.interp1d(log10(np.array(self.f_gain)), self.dB_gain, fill_value="extrapolate")
+
+        safe_fs = fs
+        safe_fs[safe_fs <= 0] = 0.1 # TODO: make more rigorous
+        return H(log10(safe_fs))
 
 # def amplifier(x_in, y_in, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50, time = True): # return y_in with gain applied
 #     # TODO: this function is missing lots of detail and will need to be heavily rewritten to integrate with other code

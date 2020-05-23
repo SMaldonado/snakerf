@@ -10,52 +10,65 @@ m = 3
 data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1)
 print(data)
 n = 1
-f = 22e3
+f = 25e6
 
 f_bit = 9001
 T_bit = 1/f_bit
 # t_max = len(data)*T_bit/n - T_bit/100
-fs = 1e5
+fs = 1000e6
 ns = 100000
 t_max = ns/fs
 
 
 V1 = srf.Signal(ns, t_max)
-V1.update_Pf(srf.Vt_background_noise(V1.ts, V1.fs))
+V1.update_Vt(srf.Vt_background_noise(V1.ts, V1.fs))
 
-amp = srf.Amplifier(0.01, dB_gain = [-10, 20, 20, 0], f_gain = [18e3, 20e3, 25e3, 27e3])
+gain_max = 40
+f_c = f
+f_clo = f_c * 0.95
+f_chi = f_c * 1.05
+slope_dec = -40
 
-plt.subplot(2,1,1)
+dB_gain = [gain_max + slope_dec/10, gain_max, gain_max, gain_max + slope_dec/10]
+f_gain = [f_clo * (10**-0.1), f_clo, f_chi, f_chi * (10**0.1)]
+
+amp = srf.Amplifier(1, dB_gain, f_gain)
+
+plt.subplot(2,2,1)
 srf.plot_power_spectrum(plt.gca(), V1.fs, V1.Pf)
-plt.plot(V1.fs, amp.gain(V1.fs))
+H = amp.gain(V1.fs)
+plt.semilogx(V1.fs, H)
+plt.axhline( gain_max + slope_dec, c = 'k', ls = '--')
+plt.axhline( gain_max + 2*slope_dec, c = 'k', ls = '--')
+plt.axhline( gain_max + 3*slope_dec, c = 'k', ls = '--')
+plt.axvline(f_clo/10, c = 'k', ls = '--')
+plt.axvline(f_clo/100, c = 'k', ls = '--')
+plt.axvline(f_clo/1000, c = 'k', ls = '--')
+plt.axvline(f_chi*10, c = 'k', ls = '--')
 V1.amplify(amp)
 srf.plot_power_spectrum(plt.gca(), V1.fs, V1.Pf)
 
-plt.subplot(2,1,2)
+plt.subplot(2,2,3)
 plt.plot(V1.ts, V1.Vt)
-plt.show()
+# plt.show()
 
-# V2 = srf.Signal(ns, t_max)
-# V2.add_noise()
-#
-# print(srf.NF2T_noise(3))
-# srf.plot_power_spectrum(plt.gca(), V2.fs, V2.Pf)
-#
-# f_ref =  [0, 4, 5, 8.3, 12] # log frequency
-# Fa_ref = [270, 150, 80, 0, 0] # Fa = 10*log10(T_noise/t0)
-#
-# V1.update_Pf(srf.Vt_background_noise(V1.ts, V1.fs))
-# srf.plot_power_spectrum(plt.gca(), V1.fs, V1.Pf)
-#
-# T_noise = srf.undB(np.interp(np.log10(np.maximum(V1.fs,np.ones(len(V1.fs)))), f_ref, Fa_ref)) * srf.t0 # weird thing with ones to avoid log(0)
-# plt.plot(V1.fs, srf.W2dBm(4*srf.kB*T_noise*V1.df))
-#
-# N = 100
-# moving_avg = np.convolve(srf.mag(V1.Pf * V1.Z0 / V1.df), np.ones((N,))/N, mode='valid') * V1.df/V1.Z0
-# plt.plot(V1.fs[:-N+1], srf.W2dBm(moving_avg))
-#
-# moving_avg = np.convolve(srf.mag(V2.Pf * V2.Z0 / V2.df), np.ones((N,))/N, mode='valid') * V2.df/V2.Z0
-# plt.plot(V2.fs[:-N+1], srf.W2dBm(moving_avg))
+
+V2 = srf.Signal(ns, t_max)
+V2.update_Vt(srf.dBm2Vp(-80) * np.sin(2*pi*f*V2.ts) + srf.Vt_background_noise(V2.ts, V2.fs))
+
+plt.subplot(2,2,2)
+srf.plot_power_spectrum(plt.gca(), V2.fs, V2.Pf)
+plt.subplot(2,2,4)
+# plt.plot(V2.ts, V2.Vt)
+
+V2.amplify(amp)
+
+plt.subplot(2,2,2)
+srf.plot_power_spectrum(plt.gca(), V2.fs, V2.Pf)
+plt.subplot(2,2,4)
+plt.plot(V2.ts, V2.Vt)
+plt.xlim(0, 10/f)
+
 
 
 plt.show()
