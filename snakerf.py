@@ -2,6 +2,7 @@ import math
 from math import pi, inf
 import numpy as np
 from numpy import log10, log2, rad2deg, deg2rad, sqrt
+from scipy import interpolate
 import matplotlib.ticker as ticker
 from copy import deepcopy
 
@@ -193,6 +194,12 @@ def Vt_thermal_noise(ts, fs, T_noise = t0, Z0 = 50, out_Pf = False): # create sa
     # see: https://www.gaussianwaves.com/2013/11/simulation-and-analysis-of-white-noise-in-matlab/   --- explains non-flat spectrum
     # tl;dr: appropriately mathematically representing white noise is hard. Buyer beware.
 
+    if T_noise == 0:
+        if out_Pf:
+            return np.zeros(len(fs))
+        else:
+            return np.zeros(len(ts))
+
     # Noise voltage variance (usually ̅V^2) as a single-sided spectral density usually equals:
     # ̅V^2/B = 4*kB*T*R
     V2_noise_Hz = 4 * kB*T_noise*mag(Z0)
@@ -281,33 +288,59 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         # see https://www.mathworks.com/help/signal/ug/power-spectral-density-estimates-using-fft.html
         self.update_Vt(self.Vt + Vt_thermal_noise(self.ts, self.fs, T_noise = T_noise, Z0 = self.Z0))
 
+    def amplify(self, amp):
+
+        # TODO: input mismatch, confirm Vf2Pf works for f-dependent Z0
+        self.add_noise(noise = amp.NF, NF = True)
+
+        self.update_Pf(self.Pf * undB(amp.gain(self.fs)))
+
+        # TODO: output mismatch, confirm Pf2Vf works for f-dependent Z0
+
     def copy(self):
         return deepcopy(self)
 
-def amplifier(x_in, y_in, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50, time = True): # return y_in with gain applied
-    # TODO: this function is missing lots of detail and will need to be heavily rewritten to integrate with other code
 
-    print(len(f_gain))
+class Amplifier: # Represents a noisy 2-port object with gain
+    def __init__(self, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50):
+        self.NF = NF
+        # TODO: reject mismatch between lengths of dB_gain, f_gain
+        self.dB_gain = dB_gain
+        self.f_gain = f_gain
+        self.Zin = Zin
+        self.Zout = Zout
 
-    # TODO: input mismatch, confirm Vf2Pf works for f-dependent Z0
-    if time:
-        t = x_in
-        f = fft_fs(x_in)
-        Pf_in = Vt2Pf(y_in, len(x_in))
-    else:
-        t = x_in
-        f = x_in
-        Pf_in = y_in
+    def gain(self, fs): # interpolate gain
+        if self.f_gain == 0:
+            return self.dB_gain * np.ones(len(fs))
 
-    # TODO: f-dependent gain
-    Pf_out = Pf_in * dB_gain
-    Pf_out = Pf_out + Vt_noise()
+        H = interpolate.interp1d(self.f_gain, self.dB_gain, fill_value="extrapolate")
+        return H(fs)
 
-    # TODO: output mismatch, confirm Pf2Vf works for f-dependent Z0
-    if time:
-        return Pf2Vt(Pf_out, len(x_in))
-    else:
-        return Pf_out
+# def amplifier(x_in, y_in, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50, time = True): # return y_in with gain applied
+#     # TODO: this function is missing lots of detail and will need to be heavily rewritten to integrate with other code
+#
+#     print(len(f_gain))
+#
+#     # TODO: input mismatch, confirm Vf2Pf works for f-dependent Z0
+#     if time:
+#         t = x_in
+#         f = fft_fs(x_in)
+#         Pf_in = Vt2Pf(y_in, len(x_in))
+#     else:
+#         t = x_in
+#         f = x_in
+#         Pf_in = y_in
+#
+#     # TODO: f-dependent gain
+#     Pf_out = Pf_in * dB_gain
+#     Pf_out = Pf_out + Vt_noise()
+#
+#     # TODO: output mismatch, confirm Pf2Vf works for f-dependent Z0
+#     if time:
+#         return Pf2Vt(Pf_out, len(x_in))
+#     else:
+#         return Pf_out
 
 
 # Useful time-domain voltages
