@@ -474,7 +474,7 @@ def HzFormatter(x, pos):
     else:
         hz = 'Hz'
         f = x
-    return "{:.1f} {}".format(f, hz)
+    return "{:.2f} {}".format(f, hz)
 
 def plot_power_spectrum(ax, x, y, time = False, Z0 = 50, **kwargs):
     if not time:
