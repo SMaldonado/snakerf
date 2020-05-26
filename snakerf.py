@@ -321,32 +321,6 @@ class Amplifier: # Represents a noisy 2-port object with gain
         safe_fs[safe_fs <= 0] = 0.1 # TODO: make more rigorous
         return H(log10(safe_fs))
 
-# def amplifier(x_in, y_in, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50, time = True): # return y_in with gain applied
-#     # TODO: this function is missing lots of detail and will need to be heavily rewritten to integrate with other code
-#
-#     print(len(f_gain))
-#
-#     # TODO: input mismatch, confirm Vf2Pf works for f-dependent Z0
-#     if time:
-#         t = x_in
-#         f = fft_fs(x_in)
-#         Pf_in = Vt2Pf(y_in, len(x_in))
-#     else:
-#         t = x_in
-#         f = x_in
-#         Pf_in = y_in
-#
-#     # TODO: f-dependent gain
-#     Pf_out = Pf_in * dB_gain
-#     Pf_out = Pf_out + Vt_noise()
-#
-#     # TODO: output mismatch, confirm Pf2Vf works for f-dependent Z0
-#     if time:
-#         return Pf2Vt(Pf_out, len(x_in))
-#     else:
-#         return Pf_out
-
-
 # Useful time-domain voltages
 
 def make_time(ns, t_max):
@@ -454,6 +428,14 @@ def Znetwork(series, shunt):
 def fspl(d, w, dB = True):
     if dB: return dBv(2.0*w*d/c)
     return (2.0*w*d/c)**2.0
+
+def Gamma_proto(Z0, ZL): # reflection coefficient
+    if Z0 == inf or ZL + Z0: return 'fail' # TODO: make real error
+    if ZL == inf: return 1
+
+    return (ZL - Z0) / (ZL + Z0)
+
+Gamma = np.vectorize(Gamma_proto, otypes = [np.complex])
 
 # plotting
 
