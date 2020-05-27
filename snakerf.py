@@ -302,7 +302,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         return deepcopy(self)
 
 
-class Amplifier: # Represents a noisy 2-port object with gain
+class Two_Port: # Represents a noisy 2-port object with gain
     def __init__(self, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50):
         self.NF = NF
         # TODO: reject mismatch between lengths of dB_gain, f_gain
