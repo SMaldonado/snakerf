@@ -321,6 +321,22 @@ class Two_Port: # Represents a noisy 2-port object with gain
         safe_fs[safe_fs <= 0] = 0.1 # TODO: make more rigorous
         return H(log10(safe_fs))
 
+# TODO: decide actual scope of T-line simulation and then implement a lot
+class Transmission_Line: # represents a transmission line
+    def __init__(self, R, L, G, C, l, f = 0): # initialize from primary line constants (per meter), which may or may not be functions of frequency
+        if f == 0:
+            self.f_dependent = False
+            self.f = [0]
+        else:
+            self.f_dependent = True
+            self.f = f
+
+        self.R = R
+        self.L = L
+        self.G = G
+        selc.C = C
+        self.l = l
+
 # Useful time-domain voltages
 
 def make_time(ns, t_max):
