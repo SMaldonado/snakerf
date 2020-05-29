@@ -337,7 +337,18 @@ class Transmission_Line: # represents a transmission line
         selc.C = C
         self.l = l
 
-# Useful time-domain voltages
+# TODO: Port impedances/mismatch, nonlinearities, noise
+class Mixer:
+    def __init__(self):
+        pass
+
+    def mix(self, sig1, sig2):
+        out = sig1.copy()
+        out.update_Vt(sig1.Vt * sig2.Vt)
+
+        return out
+
+# Modulation and demodulation
 
 def make_time(ns, t_max):
     return np.linspace(0, t_max, ns)
