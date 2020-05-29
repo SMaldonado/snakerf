@@ -281,6 +281,9 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         self.Pf = Pf
         self.Vt = Pf2Vt(self.Pf, self.ns, self.Z0)
 
+    def make_tone(self, f, P_dBm):
+        self.update_Vt(dBm2Vp(P_dBm) * np.sin(f2w(f) * self.ts))
+
     def add_noise(self, noise = t0, NF = False):
         if NF: T_noise = NF2T_noise(noise)
         else: T_noise = noise
@@ -300,6 +303,10 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
 
     def copy(self):
         return deepcopy(self)
+
+    def plot_f(self, ax, **kwargs):
+        plot_power_spectrum(ax, self.fs, self.Pf, False, self.Z0, **kwargs)
+
 
 
 class Two_Port: # Represents a noisy 2-port object with gain
