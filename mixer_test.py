@@ -12,26 +12,33 @@ print(data)
 n = 1
 f = 5e6
 
-# f_bit = 9001
-# T_bit = 1/f_bit
-t_max = 0.1
-# fs = 1000e6
+f_bit = 9001
+T_bit = 1/f_bit
+t_max = len(data)*T_bit/n - T_bit/100
+fs = 10e6
 ns = 100000
 # t_max = ns/fs
 
 
 V1 = srf.Signal(ns, t_max)
-V1.make_tone(10000, 0)
+# V1.make_tone(10000, 0)
+V1.update_Vt(srf.V_msk(V1.ts, 25000, f_bit, data, 0))
 
 V2 = srf.Signal(ns, t_max)
-V2.make_tone(2000, 0)
+V2.make_tone(100000, 0.1)
 
 mx = srf.Mixer()
 V3 = mx.mix(V1, V2)
 
+plt.subplot(2,1,1)
 V1.plot_f(plt.gca())
 V2.plot_f(plt.gca())
 V3.plot_f(plt.gca())
+
+plt.subplot(2,1,2)
+plt.plot(V1.ts, V1.Vt)
+plt.plot(V2.ts, V2.Vt)
+plt.plot(V3.ts, V3.Vt)
 
 plt.show()
 #

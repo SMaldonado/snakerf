@@ -30,6 +30,9 @@ def phase(x, unwrap = True, deg = False):
     if deg: return rad2deg(angle)
     else: return angle
 
+def rms(x):
+    return np.std(x)
+
 # passive component frequency responses
 
 # @np.vectorize
@@ -284,6 +287,9 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
     def make_tone(self, f, P_dBm):
         self.update_Vt(dBm2Vp(P_dBm) * np.sin(f2w(f) * self.ts))
 
+    def make_square(self, f, AV):
+        self.update_Vt(AV * (-1)**np.floor(2*self.ts*f))
+
     def add_noise(self, noise = t0, NF = False):
         if NF: T_noise = NF2T_noise(noise)
         else: T_noise = noise
@@ -349,9 +355,12 @@ class Mixer:
     def __init__(self):
         pass
 
-    def mix(self, sig1, sig2):
-        out = sig1.copy()
-        out.update_Vt(sig1.Vt * sig2.Vt)
+    def mix(self, sig_f, sig_lo):
+        out = sig_f.copy()
+        print(np.max(np.abs(sig_lo.Vt)))
+        out.update_Vt(sig_f.Vt * sig_lo.Vt / rms(sig_lo.Vt))
+
+        print(np.mean(out.Vt))
 
         return out
 
