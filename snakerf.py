@@ -1,5 +1,5 @@
 import math
-from math import pi, inf
+from math import e, pi, inf
 import numpy as np
 from numpy import log10, log2, rad2deg, deg2rad, sqrt
 from scipy import interpolate
@@ -106,14 +106,20 @@ def Zopen(w):
 def dB(x): # linear power gain to dB power gain
     return 10*log10(x)
 
-def undB(x): # dB power gain to linear power gain
-    return 10.0**(x/10.0)
+def undB(dB): # dB power gain to linear power gain
+    return 10.0**(dB/10.0)
 
 def dBv(x): # linear voltage gain to dB gain
     return 20*log10(mag(x))
 
-def undBv(x): # dB gain to linear voltage gain
-    return 10.0**(x/20.0)
+def undBv(dB): # dB gain to linear voltage gain
+    return 10.0**(dB/20.0)
+
+def dB2Np(dB): # dB gain to Neper gain
+    return dB/dBV(e)
+
+def Np2dB(dB): # Neper gain to dB gian
+    return dB*dBV(e)
 
 # Unit conversions
 
@@ -352,15 +358,12 @@ class Transmission_Line: # represents a transmission line
 
 # TODO: Port impedances/mismatch, nonlinearities, noise
 class Mixer:
-    def __init__(self):
+    def __init__(self, gain_dB = 0, NF_dB = 0):
         pass
 
     def mix(self, sig_f, sig_lo):
         out = sig_f.copy()
-        print(np.max(np.abs(sig_lo.Vt)))
         out.update_Vt(sig_f.Vt * sig_lo.Vt / rms(sig_lo.Vt))
-
-        print(np.mean(out.Vt))
 
         return out
 
