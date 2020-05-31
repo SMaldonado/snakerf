@@ -2,6 +2,7 @@ import math
 from math import e, pi, inf
 import numpy as np
 from numpy import log10, log2, rad2deg, deg2rad, sqrt
+from numpy.linalg import det
 from scipy import interpolate
 import matplotlib.ticker as ticker
 from copy import deepcopy
@@ -34,6 +35,14 @@ def rms(x):
     return np.std(x)
 
 # passive component frequency responses
+
+def safe_reciprocal_proto(x):
+    if x == 0: return inf
+    if x == inf: return 0
+    return 1/x
+
+Z2Y = np.vectorize(safe_reciprocal_proto, otypes = [np.complex])
+Y2Z = np.vectorize(safe_reciprocal_proto, otypes = [np.complex]) # yes, they're the same
 
 # @np.vectorize
 def C_proto(C, w, ESR = 0):
@@ -321,6 +330,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
 
 
 # see https://en.wikipedia.org/wiki/Two-port_network#Interrelation_of_parameters
+# see https://en.wikipedia.org/wiki/Two-port_network#Table_of_transmission_parameters
 class Two_Port: # Represents a noisy 2-port object with gain
     def __init__(self, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50):
         self.NF = NF
