@@ -12,4 +12,4 @@ Z2 = srf.C(1e-9, w)
 bser = np.array([[[1, -Z],[0, 1]] for Z in Z1])
 bshunt = np.array([[[1, 0],[-srf.Z2Y(Z), 1]] for Z in Z2])
 
-# bcascade = 
+bcascade = bshunt@bser
