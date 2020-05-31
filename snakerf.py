@@ -320,7 +320,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         plot_power_spectrum(ax, self.fs, self.Pf, False, self.Z0, **kwargs)
 
 
-
+# see https://en.wikipedia.org/wiki/Two-port_network#Interrelation_of_parameters
 class Two_Port: # Represents a noisy 2-port object with gain
     def __init__(self, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50):
         self.NF = NF
@@ -447,6 +447,7 @@ def Pdiv_proto(Z1, Z2):
 
 Pdiv = np.vectorize(Pdiv_proto, otypes = [np.complex])
 
+# see https://en.wikipedia.org/wiki/Two-port_network#Collapsing_a_two-port_to_a_one_port
 def Znetwork(series, shunt):
     if np.shape(series) != np.shape(shunt): return "fail"
 
