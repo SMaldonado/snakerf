@@ -314,11 +314,11 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         self.update_Vt(self.Vt + Vt_thermal_noise(self.ts, self.fs, T_noise = T_noise, Z0 = self.Z0))
 
     def amplify(self, amp):
-
+        pass # TODO: fix for new two-port
         # TODO: input mismatch, confirm Vf2Pf works for f-dependent Z0
-        self.add_noise(noise = amp.NF, NF = True)
+        # self.add_noise(noise = amp.NF, NF = True)
 
-        self.update_Pf(self.Pf * undB(amp.gain(self.fs)))
+        # self.update_Pf(self.Pf * undB(amp.gain(self.fs)))
 
         # TODO: output mismatch, confirm Pf2Vf works for f-dependent Z0
 
@@ -332,23 +332,54 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
 # see https://en.wikipedia.org/wiki/Two-port_network#Interrelation_of_parameters
 # see https://en.wikipedia.org/wiki/Two-port_network#Table_of_transmission_parameters
 class Two_Port: # Represents a noisy 2-port object with gain
-    def __init__(self, NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50):
+    def __init__(self, fs, b, NF = 0):
+        self.fs = fs
+        self.b = b
         self.NF = NF
-        # TODO: reject mismatch between lengths of dB_gain, f_gain
-        self.dB_gain = dB_gain
-        self.f_gain = f_gain
-        self.Zin = Zin
-        self.Zout = Zout
 
-    def gain(self, fs): # interpolate gain
-        if self.f_gain == 0:
-            return self.dB_gain * np.ones(len(fs))
+        # TODO: handle f-dependent noise
 
-        H = interpolate.interp1d(log10(np.array(self.f_gain)), self.dB_gain, fill_value="extrapolate")
+    @classmethod
+    def from_gain(cls, fs, dB_gain, NF_dB = 0, f_gain = None, Zin = 50, Zout = 50):
+        if f_gain == None:
+            gain = dB_gain * np.ones(len(fs))
+
+        H = interpolate.interp1d(log10(np.array(f_gain)), dB_gain, fill_value="extrapolate")
 
         safe_fs = fs
         safe_fs[safe_fs <= 0] = 0.1 # TODO: make more rigorous
-        return H(log10(safe_fs))
+        gain = H(log10(safe_fs))
+
+        # TODO: Calculate b
+        # TODO: Calculate f-dependent noise
+
+        # return cls(fs, b, NF_dB)
+
+    @classmethod
+    def from_network(cls, fs, ser, shunt, NF_dB = 0):
+        pass
+
+        # TODO: Calculate b, calculate NF if feeling really ballsy
+
+        # return cls(fs, b, NF_dB)
+
+    # def from_gain(NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50):
+    #     self.NF = NF
+    #     # TODO: reject mismatch between lengths of dB_gain, f_gain
+    #     self.dB_gain = dB_gain
+    #     self.f_gain = f_gain
+    #     self.Zin = Zin
+    #     self.Zout = Zout
+
+    # def gain(self, fs): # interpolate gain
+    #     if self.f_gain == 0:
+    #         return self.dB_gain * np.ones(len(fs))
+    #
+    #     H = interpolate.interp1d(log10(np.array(self.f_gain)), self.dB_gain, fill_value="extrapolate")
+    #
+    #     safe_fs = fs
+    #     safe_fs[safe_fs <= 0] = 0.1 # TODO: make more rigorous
+    #     return H(log10(safe_fs))
 
 # TODO: decide actual scope of T-line simulation and then implement a lot
 class Transmission_Line: # represents a transmission line

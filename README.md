@@ -4,7 +4,7 @@ A mediocre ~~collection of RF/analog circuits scripts~~ Python package someday w
 
 The intent of this package is to:
 - Facilitate the design of VHF/UHF digital radio systems
-- Fill a perceived gap in scikit-rf, which abstracts RF circuits into matrices of S/X/Y/Z parameters and is poorly suited to tasks like designing matching networks
+- Fill a perceived gap in [scikit-rf](http://scikit-rf.org), which abstracts RF circuits into matrices of S/X/Y/Z parameters and is poorly suited to tasks like designing matching networks (it _can_, and they have example code showing how, but that doesn't mean it's well suited to the task)
 - Make up for (LT)Spice's poor handling of scattering parameters and general clunkiness
 - Stop rewriting the same code repeatedly and then losing/forgetting about it/losing access to the iPython server it ran on
 
