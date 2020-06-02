@@ -329,6 +329,12 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         plot_power_spectrum(ax, self.fs, self.Pf, False, self.Z0, **kwargs)
 
 
+def _make_b_ser(Zser):
+    return np.array([[[1, -Z],[0, 1]] for Z in Zser])
+
+def _make_b_shunt(Zshunt):
+    return np.array([[[1, 0],[-srf.Z2Y(Z), 1]] for Z in Zshunt])
+
 # see https://en.wikipedia.org/wiki/Two-port_network#Interrelation_of_parameters
 # see https://en.wikipedia.org/wiki/Two-port_network#Table_of_transmission_parameters
 class Two_Port: # Represents a noisy 2-port object with gain
@@ -356,30 +362,24 @@ class Two_Port: # Represents a noisy 2-port object with gain
         # return cls(fs, b, NF_dB)
 
     @classmethod
-    def from_network(cls, fs, ser, shunt, NF_dB = 0):
+    def from_network(cls, fs, series, shunt, NF_dB = 0):
+        if abs(len(series) - len(shunt)) > 1: return 'fail' # TODO: real exception
+
+        i = 0
+        j = len(series) - len(shunt) # offset between series and shunt elements
+
+        b = np.zeroes(len(fs), 2, 2)
+
+
+        if
+
         pass
 
-        # TODO: Calculate b, calculate NF if feeling really ballsy
+        # TODO: Calculate b
+        # TODO: Calculate f-dependent noise
 
         # return cls(fs, b, NF_dB)
 
-    # def from_gain(NF, dB_gain, f_gain = 0, Zin = 50, Zout = 50):
-    #     self.NF = NF
-    #     # TODO: reject mismatch between lengths of dB_gain, f_gain
-    #     self.dB_gain = dB_gain
-    #     self.f_gain = f_gain
-    #     self.Zin = Zin
-    #     self.Zout = Zout
-
-    # def gain(self, fs): # interpolate gain
-    #     if self.f_gain == 0:
-    #         return self.dB_gain * np.ones(len(fs))
-    #
-    #     H = interpolate.interp1d(log10(np.array(self.f_gain)), self.dB_gain, fill_value="extrapolate")
-    #
-    #     safe_fs = fs
-    #     safe_fs[safe_fs <= 0] = 0.1 # TODO: make more rigorous
-    #     return H(log10(safe_fs))
 
 # TODO: decide actual scope of T-line simulation and then implement a lot
 class Transmission_Line: # represents a transmission line
