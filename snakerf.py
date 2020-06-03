@@ -365,16 +365,16 @@ class Two_Port: # Represents a noisy 2-port object with gain
     def from_network(cls, fs, series, shunt, NF_dB = 0):
         if abs(len(series) - len(shunt)) > 1: return 'fail' # TODO: real exception
 
-        i = 0
         j = len(series) - len(shunt) # offset between series and shunt elements
 
-        b = np.zeroes(len(fs), 2, 2)
+        if j == 1: # series is longer than shunt; series element first
+            b = _make_b_ser(series[0])
+        else: # shunt element first
+            b = _make_b_shunt(shunt[0])
 
-
-        if
-
-        pass
-
+        for i in range():
+            pass
+            
         # TODO: Calculate b
         # TODO: Calculate f-dependent noise
 
