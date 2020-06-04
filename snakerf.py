@@ -333,7 +333,7 @@ def _make_b_ser(Zser):
     return np.array([[[1, -Z],[0, 1]] for Z in Zser])
 
 def _make_b_shunt(Zshunt):
-    return np.array([[[1, 0],[-srf.Z2Y(Z), 1]] for Z in Zshunt])
+    return np.array([[[1, 0],[-Z2Y(Z), 1]] for Z in Zshunt])
 
 # see https://en.wikipedia.org/wiki/Two-port_network#Interrelation_of_parameters
 # see https://en.wikipedia.org/wiki/Two-port_network#Table_of_transmission_parameters
@@ -369,16 +369,21 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         if j == 1: # series is longer than shunt; series element first
             b = _make_b_ser(series[0])
-        else: # shunt element first
-            b = _make_b_shunt(shunt[0])
+        else:
+            b = np.array([np.identity(2) for f in fs])
 
-        for i in range():
-            pass
-            
-        # TODO: Calculate b
+        for i in range(min(len(series), len(shunt))):
+            b_shunt = _make_b_shunt(shunt[i])
+            b_ser = _make_b_ser(series[i + max(j,0)])
+
+            b = b_ser @ b_shunt @ b
+
+        if j == -1:
+            b = _make_b_shunt(shunt[-1]) @ b
+
         # TODO: Calculate f-dependent noise
 
-        # return cls(fs, b, NF_dB)
+        return cls(fs, b, NF_dB)
 
 
 # TODO: decide actual scope of T-line simulation and then implement a lot
