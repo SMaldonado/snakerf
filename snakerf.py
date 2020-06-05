@@ -351,7 +351,12 @@ class Two_Port: # Represents a noisy 2-port object with gain
         b = self.b
 
         Zin = (b[:, 0, 1] - Zl*b[:, 1, 1]) / (Zl*b[:, 1, 0] - b[:, 0, 0])
-        return Zin
+
+        V1 = Vdiv(Zs, Zin)
+
+        V2 = V1 * (b[:, 0, 0] - b[:, 0, 1]*b[:, 1, 0]) / (b[:, 1, 1] - b[:, 0, 1]/Zl)
+
+        return V2
 
     @classmethod
     def from_gain(cls, fs, dB_gain, NF_dB = 0, f_gain = None, Zin = 50, Zout = 50):
