@@ -345,6 +345,14 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         # TODO: handle f-dependent noise
 
+    def V_out(self, Zs, Zl):
+        if len(Zs) != len(self.fs) or len(Zl) != len(self.fs): return 'fail' # TODO: real exception
+
+        b = self.b
+
+        Zin = (b[:, 0, 1] - Zl*b[:, 1, 1]) / (Zl*b[:, 1, 0] - b[:, 0, 0])
+        return Zin
+
     @classmethod
     def from_gain(cls, fs, dB_gain, NF_dB = 0, f_gain = None, Zin = 50, Zout = 50):
         if f_gain == None:
