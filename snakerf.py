@@ -375,19 +375,24 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         j = len(series) - len(shunt) # offset between series and shunt elements
 
-        if j == 1: # series is longer than shunt; series element first
-            b = _make_b_ser(series[0])
+        if j == -1: # shunt is longer than series; shunt first
+            b = _make_b_shunt(shunt[0])
         else:
             b = np.array([np.identity(2) for f in fs])
 
         for i in range(min(len(series), len(shunt))):
-            b_shunt = _make_b_shunt(shunt[i])
-            b_ser = _make_b_ser(series[i + max(j,0)])
+            b_ser = _make_b_ser(series[i])
+            b_shunt = _make_b_shunt(shunt[i - min(j,0)])
 
-            b = b_ser @ b_shunt @ b
 
-        if j == -1:
-            b = _make_b_shunt(shunt[-1]) @ b
+            # -- [ b ] -- [ser] -- | -- ...
+            #                   [shunt]
+            #                      V
+
+            b = b_shunt @ b_ser @ b
+
+        if j == 1:
+            b = _make_b_ser(ser[-1]) @ b
 
         # TODO: Calculate f-dependent noise
 
