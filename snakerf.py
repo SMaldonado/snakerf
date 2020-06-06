@@ -355,7 +355,7 @@ class Two_Port: # Represents a noisy 2-port object with gain
         # print(Zin)
 
         V1 = Vdiv(Zs, Zin)
-        V2 = det(b) / (b[:, 1, 1] - (b[:, 0, 1]/Zl))
+        V2 = V1 * det(b) / (b[:, 1, 1] - (b[:, 0, 1]/Zl))
 
         # V2 = V1 * (b[:, 0, 0] - b[:, 0, 1]*b[:, 1, 0]) / (b[:, 1, 1] - (b[:, 0, 1]/Zl))
 
