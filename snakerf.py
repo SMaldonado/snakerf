@@ -400,7 +400,7 @@ class Two_Port: # Represents a noisy 2-port object with gain
             b = b_shunt @ b_ser @ b
 
         if j == 1:
-            b = _make_b_ser(ser[-1]) @ b
+            b = _make_b_ser(series[-1]) @ b
 
         # TODO: Calculate f-dependent noise
 
