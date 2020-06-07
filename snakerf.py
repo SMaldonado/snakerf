@@ -10,6 +10,9 @@ from copy import deepcopy
 c = 299792458.0 # speed of light in vacuum, m/s
 kB = 1.380649E-23 # Boltzmann constant, J/K
 t0 = 290 # noise figure temperature, Kelvin
+e0 = 8.854187e-12 # vacuum permittivity
+mu0 = 1.256637e-6 # vacuum permeability
+rho_cu = 1.72e-8 # copper resistivity, ohm*m
 
 @np.vectorize
 def par(Z1, Z2):
@@ -445,6 +448,21 @@ class Two_Port: # Represents a noisy 2-port object with gain
         # TODO: Calculate f-dependent noise
 
         # return cls(fs, b, NF_dB)
+
+def RLGC_from_microstrip(fs, er, h, w, t = 1.4):
+    # see http://web.mst.edu/~marinak/files/my_publications/papers/Causal_RLGC.pdf
+    # see http://referencedesigner.com/books/si/capacitance-per-unit-len.php
+
+    ws = f2w(fs)
+
+    R0 = rho_cu * w * t
+    delta = sqrt(2*rho_cu/(ws * mu0)) # skin depth; solve for when delta = t to compute Rs
+
+    R = R0 + sqrt(fs)*Rs
+    L = Linf + Rs/(2*pi*sqrt(fs))
+    G = G0 + 2*pi*fs*Kg*er.imag*e0
+    C = Kg*er.real*e0
+
 
 
 
