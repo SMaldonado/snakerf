@@ -345,16 +345,38 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         # TODO: handle f-dependent noise
 
+    def Z_in(self, Z_term = None, port = 1):
+
+        if Z_term is None:
+            Zl = _make_b_shunt(Zopen(f2w(self.fs)))
+        elif len(Z_term) != len(self.fs):
+            return 'fail' #TODO: real exception
+        else:
+            Zl = _make_b_shunt(Z_term)
+
+        b = self.b
+
+        if port == 1:
+            b = Zl @ b
+            return -b[:, 1, 1]/b[:, 1, 0]
+        elif port == 2:
+            b = b @ Zl
+            return -b[:, 0, 0]/b[:, 1, 0]
+        else:
+            return 'fail' # TODO: real exception
+
+        # return np.array( (b[:, 0, 1] - Zl*b[:, 1, 1]) / (Zl*b[:, 1, 0] - b[:, 0, 0]) ) # this works but not for Zl == inf
+
     def V_out(self, Zs, Zl):
         if len(Zs) != len(self.fs) or len(Zl) != len(self.fs): return 'fail' # TODO: real exception
 
         b = self.b
 
-        Zin = (b[:, 0, 1] - Zl*b[:, 1, 1]) / (Zl*b[:, 1, 0] - b[:, 0, 0])
+        Z_in = self.Z_in(Zl)
 
         # print(Zin)
 
-        V1 = Vdiv(Zs, Zin)
+        V1 = Vdiv(Zs, Z_in)
         V2 = V1 * det(b) / (b[:, 1, 1] - (b[:, 0, 1]/Zl))
 
         # V2 = V1 * (b[:, 0, 0] - b[:, 0, 1]*b[:, 1, 0]) / (b[:, 1, 1] - (b[:, 0, 1]/Zl))

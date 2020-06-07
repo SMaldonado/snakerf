@@ -10,6 +10,7 @@ Z1 = srf.L(1e-6, w)
 Z2 = srf.C(1e-9, w) # srf.Zopen(w) #
 
 filt = srf.Two_Port.from_network(f, [Z1, srf.ser(Z1, Z2), Z1], [Z2, Z2])
+print(filt.Z_in())
 V2 = filt.V_out(srf.R(50, w), srf.R(50, w))
 
 plt.semilogx(filt.fs, srf.dBv(srf.mag(V2)))
