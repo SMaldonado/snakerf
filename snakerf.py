@@ -449,21 +449,39 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         # return cls(fs, b, NF_dB)
 
-def RLGC_from_microstrip(fs, er, h, w, t = 1.4):
+
+def RLGC_from_microstrip(fs, Dk, Df, R_ins, h, w, t = 1.4):
     # see http://web.mst.edu/~marinak/files/my_publications/papers/Causal_RLGC.pdf
-    # see http://referencedesigner.com/books/si/capacitance-per-unit-len.php
+    # see https://technick.net/tools/impedance-calculator/microstrip/
 
     ws = f2w(fs)
 
+    e_i = Dk*e0
+    e_ii = Df*e_i # Stanford EE 273 Lecture 4 Slide 16
+
     R0 = rho_cu * w * t
-    delta = sqrt(2*rho_cu/(ws * mu0)) # skin depth; solve for when delta = t to compute Rs
+    Rs = sqrt(pi*mu0/rho_cu)/w # Stanford EE 273 Lecture 4 Slide 10
+
+    G0 = Z2Y(R_ins)
+
+    Z0 = (87/sqrt(er + 1.41)) * ln(5.98*h/(0.8*w + t))
+    C0 = 2.64e-11 * (Dk + 1.41) / ln(5.98 * h / (0.8*w + t))
+    Linf = C0 * Z0**2
 
     R = R0 + sqrt(fs)*Rs
     L = Linf + Rs/(2*pi*sqrt(fs))
-    G = G0 + 2*pi*fs*Kg*er.imag*e0
-    C = Kg*er.real*e0
+    G = G0 + 2*pi*fs*Kg*e_ii
+    C = C0 # Kg*e_i
 
+    # Johnson, H. W. and Graham, M., “High Speed Digital Design – A Handbook of Black Magic”, Prentice Hall, 1993, pp 187
+    # all dimensions in inches, valid for 0.1 < w/h < 2.0, er < 15
+    # microstrip:
+    # Z0 = (87/sqrt(er + 1.41)) * ln(5.98*h/(0.8*w + t))
+    # td_l = 85 * sqrt(0.475 * er + 0.67)
 
+    # stripline:
+    # Z0 = (60/sqrt(er)) * ln(3.8*h / (0.8*w + t))
+    # td_l = 85 * sqrt(er)
 
 
 # # TODO: decide actual scope of T-line simulation and then implement a lot
