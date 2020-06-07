@@ -424,10 +424,15 @@ class Two_Port: # Represents a noisy 2-port object with gain
         return cls(fs, b, NF_dB)
 
     @classmethod
-    def from_tl(cls, fs, R, L, G, C, l): # initialize from primary line constants (per length), which are either contant or functions of frequency
+    def from_tl(cls, fs, RLGC, l): # initialize from primary line constants (per length), which are either contant or functions of frequency
         # unit length can be any unit so long as consistent between all parameters
 
         # if not (len(RLGC) == 1 or len(RLGC) == len(fs)): return 'fail' # TODO: real exception
+
+        R = RLGC[0]
+        L = RLGC[1]
+        G = RLGC[2]
+        C = RLGC[3]
 
         ws = f2w(fs)
         Z = R + 1j*ws*L # these conveniently work for either len(R) == 1 or len(R) == len(ws)
@@ -482,13 +487,7 @@ def RLGC_from_microstrip(fs, Dk, Df, R_ins, h, w, t = 0.0014):
     G = G0 + 2*pi*fs*C0*Df
     C = C0 # Kg*e_i
 
-    print(C0)
-    print(L0)
-    # print(td_l)
-    print(R0)
-    print(Rs * sqrt(1e8))
-
-    # return Z0
+    return np.array([R, L, G, C])
 
     # Johnson, H. W. and Graham, M., “High Speed Digital Design – A Handbook of Black Magic”, Prentice Hall, 1993, pp 187
     # all dimensions in inches, valid for 0.1 < w/h < 2.0, er < 15
