@@ -1,7 +1,7 @@
 import math
 from math import e, pi, inf
 import numpy as np
-from numpy import log10, log2, rad2deg, deg2rad, sqrt
+from numpy import log2, log, log10, rad2deg, deg2rad, sqrt
 from numpy.linalg import det
 from scipy import interpolate
 import matplotlib.ticker as ticker
@@ -158,6 +158,12 @@ def dBm2Vrms(dBm,  Z0 = 50): # power [dBm] to sine wave rms voltage [V]
 
 def Vrms2dBm(Vrms,  Z0 = 50): # sine wave rms voltage [V] to power [dBm]
     return Vp2dBm(Vrms * sqrt(2), Z0)
+
+def m2in(m):
+    return m * 39.3701
+
+def in2m(inch):
+    return inch / 39.3701
 
 # Spectra handling
 
@@ -450,7 +456,7 @@ class Two_Port: # Represents a noisy 2-port object with gain
         # return cls(fs, b, NF_dB)
 
 
-def RLGC_from_microstrip(fs, Dk, Df, R_ins, h, w, t = 1.4):
+def RLGC_from_microstrip(fs, Dk, Df, R_ins, h, w, t = 0.0014):
     # see http://web.mst.edu/~marinak/files/my_publications/papers/Causal_RLGC.pdf
     # see https://technick.net/tools/impedance-calculator/microstrip/
 
@@ -458,20 +464,31 @@ def RLGC_from_microstrip(fs, Dk, Df, R_ins, h, w, t = 1.4):
 
     e_i = Dk*e0
     e_ii = Df*e_i # Stanford EE 273 Lecture 4 Slide 16
+    er = Dk # TODO: fix (this is an oversimplification)
 
-    R0 = rho_cu * w * t
-    Rs = sqrt(pi*mu0/rho_cu)/w # Stanford EE 273 Lecture 4 Slide 10
+    R0 = m2in(rho_cu) / (w * t)
+    Rs = sqrt(pi*mu0*rho_cu)/w # Stanford EE 273 Lecture 4 Slide 10
 
     G0 = Z2Y(R_ins)
 
-    Z0 = (87/sqrt(er + 1.41)) * ln(5.98*h/(0.8*w + t))
-    C0 = 2.64e-11 * (Dk + 1.41) / ln(5.98 * h / (0.8*w + t))
-    Linf = C0 * Z0**2
+    Z0 = (87/sqrt(er + 1.41)) * log(5.98*h/(0.8*w + t)) # = sqrt(L0 / C0)
+    td_l = 85e-12 * sqrt(0.475 * er + 0.67) # = sqrt(L0 * C0)
+
+    C0 = td_l / Z0
+    L0 = td_l * Z0
 
     R = R0 + sqrt(fs)*Rs
-    L = Linf + Rs/(2*pi*sqrt(fs))
-    G = G0 + 2*pi*fs*Kg*e_ii
+    L = L0 + Rs/(2*pi*sqrt(fs))
+    G = G0 + 2*pi*fs*C0*Df
     C = C0 # Kg*e_i
+
+    print(C0)
+    print(L0)
+    # print(td_l)
+    print(R0)
+    print(Rs * sqrt(1e8))
+
+    # return Z0
 
     # Johnson, H. W. and Graham, M., “High Speed Digital Design – A Handbook of Black Magic”, Prentice Hall, 1993, pp 187
     # all dimensions in inches, valid for 0.1 < w/h < 2.0, er < 15

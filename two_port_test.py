@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import inf, pi, log2
 
-f = np.logspace(5,8,1000)
+f = np.logspace(1,8,1000)
 w = srf.f2w(f)
 
 Z1 = srf.L(1e-6, w)
@@ -11,9 +11,11 @@ Z2 = srf.C(1e-9, w) # srf.Zopen(w) #
 
 # filt = srf.Two_Port.from_network(f, [Z1, srf.ser(Z1, Z2), Z1], [Z2, Z2])
 
+print(srf.RLGC_from_microstrip(fs = f, Dk = 4.6, Df = 0, R_ins = inf, h = 0.062, w = 0.01))
+
 filt = srf.Two_Port.from_tl(f, 0, 1e-9, 0, 1e-12, 10)
 
-print(filt.Z_in())
+# print(filt.Z_in())
 V2 = filt.V_out(srf.R(50, w), srf.R(50, w))
 
 plt.subplot(2,1,1)
