@@ -335,6 +335,9 @@ def _make_b_ser(Zser):
 def _make_b_shunt(Zshunt):
     return np.array([[[1, 0],[-Z2Y(Z), 1]] for Z in Zshunt])
 
+def _make_b_tl(Z0, gamma, l):
+    return np.array([[[np.cosh(y*l), Z*np.sinh(y*l)],[-Z2Y(Z)*np.sinh(y*l), np.cosh(y*l)]] for Z, y in zip(Z0, gamma)])
+
 # see https://en.wikipedia.org/wiki/Two-port_network#Interrelation_of_parameters
 # see https://en.wikipedia.org/wiki/Two-port_network#Table_of_transmission_parameters
 class Two_Port: # Represents a noisy 2-port object with gain
@@ -384,6 +387,50 @@ class Two_Port: # Represents a noisy 2-port object with gain
         return V2
 
     @classmethod
+    def from_network(cls, fs, series, shunt, NF_dB = 0):
+        if abs(len(series) - len(shunt)) > 1: return 'fail' # TODO: real exception
+
+        j = len(series) - len(shunt) # offset between series and shunt elements
+
+        if j == -1: # shunt is longer than series; shunt first
+            b = _make_b_shunt(shunt[0])
+        else:
+            b = np.array([np.identity(2) for f in fs])
+
+        for i in range(min(len(series), len(shunt))):
+            b_ser = _make_b_ser(series[i])
+            b_shunt = _make_b_shunt(shunt[i - min(j,0)])
+
+            # -- [ b ] -- [ser] -- | -- ...
+            #                   [shunt]
+            #                      V
+
+            b = b_shunt @ b_ser @ b
+
+        if j == 1:
+            b = _make_b_ser(series[-1]) @ b
+
+        # TODO: Calculate f-dependent noise
+
+        return cls(fs, b, NF_dB)
+
+    @classmethod
+    def from_tl(cls, fs, R, L, G, C, l): # initialize from primary line constants (per length), which are either contant or functions of frequency
+        # unit length can be any unit so long as consistent between all parameters
+
+        # if not (len(RLGC) == 1 or len(RLGC) == len(fs)): return 'fail' # TODO: real exception
+
+        ws = f2w(fs)
+        Z = R + 1j*ws*L # these conveniently work for either len(R) == 1 or len(R) == len(ws)
+        Y = G + 1j*ws*C
+
+        Z0 = sqrt(Z/Y)
+        gamma = sqrt(Z*Y)
+
+        return cls(fs, _make_b_tl(Z0, gamma, l))
+
+
+    @classmethod
     def from_gain(cls, fs, dB_gain, NF_dB = 0, f_gain = None, Zin = 50, Zout = 50):
         if f_gain == None:
             gain = dB_gain * np.ones(len(fs))
@@ -399,51 +446,23 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         # return cls(fs, b, NF_dB)
 
-    @classmethod
-    def from_network(cls, fs, series, shunt, NF_dB = 0):
-        if abs(len(series) - len(shunt)) > 1: return 'fail' # TODO: real exception
-
-        j = len(series) - len(shunt) # offset between series and shunt elements
-
-        if j == -1: # shunt is longer than series; shunt first
-            b = _make_b_shunt(shunt[0])
-        else:
-            b = np.array([np.identity(2) for f in fs])
-
-        for i in range(min(len(series), len(shunt))):
-            b_ser = _make_b_ser(series[i])
-            b_shunt = _make_b_shunt(shunt[i - min(j,0)])
 
 
-            # -- [ b ] -- [ser] -- | -- ...
-            #                   [shunt]
-            #                      V
-
-            b = b_shunt @ b_ser @ b
-
-        if j == 1:
-            b = _make_b_ser(series[-1]) @ b
-
-        # TODO: Calculate f-dependent noise
-
-        return cls(fs, b, NF_dB)
-
-
-# TODO: decide actual scope of T-line simulation and then implement a lot
-class Transmission_Line: # represents a transmission line
-    def __init__(self, R, L, G, C, l, f = 0): # initialize from primary line constants (per meter), which may or may not be functions of frequency
-        if f == 0:
-            self.f_dependent = False
-            self.f = [0]
-        else:
-            self.f_dependent = True
-            self.f = f
-
-        self.R = R
-        self.L = L
-        self.G = G
-        selc.C = C
-        self.l = l
+# # TODO: decide actual scope of T-line simulation and then implement a lot
+# class Transmission_Line: # represents a transmission line
+#     def __init__(self, R, L, G, C, l, f = 0): # initialize from primary line constants (per meter), which may or may not be functions of frequency
+#         if f == 0:
+#             self.f_dependent = False
+#             self.f = [0]
+#         else:
+#             self.f_dependent = True
+#             self.f = f
+#
+#         self.R = R
+#         self.L = L
+#         self.G = G
+#         selc.C = C
+#         self.l = l
 
 # TODO: Port impedances/mismatch, nonlinearities, noise
 class Mixer:

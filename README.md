@@ -9,7 +9,7 @@ The intent of this package is to:
 - Stop rewriting the same code repeatedly and then losing/forgetting about it/losing access to the iPython server it ran on
 
 ## Things that currently "work":
-- Modeling the frequency response of networks of passive components (basically anything that can be represented as a ladder of impedances)
+- Flaky 2-port modeling, including "arbitrary" networks of passive components and _very_ flaky transmission lines
 - Creating time domain representations of FSK, PSK, and MSK modulated signals
 - Modeling additive white Gaussian noise
 - Converting between time-domain voltages and voltage/power spectra
@@ -25,7 +25,7 @@ The intent of this package is to:
 - Actual thorough test code
 - Sustained commit streak
 
-## Aspirational Goals
+## Aspirational goals
 - Completely ransacking Saturn PCB's board modeling features
 - Parametrically generating RF structures for PCBs
 - Mixer/amplifier nonlinearity modeling
@@ -33,3 +33,6 @@ The intent of this package is to:
 - Simulate FHSS
 - Playing nicely with scikit-rf
 - This code actually being useful to someone else
+
+## Known issues
+- "Power" spectra are very easy to use incorrectly; considering some significant restructuring
