@@ -489,6 +489,34 @@ def RLGC_from_microstrip(fs, Dk, Df, R_ins, h, w, t = 0.0014):
 
     return np.array([R, L, G, C])
 
+def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
+    # see http://web.mst.edu/~marinak/files/my_publications/papers/Causal_RLGC.pdf
+    # see https://technick.net/tools/impedance-calculator/microstrip/
+
+    ws = f2w(fs)
+
+    e_i = Dk*e0
+    e_ii = Df*e_i # Stanford EE 273 Lecture 4 Slide 16
+    er = Dk # TODO: fix (this is an oversimplification)
+
+    R0 = m2in(rho_cu) / (w * t)
+    Rs = sqrt(pi*mu0*rho_cu)/w # Stanford EE 273 Lecture 4 Slide 10
+
+    G0 = Z2Y(R_ins)
+
+    Z0 = (60/sqrt(er)) * log(3.8*h / (0.8*w + t)) # = sqrt(L0 / C0)
+    td_l = 85 * sqrt(er) # = sqrt(L0 * C0)
+
+    C0 = td_l / Z0
+    L0 = td_l * Z0
+
+    R = R0 + sqrt(fs)*Rs
+    L = L0 + Rs/(2*pi*sqrt(fs))
+    G = G0 + 2*pi*fs*C0*Df
+    C = C0 # Kg*e_i
+
+    return np.array([R, L, G, C])
+
     # Johnson, H. W. and Graham, M., “High Speed Digital Design – A Handbook of Black Magic”, Prentice Hall, 1993, pp 187
     # all dimensions in inches, valid for 0.1 < w/h < 2.0, er < 15
     # microstrip:
@@ -498,23 +526,6 @@ def RLGC_from_microstrip(fs, Dk, Df, R_ins, h, w, t = 0.0014):
     # stripline:
     # Z0 = (60/sqrt(er)) * ln(3.8*h / (0.8*w + t))
     # td_l = 85 * sqrt(er)
-
-
-# # TODO: decide actual scope of T-line simulation and then implement a lot
-# class Transmission_Line: # represents a transmission line
-#     def __init__(self, R, L, G, C, l, f = 0): # initialize from primary line constants (per meter), which may or may not be functions of frequency
-#         if f == 0:
-#             self.f_dependent = False
-#             self.f = [0]
-#         else:
-#             self.f_dependent = True
-#             self.f = f
-#
-#         self.R = R
-#         self.L = L
-#         self.G = G
-#         selc.C = C
-#         self.l = l
 
 # TODO: Port impedances/mismatch, nonlinearities, noise
 class Mixer:
