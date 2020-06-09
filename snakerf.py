@@ -505,7 +505,7 @@ def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
     G0 = Z2Y(R_ins)
 
     Z0 = (60/sqrt(er)) * log(3.8*h / (0.8*w + t)) # = sqrt(L0 / C0)
-    td_l = 85 * sqrt(er) # = sqrt(L0 * C0)
+    td_l = 85e-12 * sqrt(er) # = sqrt(L0 * C0)
 
     C0 = td_l / Z0
     L0 = td_l * Z0
@@ -523,6 +523,7 @@ def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
     # Z0 = (87/sqrt(er + 1.41)) * ln(5.98*h/(0.8*w + t))
     # td_l = 85 * sqrt(0.475 * er + 0.67)
 
+    # all dimensions in inches, valid for w/2h < 0.35, t/2h < 0.25, er < 15
     # stripline:
     # Z0 = (60/sqrt(er)) * ln(3.8*h / (0.8*w + t))
     # td_l = 85 * sqrt(er)

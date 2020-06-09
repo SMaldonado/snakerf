@@ -11,7 +11,7 @@ Z2 = srf.C(1e-9, w) # srf.Zopen(w) #
 
 # filt = srf.Two_Port.from_network(f, [Z1, srf.ser(Z1, Z2), Z1], [Z2, Z2])
 
-RLGC = srf.RLGC_from_stripline(fs = f, Dk = 4.6, Df = 0, R_ins = inf, h = 0.020, w = 0.01)
+RLGC = srf.RLGC_from_stripline(fs = f, Dk = 4.6, Df = 0, R_ins = inf, h = 0.015, w = 0.01)
 
 filt = srf.Two_Port.from_tl(f, RLGC, 2)
 
