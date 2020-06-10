@@ -489,6 +489,12 @@ def RLGC_from_microstrip(fs, Dk, Df, R_ins, h, w, t = 0.0014):
 
     return np.array([R, L, G, C])
 
+    # Johnson, H. W. and Graham, M., “High Speed Digital Design – A Handbook of Black Magic”, Prentice Hall, 1993, pp 187
+    # all dimensions in inches, valid for 0.1 < w/h < 2.0, er < 15
+    # microstrip:
+    # Z0 = (87/sqrt(er + 1.41)) * ln(5.98*h/(0.8*w + t))
+    # td_l = 85 * sqrt(0.475 * er + 0.67)
+
 def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
     # see http://web.mst.edu/~marinak/files/my_publications/papers/Causal_RLGC.pdf
     # see https://technick.net/tools/impedance-calculator/microstrip/
@@ -517,12 +523,7 @@ def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
 
     return np.array([R, L, G, C])
 
-    # Johnson, H. W. and Graham, M., “High Speed Digital Design – A Handbook of Black Magic”, Prentice Hall, 1993, pp 187
-    # all dimensions in inches, valid for 0.1 < w/h < 2.0, er < 15
-    # microstrip:
-    # Z0 = (87/sqrt(er + 1.41)) * ln(5.98*h/(0.8*w + t))
-    # td_l = 85 * sqrt(0.475 * er + 0.67)
-
+    # Johnson, H. W. and Graham, M., “High Speed Digital Design – A Handbook of Black Magic”, Prentice Hall, 1993, pp 188 
     # all dimensions in inches, valid for w/2h < 0.35, t/2h < 0.25, er < 15
     # stripline:
     # Z0 = (60/sqrt(er)) * ln(3.8*h / (0.8*w + t))
