@@ -523,7 +523,7 @@ def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
 
     return np.array([R, L, G, C])
 
-    # Johnson, H. W. and Graham, M., “High Speed Digital Design – A Handbook of Black Magic”, Prentice Hall, 1993, pp 188 
+    # Johnson, H. W. and Graham, M., “High Speed Digital Design – A Handbook of Black Magic”, Prentice Hall, 1993, pp 188
     # all dimensions in inches, valid for w/2h < 0.35, t/2h < 0.25, er < 15
     # stripline:
     # Z0 = (60/sqrt(er)) * ln(3.8*h / (0.8*w + t))
@@ -531,8 +531,10 @@ def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
 
 # TODO: Port impedances/mismatch, nonlinearities, noise
 class Mixer:
-    def __init__(self, gain_dB = 0, NF_dB = 0):
-        pass
+    def __init__(self, Z_port = [50,50,50], gain_dB = 0, NF_dB = 0):
+        self.Z_LO = Z_port[0]
+        self.Z_IF = Z_port[1]
+        self.Z_RF = Z_port[2]
 
     def mix(self, sig_f, sig_lo):
         out = sig_f.copy()
