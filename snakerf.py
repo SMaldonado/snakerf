@@ -593,7 +593,7 @@ def data2sym(data, n = 1): # convert string of 1's and 0's to symbols format
     # output symbols format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0, m = 2**n
 
     bs = "".join(data.split()) # remove internal spaces
-    if len(bs) % n != 0: return 'fail'
+    if len(bs) % n != 0: raise ValueError('data length not divisible by n')
 
     k = 2**(n-1) # number of different states per symbol
 
@@ -624,7 +624,7 @@ Pdiv = np.vectorize(Pdiv_proto, otypes = [np.complex])
 
 # see https://en.wikipedia.org/wiki/Two-port_network#Collapsing_a_two-port_to_a_one_port
 def Znetwork(series, shunt):
-    if np.shape(series) != np.shape(shunt): return "fail"
+    if np.shape(series) != np.shape(shunt): raise IndexError('series and shunt have different lengths')
 
     v = np.zeros(np.shape(series), dtype=np.complex)
     z_shunt_eq = np.zeros(np.shape(series), dtype=np.complex)
@@ -652,7 +652,7 @@ def fspl(d, w, dB = True):
     return (2.0*w*d/c)**2.0
 
 def Gamma_proto(Z0, ZL): # reflection coefficient
-    if Z0 == inf or ZL + Z0: return 'fail' # TODO: make real error
+    if Z0 == inf or ZL + Z0 == 0: raise ValueError('invalid Z0')
     if ZL == inf: return 1
 
     return (ZL - Z0) / (ZL + Z0)
