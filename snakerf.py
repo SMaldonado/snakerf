@@ -362,7 +362,7 @@ class Two_Port: # Represents a noisy 2-port object with gain
         if Z_term is None:
             Zl = _make_b_shunt(Zopen(f2w(self.fs)))
         elif len(Z_term) != len(self.fs):
-            return 'fail' #TODO: real exception
+            raise IndexError('termination impedance and frequency have different lengths')
         else:
             Zl = _make_b_shunt(Z_term)
 
@@ -380,7 +380,7 @@ class Two_Port: # Represents a noisy 2-port object with gain
         # return np.array( (b[:, 0, 1] - Zl*b[:, 1, 1]) / (Zl*b[:, 1, 0] - b[:, 0, 0]) ) # this works but not for Zl == inf
 
     def V_out(self, Zs, Zl):
-        if len(Zs) != len(self.fs) or len(Zl) != len(self.fs): return 'fail' # TODO: real exception
+        if len(Zs) != len(self.fs) or len(Zl) != len(self.fs): raise IndexError('impedances and frequencies are not all same length')
 
         b = self.b
 
@@ -397,7 +397,7 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
     @classmethod
     def from_network(cls, fs, series, shunt, NF_dB = 0):
-        if abs(len(series) - len(shunt)) > 1: return 'fail' # TODO: real exception
+        if abs(len(series) - len(shunt)) > 1: raise IndexError('series and shunt have different lengths')
 
         j = len(series) - len(shunt) # offset between series and shunt elements
 
