@@ -536,7 +536,7 @@ class Mixer:
         self.Z_IF = Z_port[1]
         self.Z_RF = Z_port[2]
 
-    def mix(self, sig_f, sig_lo):
+    def mix(self, sig_f, sig_lo, Zs = 50):
         out = sig_f.copy()
         out.update_Vt(sig_f.Vt * sig_lo.Vt / rms(sig_lo.Vt))
 
