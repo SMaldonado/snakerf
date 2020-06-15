@@ -262,18 +262,18 @@ def Vt_background_noise(ts, fs, Z0 = 50, out_Vf = False):
 
     df = fs[1]-fs[0]
 
-    Vf_noise_white = Vt2Vf(V_noise_white, len(ts))
-    V2_Hz_mean_noise_white = np.mean(mag(Vf_noise_white / df))
+    Pf_noise_white = Vt2Pf(V_noise_white, len(ts))
+    V2_Hz_mean_noise_white = np.mean(mag(Pf_noise_white * Z0 / df))
     H_norm = V2_noise_Hz / (V2_Hz_mean_noise_white)
-    Vf_noise = Vf_noise_white * H_norm
+    Pf_noise = Pf_noise_white * H_norm
 
     # Total integrated power agrees decently well between PSD and output power spectrum
     # V2_var_noise_out = np.trapz(mag(Pf_noise * Z0 / df), fs) # integrate total noise power
     # print(V2_var_noise)
     # print(V2_var_noise_out)
 
-    if out_Vf: return Vf_noise
-    else: return Vf2Vt(Vf_noise, len(ts), Z0)
+    if out_Vf: return Pf2Vf(Pf_noise, Z0)
+    else: return Pf2Vt(Vf_noise, len(ts), Z0)
 
 # signal class
 # TODO: lots
