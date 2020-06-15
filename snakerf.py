@@ -211,7 +211,7 @@ def NF2T_noise(NF, dB = True): # convert noise figure in dB (or linear noise fac
 
     return t0*(F-1)
 
-def Vt_thermal_noise(ts, fs, T_noise = t0, Z0 = 50, out_Pf = False): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
+def Vt_thermal_noise(ts, fs, T_noise = t0, Z0 = 50, out_Vf = False): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
     # see: https://www.ti.com/lit/an/slva043b/slva043b.pdf
     # see: https://en.wikipedia.org/wiki/Noise_temperature
     # see: https://www.ietlabs.com/pdf/GR_Appnote/IN-103%20Useful%20Formulas,%20Tables%20&%20Curves%20for.pdf
@@ -222,7 +222,7 @@ def Vt_thermal_noise(ts, fs, T_noise = t0, Z0 = 50, out_Pf = False): # create sa
     # tl;dr: appropriately mathematically representing white noise is hard. Buyer beware.
 
     if T_noise == 0:
-        if out_Pf:
+        if out_Vf:
             return np.zeros(len(fs))
         else:
             return np.zeros(len(ts))
@@ -236,10 +236,10 @@ def Vt_thermal_noise(ts, fs, T_noise = t0, Z0 = 50, out_Pf = False): # create sa
     V_stddev_noise = sqrt(V2_noise_Hz * f_nyq)
     noise = np.random.normal(0, V_stddev_noise, len(ts))
 
-    if out_Pf: return Vt2Pf(noise, len(ts), Z0 = Z0)
+    if out_Vf: return Vt2Vf(noise, len(ts))
     else: return noise
 
-def Vt_background_noise(ts, fs, Z0 = 50, out_Pf = False):
+def Vt_background_noise(ts, fs, Z0 = 50, out_Vf = False):
     # Atmospheric background noise:
     # http://www.dtic.mil/dtic/tr/fulltext/u2/a359931.pdf
     # https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.372-7-200102-S!!PDF-E.pdf
@@ -262,18 +262,18 @@ def Vt_background_noise(ts, fs, Z0 = 50, out_Pf = False):
 
     df = fs[1]-fs[0]
 
-    Pf_noise_white = Vt2Pf(V_noise_white, len(ts), Z0 = Z0)
-    V2_Hz_mean_noise_white = np.mean(mag(Pf_noise_white * Z0 / df))
+    Vf_noise_white = Vt2Vf(V_noise_white, len(ts))
+    V2_Hz_mean_noise_white = np.mean(mag(Vf_noise_white / df))
     H_norm = V2_noise_Hz / (V2_Hz_mean_noise_white)
-    Pf_noise = Pf_noise_white * H_norm
+    Vf_noise = Vf_noise_white * H_norm
 
     # Total integrated power agrees decently well between PSD and output power spectrum
     # V2_var_noise_out = np.trapz(mag(Pf_noise * Z0 / df), fs) # integrate total noise power
     # print(V2_var_noise)
     # print(V2_var_noise_out)
 
-    if out_Pf: return Pf_noise
-    else: return Pf2Vt(Pf_noise, len(ts), Z0)
+    if out_Vf: return Vf_noise
+    else: return Vf2Vt(Vf_noise, len(ts), Z0)
 
 # signal class
 # TODO: lots
