@@ -291,7 +291,6 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
 
         if sig == 0: # initialize to zero signal
             self.Vt = np.zeros(len(self.ts))
-            self.Pf = np.zeros(len(self.fs))
             self.Vf = np.zeros(len(self.fs))
         else:
             if sig_Vt: # initialize to provided Vt
@@ -303,12 +302,10 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         if len(Vt) != len(self.ts): IndexError('signal and sample times have different lengths')
         self.Vt = Vt
         self.Vf = Vt2Vf(self.Vt, self.ns)
-        self.Pf = Vt2Pf(self.Vt, self.ns, self.Z0)
 
     def update_Vf(self, Vf): # update power spectrum and ensure time-domain consistency
         if len(Vf) != len(self.fs): IndexError('signal and frequency have different lengths')
         self.Vf = Vf
-        self.Pf = Vf2Pf(self.Vf, self.ns, self.Z0)
         self.Vt = Vf2Vt(self.Vf, self.ns)
 
     def make_tone(self, f, P_dBm):
@@ -337,8 +334,8 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
     def copy(self):
         return deepcopy(self)
 
-    def plot_f(self, ax, **kwargs):
-        plot_power_spectrum(ax, self.fs, self.Pf, False, self.Z0, **kwargs)
+    # def plot_f(self, ax, **kwargs):
+        # plot_power_spectrum(ax, self.fs, Vf2Pf(self.Pf, self.ns, self.), False, self.Z0, **kwargs)
 
 
 def _make_b_ser(Zser):
