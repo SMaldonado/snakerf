@@ -279,7 +279,7 @@ def Vt_background_noise(ts, fs, Z0 = 50, out_Vf = False):
 # TODO: lots
 
 class Signal: # represents a nodal voltage in a given characteristic impedance
-    def __init__(self, ns, t_max, sig = 0, sig_Vt = True, Z0 = 50):
+    def __init__(self, ns, t_max, sig = None, sig_Vt = True, Z0 = 50):
         self.ns = ns
         self.t_max = t_max
         self.Z0 = Z0
@@ -289,7 +289,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         self.fs = fft_fs(self.ts)
         self.df = self.fs[1] - self.fs[0]
 
-        if sig == 0: # initialize to zero signal
+        if sig is None: # initialize to zero signal
             self.Vt = np.zeros(len(self.ts))
             self.Vf = np.zeros(len(self.fs))
         else:
@@ -299,12 +299,12 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
                 self.update_Vf(sig)
 
     def update_Vt(self, Vt): # update time-domain voltage and ensure f-domain consistency
-        if len(Vt) != len(self.ts): IndexError('signal and sample times have different lengths')
+        if len(Vt) != len(self.ts): raise IndexError('signal and sample times have different lengths')
         self.Vt = Vt
         self.Vf = Vt2Vf(self.Vt, self.ns)
 
     def update_Vf(self, Vf): # update power spectrum and ensure time-domain consistency
-        if len(Vf) != len(self.fs): IndexError('signal and frequency have different lengths')
+        if len(Vf) != len(self.fs): raise IndexError('signal and sample frequencies have different lengths')
         self.Vf = Vf
         self.Vt = Vf2Vt(self.Vf, self.ns)
 
@@ -322,17 +322,16 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         # see https://www.mathworks.com/help/signal/ug/power-spectral-density-estimates-using-fft.html
         self.update_Vt(self.Vt + Vt_thermal_noise(self.ts, self.fs, T_noise = T_noise, Z0 = self.Z0))
 
-    def amplify(self, amp):
-        pass # TODO: fix for new two-port
-        # TODO: input mismatch, confirm Vf2Pf works for f-dependent Z0
-        # self.add_noise(noise = amp.NF, NF = True)
-
-        # self.update_Pf(self.Pf * undB(amp.gain(self.fs)))
-
-        # TODO: output mismatch, confirm Pf2Vf works for f-dependent Z0
+    def gain_phase(self, gain_dB, phase_deg):
+        if len(gain_dB) != len(self.fs): raise IndexError('gain and frequency have different lengths')
+        if len(phase_deg) != len(self.fs): raise IndexError('phase and frequency have different lengths')
+        self.update_Vf(self.Vf * undBv(gain_dB) * (cos(deg2rad(phase_deg)) + 1j*sin(deg2rad(phase_deg))))
 
     def copy(self):
         return deepcopy(self)
+
+    def plot_t(self, ax, **kwargs):
+        ax.plot(self.ts, self.Vt, **kwargs)
 
     # def plot_f(self, ax, **kwargs):
         # plot_power_spectrum(ax, self.fs, Vf2Pf(self.Pf, self.ns, self.), False, self.Z0, **kwargs)
@@ -379,7 +378,8 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         # return np.array( (b[:, 0, 1] - Zl*b[:, 1, 1]) / (Zl*b[:, 1, 0] - b[:, 0, 0]) ) # this works but not for Zl == inf
 
-    def V_out(self, Zs, Zl):
+    def V_out(self, Zs, Zl): # TODO: make V_out work for Zl == Zopen
+        # if Zl is None: Zl = Zopen(f2w(self.fs))
         if len(Zs) != len(self.fs) or len(Zl) != len(self.fs): raise IndexError('impedances and frequencies are not all same length')
 
         b = self.b
