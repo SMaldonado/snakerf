@@ -292,21 +292,24 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         if sig == 0: # initialize to zero signal
             self.Vt = np.zeros(len(self.ts))
             self.Pf = np.zeros(len(self.fs))
+            self.Vf = np.zeros(len(self.fs))
         else:
             if sig_Vt: # initialize to provided Vt
                 self.update_Vt(sig)
-            else: # initialize to provided Pf
-                self.update_Pf(sig)
+            else: # initialize to provided Vf
+                self.update_Vf(sig)
 
     def update_Vt(self, Vt): # update time-domain voltage and ensure f-domain consistency
-        if len(Vt) != len(self.ts): pass # TODO: throw exception
+        if len(Vt) != len(self.ts): IndexError('signal and sample times have different lengths')
         self.Vt = Vt
+        self.Vf = Vt2Vf(self.Vt, self.ns)
         self.Pf = Vt2Pf(self.Vt, self.ns, self.Z0)
 
-    def update_Pf(self, Pf): # update power spectrum and ensure time-domain consistency
-        if len(Pf) != len(self.fs): pass # TODO: throw exception
-        self.Pf = Pf
-        self.Vt = Pf2Vt(self.Pf, self.ns, self.Z0)
+    def update_Vf(self, Vf): # update power spectrum and ensure time-domain consistency
+        if len(Vf) != len(self.fs): IndexError('signal and frequency have different lengths')
+        self.Vf = Vf
+        self.Pf = Vf2Pf(self.Vf, self.ns, self.Z0)
+        self.Vt = Vf2Vt(self.Vf, self.ns)
 
     def make_tone(self, f, P_dBm):
         self.update_Vt(dBm2Vp(P_dBm) * np.sin(f2w(f) * self.ts))
