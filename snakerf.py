@@ -211,7 +211,7 @@ def NF2T_noise(NF, dB = True): # convert noise figure in dB (or linear noise fac
 
     return t0*(F-1)
 
-def Vt_thermal_noise(ts, fs, T_noise = t0, Z0 = 50, out_Vf = False): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
+def Vt_thermal_noise(ts, fs, T_noise = t0, R_noise = 50, out_Vf = False): # create sampled time-domain additive white Gaussian voltage noise of specified noise temperature
     # see: https://www.ti.com/lit/an/slva043b/slva043b.pdf
     # see: https://en.wikipedia.org/wiki/Noise_temperature
     # see: https://www.ietlabs.com/pdf/GR_Appnote/IN-103%20Useful%20Formulas,%20Tables%20&%20Curves%20for.pdf
@@ -229,7 +229,7 @@ def Vt_thermal_noise(ts, fs, T_noise = t0, Z0 = 50, out_Vf = False): # create sa
 
     # Noise voltage variance (usually ̅V^2) as a single-sided spectral density usually equals:
     # ̅V^2/B = 4*kB*T*R
-    V2_noise_Hz = 4 * kB*T_noise*mag(Z0)
+    V2_noise_Hz = 4 * kB*T_noise*mag(R_noise)
 
     # fill full sampling bandwidth of t_sample with white noise - note that this may not always be desired
     f_nyq = max(fs)
@@ -279,10 +279,9 @@ def Vt_background_noise(ts, fs, Z0 = 50, out_Vf = False):
 # TODO: lots
 
 class Signal: # represents a nodal voltage in a given characteristic impedance
-    def __init__(self, ns, t_max, sig = None, sig_Vt = True, Z0 = 50):
+    def __init__(self, ns, t_max, sig = None, sig_Vt = True):
         self.ns = ns
         self.t_max = t_max
-        self.Z0 = Z0
 
         self.dt = t_max/ns
         self.ts = make_time(ns, t_max)
@@ -314,13 +313,13 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
     def make_square(self, f, AV):
         self.update_Vt(AV * (-1)**np.floor(2*self.ts*f))
 
-    def add_noise(self, noise = t0, NF = False):
+    def add_noise(self, noise = t0, NF = False, R_noise = 50):
         if NF: T_noise = NF2T_noise(noise)
         else: T_noise = noise
 
         # EXPERIMENTAL: Add noise by directly summing voltages, not power combining
         # see https://www.mathworks.com/help/signal/ug/power-spectral-density-estimates-using-fft.html
-        self.update_Vt(self.Vt + Vt_thermal_noise(self.ts, self.fs, T_noise = T_noise, Z0 = self.Z0))
+        self.update_Vt(self.Vt + Vt_thermal_noise(self.ts, self.fs, T_noise = T_noise, R_noise = R_noise))
 
     def gain_phase(self, gain_dB, phase_deg):
         if len(gain_dB) != len(self.fs): raise IndexError('gain and frequency have different lengths')
