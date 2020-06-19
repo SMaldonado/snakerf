@@ -377,18 +377,21 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         # return np.array( (b[:, 0, 1] - Zl*b[:, 1, 1]) / (Zl*b[:, 1, 0] - b[:, 0, 0]) ) # this works but not for Zl == inf
 
-    def V_out(self, Zs, Zl): # TODO: make V_out work for Zl == Zopen
-        # if Zl is None: Zl = Zopen(f2w(self.fs))
-        if len(Zs) != len(self.fs) or len(Zl) != len(self.fs): raise IndexError('impedances and frequencies are not all same length')
+    def V_out(self, Zs, Zl = None): # TODO: make V_out work for Zl == Zopen
 
         b = self.b
 
-        Z_in = self.Z_in(Zl)
+        if len(Zs) != len(self.fs): raise IndexError('source impedance and frequencies are not same length')
 
-        # print(Zin)
+        if Zl is not None:
+            if len(Zl) != len(self.fs): raise IndexError('load impedance and frequencies are not same length')
+            b = _make_b_shunt(Zl) @ b
+
+        Z_in = self.Z_in()
 
         V1 = Vdiv(Zs, Z_in)
-        V2 = V1 * det(b) / (b[:, 1, 1] - (b[:, 0, 1]/Zl))
+        V2 = V1 * det(b) / b[:, 1, 1]
+        # V2 = V1 * det(b) / (b[:, 1, 1] - (b[:, 0, 1]/Zl))
 
         # V2 = V1 * (b[:, 0, 0] - b[:, 0, 1]*b[:, 1, 0]) / (b[:, 1, 1] - (b[:, 0, 1]/Zl))
 
