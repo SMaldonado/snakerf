@@ -373,7 +373,7 @@ class Two_Port: # Represents a noisy 2-port object with gain
             b = b @ Zl
             return -b[:, 0, 0]/b[:, 1, 0]
         else:
-            return 'fail' # TODO: real exception
+            raise IndexError('port number out of range')
 
         # return np.array( (b[:, 0, 1] - Zl*b[:, 1, 1]) / (Zl*b[:, 1, 0] - b[:, 0, 0]) ) # this works but not for Zl == inf
 
