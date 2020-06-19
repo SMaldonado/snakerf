@@ -358,22 +358,22 @@ class Two_Port: # Represents a noisy 2-port object with gain
     def Z_in(self, Z_term = None, port = 1):
 
         if Z_term is None:
-            Zl = _make_b_shunt(Zopen(f2w(self.fs)))
+            b = self.b
         elif len(Z_term) != len(self.fs):
             raise IndexError('termination impedance and frequency have different lengths')
         else:
             Zl = _make_b_shunt(Z_term)
-
-        b = self.b
+            if port == 1:
+                b = Zl @ self.b
+            elif port == 2:
+                b = self.b @ Zl
+            else:
+                raise IndexError('port number out of range')
 
         if port == 1:
-            b = Zl @ b
             return -b[:, 1, 1]/b[:, 1, 0]
         elif port == 2:
-            b = b @ Zl
             return -b[:, 0, 0]/b[:, 1, 0]
-        else:
-            raise IndexError('port number out of range')
 
         # return np.array( (b[:, 0, 1] - Zl*b[:, 1, 1]) / (Zl*b[:, 1, 0] - b[:, 0, 0]) ) # this works but not for Zl == inf
 
