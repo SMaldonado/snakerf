@@ -37,12 +37,15 @@ def phase(x, unwrap = True, deg = False):
 def rms(x):
     return np.std(x)
 
-# passive component frequency responses
+def bound(low, high, value):
+    return max(low, min(high, value))
 
 def safe_reciprocal_proto(x):
     if x == 0: return inf
     if x == inf: return 0
     return 1/x
+
+# passive component frequency responses
 
 Z2Y = np.vectorize(safe_reciprocal_proto, otypes = [np.complex])
 Y2Z = np.vectorize(safe_reciprocal_proto, otypes = [np.complex]) # yes, they're the same
@@ -549,6 +552,23 @@ class Mixer:
 def make_time(ns, t_max):
     return np.linspace(0, t_max, ns)
 
+def data2sym(data, n = 1): # convert string of 1's and 0's to symbols format
+    # output symbols format: [x1, x2, ... xm], -k <= xi <= k, xi != 0, k = 2**(n-1)
+    # TODO: Gray code?
+
+    bs = "".join(data.split()) # remove internal spaces
+    if len(bs) % n != 0: raise ValueError('data length not divisible by n')
+
+    k = 2**(n-1) # number of different states per symbol
+
+    return [int(bs[i:i+n],2) - int(k) + int(bs[i]) for i in range(0, len(bs), n)]
+
+def sym2data(sym, n = 1):
+    k = 2**(n-1) # number of different states per symbol
+    if max(np.abs(sym)) > k: raise ValueError('symbol out of range')
+
+    return " ".join(["{:0{}b}".format(s+k-(1 if s>0 else 0), n) for s in sym])
+
 def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated signal (circular constellation), with carrier fc and symbol rate f_sym
     # expected data format: "0100100101..." (spaces permitted for readability, will be ignored)
 
@@ -591,22 +611,28 @@ def V_msk(t_sample, fc, f_sym, data, dBm): # create MSK modulated signal, n = 1,
     # Extremely verbose debug return
     # return (dBm2Vp(dBm) * (inverted * delta * -1) * np.sin((f2w(fc + (delta * f_dev)) * t_sample)), dBm2Vp(dBm) * inverted, dBm2Vp(dBm) * delta, np.array([dBm2Vp(dBm) * odd_bits[int(t/(2*T_sym))] for t in t_sample]), np.array([dBm2Vp(dBm) * even_bits[int((t+T_sym)/(2*T_sym))] for t in t_sample]), np.array([dBm2Vp(dBm) * data[int(t/T_sym)] for t in t_sample]))
 
-def data2sym(data, n = 1): # convert string of 1's and 0's to symbols format
-    # output symbols format: [x1, x2, ... xm], -k <= xi <= k, xi != 0, k = 2**(n-1)
-    # TODO: Gray code?
+def quantize_ideal(Vt): # ideal quantization function
+    # quantized output is scaled from 0-1
 
-    bs = "".join(data.split()) # remove internal spaces
-    if len(bs) % n != 0: raise ValueError('data length not divisible by n')
+    q0 = min(Vt)
+    q1 = max(Vt)
+    q = q1 - q0
+    if q == 0: return np.zeros(len(Vt))
 
-    k = 2**(n-1) # number of different states per symbol
+    return np.array([(v-q0)/q for v in Vt])
 
-    return [int(bs[i:i+n],2) - int(k) + int(bs[i]) for i in range(0, len(bs), n)]
+def quantize_adc(Vt, V_full, n_bits): # simple ADC quantization function
+    # quantized output is scaled from 0-1
+    if V_full <= 0: raise ValueError('V_full must be positive')
+    if n_bits <= 0: raise ValueError('n_bits must be positive')
 
-def sym2data(sym, n = 1):
-    k = 2**(n-1) # number of different states per symbol
-    if max(np.abs(sym)) > k: raise ValueError('symbol out of range')
+    bins = 2 ** n_bits
+    V_lsb = V_full / bins
 
-    return " ".join(["{:0{}b}".format(s+k-(1 if s>0 else 0), n) for s in sym])
+    return np.array([bound(0, 1, np.floor(v/V_lsb)/(bins-1)) for v in Vt])
+
+def demod_fsk(t_sample, fc, f_sym, f_dev, data, dBm, n = 1, quantize_func = quantize_ideal, *args):
+    pass
 
 # Network voltages
 
