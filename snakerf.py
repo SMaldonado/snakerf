@@ -592,7 +592,8 @@ def V_msk(t_sample, fc, f_sym, data, dBm): # create MSK modulated signal, n = 1,
     # return (dBm2Vp(dBm) * (inverted * delta * -1) * np.sin((f2w(fc + (delta * f_dev)) * t_sample)), dBm2Vp(dBm) * inverted, dBm2Vp(dBm) * delta, np.array([dBm2Vp(dBm) * odd_bits[int(t/(2*T_sym))] for t in t_sample]), np.array([dBm2Vp(dBm) * even_bits[int((t+T_sym)/(2*T_sym))] for t in t_sample]), np.array([dBm2Vp(dBm) * data[int(t/T_sym)] for t in t_sample]))
 
 def data2sym(data, n = 1): # convert string of 1's and 0's to symbols format
-    # output symbols format: [x1, x2, ... xm], -m/2 <= xi <= m/2, m != 0, m = 2**n
+    # output symbols format: [x1, x2, ... xm], -k <= xi <= k, xi != 0, k = 2**(n-1)
+    # TODO: Gray code?
 
     bs = "".join(data.split()) # remove internal spaces
     if len(bs) % n != 0: raise ValueError('data length not divisible by n')
@@ -603,7 +604,7 @@ def data2sym(data, n = 1): # convert string of 1's and 0's to symbols format
 
 def sym2data(sym, n = 1):
     k = 2**(n-1) # number of different states per symbol
-    if max(np.abs(sym)) > k: return fail
+    if max(np.abs(sym)) > k: raise ValueError('symbol out of range')
 
     return " ".join(["{:0{}b}".format(s+k-(1 if s>0 else 0), n) for s in sym])
 
