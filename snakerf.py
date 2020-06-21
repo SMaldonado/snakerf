@@ -623,6 +623,8 @@ def quantize_ideal(Vt): # ideal quantization function
 
 def quantize_adc(Vt, V_full, n_bits): # simple ADC quantization function
     # quantized output is scaled from 0-1
+    # quantization occurs at simulated speed; sampling rate is imposed separately
+
     if V_full <= 0: raise ValueError('V_full must be positive')
     if n_bits <= 0: raise ValueError('n_bits must be positive')
 
