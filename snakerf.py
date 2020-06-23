@@ -633,7 +633,7 @@ def quantize_adc(Vt, V_full, n_bits): # simple ADC quantization function
 
     return np.array([bound(0, 1, np.floor(v/V_lsb)/(bins-1)) for v in Vt])
 
-def demod_fsk(t_sample, fc, f_sym, f_dev, data, dBm, n = 1, quantize_func = quantize_ideal, *args):
+def demod_fsk(t_sample, fc, f_sym, f_dev, data, dBm, n = 1, fsample = 10000, quantize_func = quantize_ideal, *args):
     pass
 
 # Network voltages
