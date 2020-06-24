@@ -58,7 +58,6 @@ def C_proto(C, w, ESR = 0):
 
 C = np.vectorize(C_proto, otypes = [np.complex])
 
-
 def L(L, w, ESR = 0, Cpar = 0, Gpar = 0, Qref = inf, fQref = inf, srf = inf, Zsrf = inf):
 
     # Inductor model assumes the following parasitics:
@@ -623,7 +622,6 @@ def quantize_ideal(Vt): # ideal quantization function
 
 def quantize_adc(Vt, V_full, n_bits): # simple ADC quantization function
     # quantized output is scaled from 0-1
-    # quantization occurs at simulated speed; sampling rate is imposed separately
 
     if V_full <= 0: raise ValueError('V_full must be positive')
     if n_bits <= 0: raise ValueError('n_bits must be positive')
@@ -633,8 +631,18 @@ def quantize_adc(Vt, V_full, n_bits): # simple ADC quantization function
 
     return np.array([bound(0, 1, np.floor(v/V_lsb)/(bins-1)) for v in Vt])
 
-def demod_fsk(t_sample, fc, f_sym, f_dev, data, dBm, n = 1, fsample = 10000, quantize_func = quantize_ideal, *args):
-    pass
+def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, mem_sample = 3, quantize_func = quantize_ideal, **kwargs):
+
+    t_sample = np.arange(min(ts), max(ts), 1/f_sample)
+    V_sample = np.interp(t_sample, ts, Vt)
+    V_quantize = quantize_func(V_sample, **kwargs)
+
+    cos_w0 = cos(f2w(fc+f_sym)/f_sample)
+
+    for i in range(len(t_sample) - mem_sample + 1):
+
+
+    return V_quantize
 
 # Network voltages
 
