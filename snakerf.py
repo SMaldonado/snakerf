@@ -638,7 +638,7 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
     V_sample = np.interp(t_sample, ts, Vt)
     V_quantize = quantize_func(V_sample, **kwargs)
 
-    w0 = f2w(fc+f_sym)/f_sample
+    w0 = f2w(fc-f_dev)/f_sample
     cos_w0 = np.cos(w0)
     exp_jw0 = exp(-1j*w0)
 
