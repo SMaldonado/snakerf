@@ -1,5 +1,6 @@
 import math
 from math import e, pi, inf
+from cmath import exp
 import numpy as np
 from numpy import log2, log, log10, rad2deg, deg2rad, sqrt
 from numpy.linalg import det
@@ -326,7 +327,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
     def gain_phase(self, gain_dB, phase_deg):
         if len(gain_dB) != len(self.fs): raise IndexError('gain and frequency have different lengths')
         if len(phase_deg) != len(self.fs): raise IndexError('phase and frequency have different lengths')
-        self.update_Vf(self.Vf * undBv(gain_dB) * (cos(deg2rad(phase_deg)) + 1j*sin(deg2rad(phase_deg))))
+        self.update_Vf(self.Vf * undBv(gain_dB) * (np.cos(deg2rad(phase_deg)) + 1j*np.sin(deg2rad(phase_deg))))
 
     def copy(self):
         return deepcopy(self)
@@ -631,18 +632,26 @@ def quantize_adc(Vt, V_full, n_bits): # simple ADC quantization function
 
     return np.array([bound(0, 1, np.floor(v/V_lsb)/(bins-1)) for v in Vt])
 
-def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, mem_sample = 3, quantize_func = quantize_ideal, **kwargs):
+def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func = quantize_ideal, **kwargs):
 
     t_sample = np.arange(min(ts), max(ts), 1/f_sample)
     V_sample = np.interp(t_sample, ts, Vt)
     V_quantize = quantize_func(V_sample, **kwargs)
 
-    cos_w0 = cos(f2w(fc+f_sym)/f_sample)
+    w0 = f2w(fc+f_sym)/f_sample
+    cos_w0 = np.cos(w0)
+    exp_jw0 = exp(-1j*w0)
 
-    for i in range(len(t_sample) - mem_sample + 1):
+    # see https://en.wikipedia.org/wiki/Goertzel_algorithm#The_algorithm
 
+    s = np.zeros(len(t_sample) + 2)
+    y = np.zeros(len(t_sample), dtype = np.complex)
 
-    return V_quantize
+    for i in range(len(t_sample)):
+        s[i+2] = V_quantize[i] + (2*cos_w0*s[i+1]) - s[i]
+        y[i] = s[i] - exp_jw0 * s[i+1]
+
+    return y
 
 # Network voltages
 
