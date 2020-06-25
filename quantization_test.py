@@ -13,7 +13,7 @@ f_sample = 25000
 random_data = '100110111010101101100110111010101101100110111010101101100110111010101101100110111010101101'
 
 v1 = srf.Signal(10000, 0.05)
-v1.update_Vt(srf.V_fsk(v1.ts, fc, f_sym, f_dev, random_data, -130, n = 1))
+v1.update_Vt(srf.V_fsk(v1.ts, fc, f_sym, f_dev, random_data, -120, n = 1))
 v1.add_noise()
 
 y1 = srf.demod_fsk(v1.Vt, v1.ts, fc, f_sym, f_dev, f_sample = f_sample)#, quantize_func = srf.quantize_adc, V_full = 1, n_bits = 10)
@@ -30,8 +30,8 @@ plt.xlim(min(v1.ts), max(v1.ts))
 
 plt.subplot(2,1,2)
 
-srf.plot_power_spectrum(plt.gca(), v1.ts, v1.Vt, time = True)
-# plt.plot(v1.ts, v1.Vt)
+plt.plot(v1.ts, v1.Vt)
+# srf.plot_power_spectrum(plt.gca(), v1.ts, v1.Vt, time = True)
 
 # for i in range(len(random_data)):
 #     plt.axvline((i+1)*(1/f_sym), color = 'black', ls = '--')

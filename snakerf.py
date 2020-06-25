@@ -237,6 +237,7 @@ def Vt_thermal_noise(ts, fs, T_noise = t0, R_noise = 50, out_Vf = False): # crea
     # fill full sampling bandwidth of t_sample with white noise - note that this may not always be desired
     f_nyq = max(fs)
     V_stddev_noise = sqrt(V2_noise_Hz * f_nyq)
+    print(V_stddev_noise)
     noise = np.random.normal(0, V_stddev_noise, len(ts))
 
     if out_Vf: return Vt2Vf(noise, len(ts))
@@ -380,7 +381,7 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         # return np.array( (b[:, 0, 1] - Zl*b[:, 1, 1]) / (Zl*b[:, 1, 0] - b[:, 0, 0]) ) # this works but not for Zl == inf
 
-    def V_out(self, Zs, Zl = None): # TODO: make V_out work for Zl == Zopen
+    def V_out(self, Zs = None, Zl = None):
 
         b = self.b
 
@@ -390,9 +391,12 @@ class Two_Port: # Represents a noisy 2-port object with gain
             if len(Zl) != len(self.fs): raise IndexError('load impedance and frequencies are not same length')
             b = _make_b_shunt(Zl) @ b
 
-        Z_in = self.Z_in()
+        if Zs is not None:
+            Z_in = self.Z_in()
+            V1 = Vdiv(Zs, Z_in)
+        else:
+            V1 = np.ones(self.fs)
 
-        V1 = Vdiv(Zs, Z_in)
         V2 = V1 * det(b) / b[:, 1, 1]
         # V2 = V1 * det(b) / (b[:, 1, 1] - (b[:, 0, 1]/Zl))
 
