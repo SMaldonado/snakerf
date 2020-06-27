@@ -648,7 +648,7 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
     n_sym = int((max(ts) - min(ts)) * f_sym)
 
     m = -1
-    syms = np.zeros((n_sym, 2**n), dtype = np.complex)
+    p_syms = np.zeros((n_sym, 2**n))
 
     all_syms = ''.join(['{0:0{1:d}b}'.format(num , n) for num in range(2**n)])
     f_devs = f_dev * np.array(data2sym(all_syms, n))
@@ -664,7 +664,7 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
     for idx in range(len(t_sample)):
         t = t_sample[idx]
         if t > t_sym_end:
-            if m > -1: syms[m][:] = y
+            if m > -1: p_syms[m][:] = mag(y)
             m = m + 1
             t_sym_end = min(t_sample) + (m + 1) * T_sym
             i = 0
@@ -673,9 +673,10 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
         s[i+2][:] = V_quantize[idx] + (2*cos_w0*s[i+1][:]) - s[i][:]
         y = s[i][:] - exp_jw0 * s[i+1][:]
         i = i + 1
-        # print(s)
 
-    return syms
+    syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(p_syms, axis = 1)])
+
+    return (syms, p_syms)
 
 # Network voltages
 

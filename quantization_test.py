@@ -10,17 +10,22 @@ fc = 10000
 f_sym = 1000
 f_dev = 500
 f_sample = 25000
-random_data = '10 01 10 11 10 10 10 11 01 00 11 01 11 01 01 01 10 11 00 11 01 11 01 01 01 10 11 00 11 01 11 01 01 01 10 11 00 11 01 11 01 01 01 10 11 00 11 01 11 01 01 01 10 11 10 01 10 11 10 10 10 11 01 10 01 10 11 10 10 10 11 01 10 01 10 11 10 10 10 11 01 10 01 10 11 10 10 10 11 01'
+m = 9
+random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
 
-v1 = srf.Signal(10000, 0.05)
-v1.update_Vt(srf.V_fsk(v1.ts, fc, f_sym, f_dev, random_data, -100, n = 2))
-# v1.add_noise()
+v1 = srf.Signal(20000, 0.1)
+v1.update_Vt(srf.V_fsk(v1.ts, fc, f_sym, f_dev, random_data, -110, n = 2))
+v1.add_noise()
 
-y1 = srf.demod_fsk(v1.Vt, v1.ts, fc, f_sym, f_dev, n = 2, f_sample = f_sample)#, quantize_func = srf.quantize_adc, V_full = 1, n_bits = 10)
+syms, p_syms = srf.demod_fsk(v1.Vt, v1.ts, fc, f_sym, f_dev, n = 2, f_sample = f_sample)#, quantize_func = srf.quantize_adc, V_full = 1, n_bits = 10)
 # y2 = srf.demod_fsk(v1.Vt, v1.ts, fc, f_sym, -f_dev, f_sample = f_sample)#, quantize_func = srf.quantize_adc, V_full = 1, n_bits = 10)
 
+print(random_data[:len(syms)])
+print(syms)
+
 plt.subplot(2,1,1)
-plt.plot(np.arange(min(v1.ts), max(v1.ts), 1/f_sym) + 0.5/f_sym, srf.mag(y1))
+plt.plot(np.arange(min(v1.ts), max(v1.ts), 1/f_sym) + 0.5/f_sym, p_syms)
+
 # plt.plot(np.arange(min(v1.ts), max(v1.ts), 1/f_sym) + 0.5/f_sym, srf.mag(y2))
 
 for i in range(len(random_data)):
