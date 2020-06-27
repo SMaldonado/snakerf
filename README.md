@@ -7,6 +7,7 @@ The intent of this package is to:
 - Fill a perceived gap in [scikit-rf](http://scikit-rf.org), which abstracts RF circuits into matrices of S/X/Y/Z parameters and is poorly suited to tasks like designing matching networks (it _can_, and they have example code showing how, but that doesn't mean it's well suited to the task)
 - Make up for (LT)Spice's poor handling of scattering parameters and general clunkiness
 - Stop rewriting the same code repeatedly and then losing/forgetting about it/losing access to the iPython server it ran on
+- Maintain my employability
 
 ## Things that currently "work":
 - Flaky 2-port modeling, including "arbitrary" networks of passive components and _very_ flaky transmission lines
@@ -15,9 +16,10 @@ The intent of this package is to:
 - Converting between time-domain voltages and voltage/power spectra
 - Converting between decibels and linear quantities
 - Generating [Gold codes](https://en.wikipedia.org/wiki/Gold_code) up to length 2^15 + 1 (after which my laptop started throwing memory errors; your mileage may vary)
+- Demodulator for FSK
 
 ## Real goals
-- Demodulators for FSK, PSK, and MSK
+- Demodulators for PSK, and MSK
 - Mixer/amplifier modeling with noise
 - Tool for designing filters using purchaseable component values
 - Modeling simple PCB features (microstrips)
@@ -36,3 +38,4 @@ The intent of this package is to:
 
 ## Known issues
 - "Power" spectra are very easy to use incorrectly; considering some significant restructuring
+- Despite now having lots of little functional blocks, interfaces between different pieces of code are currently bad
