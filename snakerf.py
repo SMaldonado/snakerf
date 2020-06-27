@@ -653,7 +653,7 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
     all_syms = ''.join(['{0:0{1:d}b}'.format(num , n) for num in range(2**n)])
     f_devs = f_dev * np.array(data2sym(all_syms, n))
 
-    w0 = f2w(fc - f_devs)/f_sample
+    w0 = f2w(fc + f_devs)/f_sample
     cos_w0 = np.cos(w0)
     exp_jw0 = np.exp(-1j*w0)
     y = np.zeros(2**n)
