@@ -641,10 +641,6 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
     V_sample = np.interp(t_sample, ts, Vt)
     V_quantize = quantize_func(V_sample, **kwargs)
 
-    w0 = f2w(fc-f_dev)/f_sample
-    cos_w0 = np.cos(w0)
-    exp_jw0 = exp(-1j*w0)
-
     # see https://en.wikipedia.org/wiki/Goertzel_algorithm#The_algorithm
 
     samples_sym = f_sample/f_sym
@@ -652,7 +648,15 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
     n_sym = int((max(ts) - min(ts)) * f_sym)
 
     m = -1
-    syms = np.zeros(n_sym, dtype = np.complex)
+    syms = np.zeros((n_sym, 2**n), dtype = np.complex)
+
+    all_syms = ''.join(['{0:0{1:d}b}'.format(num , n) for num in range(2**n)])
+    f_devs = f_dev * np.array(data2sym(all_syms, n))
+
+    w0 = f2w(fc - f_devs)/f_sample
+    cos_w0 = np.cos(w0)
+    exp_jw0 = np.exp(-1j*w0)
+    y = np.zeros(2**n)
 
     T_sym = 1/f_sym
     t_sym_end = min(t_sample) - 1
@@ -660,14 +664,14 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
     for idx in range(len(t_sample)):
         t = t_sample[idx]
         if t > t_sym_end:
-            if m > -1: syms[m] = y
+            if m > -1: syms[m][:] = y
             m = m + 1
             t_sym_end = min(t_sample) + (m + 1) * T_sym
             i = 0
-            s = np.zeros(N + 2)
+            s = np.zeros((N + 2, 2**n))
 
-        s[i+2] = V_quantize[idx] + (2*cos_w0*s[i+1]) - s[i]
-        y = s[i] - exp_jw0 * s[i+1]
+        s[i+2][:] = V_quantize[idx] + (2*cos_w0*s[i+1][:]) - s[i][:]
+        y = s[i][:] - exp_jw0 * s[i+1][:]
         i = i + 1
         # print(s)
 
