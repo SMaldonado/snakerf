@@ -20,8 +20,8 @@ y1 = srf.demod_fsk(v1.Vt, v1.ts, fc, f_sym, f_dev, f_sample = f_sample)#, quanti
 y2 = srf.demod_fsk(v1.Vt, v1.ts, fc, f_sym, -f_dev, f_sample = f_sample)#, quantize_func = srf.quantize_adc, V_full = 1, n_bits = 10)
 
 plt.subplot(2,1,1)
-plt.plot(np.arange(min(v1.ts), max(v1.ts), 1/f_sample), srf.mag(y1))
-plt.plot(np.arange(min(v1.ts), max(v1.ts), 1/f_sample), srf.mag(y2))
+plt.plot(np.arange(min(v1.ts), max(v1.ts), 1/f_sym) + 0.5/f_sym, srf.mag(y1))
+plt.plot(np.arange(min(v1.ts), max(v1.ts), 1/f_sym) + 0.5/f_sym, srf.mag(y2))
 
 for i in range(len(random_data)):
     plt.axvline((i+1)*(1/f_sym), color = 'black', ls = '--')

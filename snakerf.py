@@ -237,7 +237,6 @@ def Vt_thermal_noise(ts, fs, T_noise = t0, R_noise = 50, out_Vf = False): # crea
     # fill full sampling bandwidth of t_sample with white noise - note that this may not always be desired
     f_nyq = max(fs)
     V_stddev_noise = sqrt(V2_noise_Hz * f_nyq)
-    print(V_stddev_noise)
     noise = np.random.normal(0, V_stddev_noise, len(ts))
 
     if out_Vf: return Vt2Vf(noise, len(ts))
@@ -648,14 +647,31 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
 
     # see https://en.wikipedia.org/wiki/Goertzel_algorithm#The_algorithm
 
-    s = np.zeros(len(t_sample) + 2)
-    y = np.zeros(len(t_sample), dtype = np.complex)
+    samples_sym = f_sample/f_sym
+    N = int(samples_sym) + 1
+    n_sym = int((max(ts) - min(ts)) * f_sym)
 
-    for i in range(len(t_sample)):
-        s[i+2] = V_quantize[i] + (2*cos_w0*s[i+1]) - s[i]
-        y[i] = s[i] - exp_jw0 * s[i+1]
+    m = -1
+    syms = np.zeros(n_sym, dtype = np.complex)
 
-    return y
+    T_sym = 1/f_sym
+    t_sym_end = min(t_sample) - 1
+
+    for idx in range(len(t_sample)):
+        t = t_sample[idx]
+        if t > t_sym_end:
+            if m > -1: syms[m] = y
+            m = m + 1
+            t_sym_end = min(t_sample) + (m + 1) * T_sym
+            i = 0
+            s = np.zeros(N + 2)
+
+        s[i+2] = V_quantize[idx] + (2*cos_w0*s[i+1]) - s[i]
+        y = s[i] - exp_jw0 * s[i+1]
+        i = i + 1
+        # print(s)
+
+    return syms
 
 # Network voltages
 
