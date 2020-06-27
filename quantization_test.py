@@ -12,17 +12,20 @@ f_dev = 500
 f_sample = 25000
 m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
+P_dBm = -120
 
 v1 = srf.Signal(100000, 0.5)
-v1.update_Vt(srf.V_fsk(v1.ts, fc, f_sym, f_dev, random_data, -120, n = 1))
+v1.update_Vt(srf.V_fsk(v1.ts, fc, f_sym, f_dev, random_data, P_dBm, n = 1))
 v1.add_noise()
 
-syms, p_syms = srf.demod_fsk(v1.Vt, v1.ts, fc, f_sym, f_dev, n = 1, f_sample = f_sample)#, quantize_func = srf.quantize_adc, V_full = 1, n_bits = 10)
+V_pk = srf.dBm2Vp(P_dBm, 50)
 
-print(random_data[:len(syms)])
-print(syms)
+syms, p_syms = srf.demod_fsk(v1.Vt, v1.ts, fc, f_sym, f_dev, n = 1, f_sample = f_sample, quantize_func = srf.quantize_adc, V_full = V_pk, n_bits = 12)
+
+# print(random_data[:len(syms)])
+# print(syms)
 errs = ''.join(['0' if syms[i] == random_data[i] else '1' for i in range(len(syms))])
-print(errs)
+# print(errs)
 print('{} / {}'.format(errs.count('1'), len(syms)))
 
 # plt.subplot(2,1,1)
