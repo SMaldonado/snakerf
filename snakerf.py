@@ -673,6 +673,7 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
         s[i+2][:] = V_quantize[idx] + (2*cos_w0*s[i+1][:]) - s[i][:]
         y = s[i][:] - exp_jw0 * s[i+1][:]
         i = i + 1
+        if idx == len(t_sample) - 1: p_syms[m][:] = mag(y) # otherwise last symbol always 0
 
     syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(p_syms, axis = 1)])
 
