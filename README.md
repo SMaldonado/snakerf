@@ -28,6 +28,7 @@ The intent of this package is to:
 - Sustained commit streak
 
 ## Aspirational goals
+- Cython accelerated math
 - Completely ransacking Saturn PCB's board modeling features
 - Parametrically generating RF structures for PCBs
 - Mixer/amplifier nonlinearity modeling

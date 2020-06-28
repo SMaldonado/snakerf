@@ -635,20 +635,15 @@ def quantize_adc(Vt, V_full, n_bits): # simple ADC quantization function
 
     return np.array([bound(0, 1, np.floor(v/V_lsb)/(bins-1)) for v in Vt])
 
-def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func = quantize_ideal, **kwargs):
-
-    t_sample = np.arange(min(ts), max(ts), 1/f_sample)
-    V_sample = np.interp(t_sample, ts, Vt)
-    V_quantize = quantize_func(V_sample, **kwargs)
-
+def goertzel(V_quantize, t_sample, fc, f_sym, f_sample, f_dev, n):
     # see https://en.wikipedia.org/wiki/Goertzel_algorithm#The_algorithm
 
     samples_sym = f_sample/f_sym
     N = int(samples_sym) + 1
-    n_sym = int((max(ts) - min(ts)) * f_sym)
+    n_sym = int((max(t_sample) - min(t_sample)) * f_sym) + 1
 
     m = -1
-    p_syms = np.zeros((n_sym, 2**n))
+    p_syms = np.zeros((n_sym, 2**n), dtype = np.complex)
 
     all_syms = ''.join(['{0:0{1:d}b}'.format(num , n) for num in range(2**n)])
     f_devs = f_dev * np.array(data2sym(all_syms, n))
@@ -664,7 +659,7 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
     for idx in range(len(t_sample)):
         t = t_sample[idx]
         if t > t_sym_end:
-            if m > -1: p_syms[m][:] = mag(y)
+            if m > -1: p_syms[m][:] = y
             m = m + 1
             t_sym_end = min(t_sample) + (m + 1) * T_sym
             i = 0
@@ -673,11 +668,20 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
         s[i+2][:] = V_quantize[idx] + (2*cos_w0*s[i+1][:]) - s[i][:]
         y = s[i][:] - exp_jw0 * s[i+1][:]
         i = i + 1
-        if idx == len(t_sample) - 1: p_syms[m][:] = mag(y) # otherwise last symbol always 0
+        if idx == len(t_sample) - 1: p_syms[m][:] = y # otherwise last symbol always 0
 
-    syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(p_syms, axis = 1)])
+    return p_syms
 
-    return (syms, p_syms)
+def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func = quantize_ideal, **kwargs):
+
+    t_sample = np.arange(min(ts), max(ts), 1/f_sample)
+    V_sample = np.interp(t_sample, ts, Vt)
+    V_quantize = quantize_func(V_sample, **kwargs)
+
+    p_syms = goertzel(V_quantize, t_sample, fc, f_sym, f_sample, f_dev, n)
+    syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(mag(p_syms), axis = 1)])
+
+    return (syms, mag(p_syms))
 
 # Network voltages
 
