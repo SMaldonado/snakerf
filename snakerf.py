@@ -230,6 +230,10 @@ def Vt_thermal_noise(ts, fs, T_noise = t0, R_noise = 50, out_Vf = False): # crea
         else:
             return np.zeros(len(ts))
 
+    print(min(fs))
+    print(max(fs))
+    print(W2dBm(kB*T_noise * (max(fs)-min(fs))))
+
     # Noise voltage variance (usually ̅V^2) as a single-sided spectral density usually equals:
     # ̅V^2/B = 4*kB*T*R
     V2_noise_Hz = 4 * kB*T_noise*mag(R_noise)
