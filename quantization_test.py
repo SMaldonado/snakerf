@@ -13,19 +13,19 @@ f_sample = 25000
 m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
 P_dBm = -120
-n = 4
+n = 2
 
 test_bits = 500
 f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 
 BW = f_sim/2
-P_sig = srf.dBm2W(P_dBm) / (2**n)
+P_sig = srf.dBm2W(P_dBm)/(2**n)
 P_noise = srf.kB * srf.t0 * BW
 print(srf.W2dBm(P_noise))
 
-BW_c = f_sample / 2
-bitrate = f_sym * n
+BW_c = (f_dev * (2**n)) + (2 * f_sym)
+bitrate = f_sym
 
 Eb_N0 = P_sig * BW_c / (P_noise * bitrate)
 print(srf.dB(Eb_N0))
