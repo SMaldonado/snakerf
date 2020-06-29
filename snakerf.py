@@ -645,8 +645,11 @@ def goertzel(V_quantize, t_sample, fc, f_sym, f_sample, f_dev, n):
     m = -1
     p_syms = np.zeros((n_sym, 2**n), dtype = np.complex)
 
-    all_syms = ''.join(['{0:0{1:d}b}'.format(num , n) for num in range(2**n)])
-    f_devs = f_dev * np.array(data2sym(all_syms, n))
+    if n > 0:
+        all_syms = ''.join(['{0:0{1:d}b}'.format(num , n) for num in range(2**n)])
+        f_devs = f_dev * np.array(data2sym(all_syms, n))
+    else:
+        f_devs = 0
 
     w0 = f2w(fc + f_devs)/f_sample
     cos_w0 = np.cos(w0)
@@ -682,6 +685,17 @@ def demod_fsk(Vt, ts, fc, f_sym, f_dev, n = 1, f_sample = 10000, quantize_func =
     syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(mag(p_syms), axis = 1)])
 
     return (syms, mag(p_syms))
+
+def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quantize_ideal, **kwargs):
+
+    t_sample = np.arange(min(ts), max(ts), 1/f_sample)
+    V_sample = np.interp(t_sample, ts, Vt)
+    V_quantize = quantize_func(V_sample, **kwargs)
+
+    p_syms = goertzel(V_quantize, t_sample, fc, f_sym, f_sample, f_dev = 0, n = 0) # n = 0 forces Goertzel to just run at a single frequency
+    syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(mag(p_syms), axis = 1)])
+
+    return (syms, p_syms)
 
 # Network voltages
 
