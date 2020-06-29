@@ -487,7 +487,7 @@ def RLGC_from_microstrip(fs, Dk, Df, R_ins, h, w, t = 0.0014):
     Z0 = (87/sqrt(er + 1.41)) * log(5.98*h/(0.8*w + t)) # = sqrt(L0 / C0)
     td_l = 85e-12 * sqrt(0.475 * er + 0.67) # = sqrt(L0 * C0)
 
-    C0 = td_l / Z0
+    C0 = td_l / Z0 # (w * e_i / h) + (2 * pi * e_i / log(h / t)) per Dally, Poulton p. 83
     L0 = td_l * Z0
 
     R = R0 + sqrt(fs)*Rs
