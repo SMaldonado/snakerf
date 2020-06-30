@@ -9,7 +9,7 @@ from math import inf, pi, log2
 fc = 10000
 f_sym = 1000
 f_dev = 0
-f_sample = 10000000
+f_sample = 100000
 m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
 P_dBm = -110
@@ -47,7 +47,6 @@ for i in range(n_tests):
     n_errs = n_errs + errs.count('1')
 
 print('{} / {} ({:e})'.format(n_errs, n_tests * test_bits, n_errs/(n_tests * test_bits)))
-
 
 ###############
 
