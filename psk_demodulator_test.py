@@ -9,11 +9,11 @@ from math import inf, pi, log2
 fc = 10000
 f_sym = 1000
 f_dev = 0
-f_sample = 100000
+f_sample = 10000000
 m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
 P_dBm = -110
-n = 2
+n = 1
 
 test_bits = 50
 f_sim = 2e5
