@@ -468,7 +468,6 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         # return cls(fs, b, NF_dB)
 
-
 def RLGC_from_microstrip(fs, Dk, Df, R_ins, h, w, t = 0.0014):
     # see http://web.mst.edu/~marinak/files/my_publications/papers/Causal_RLGC.pdf
     # see https://technick.net/tools/impedance-calculator/microstrip/
