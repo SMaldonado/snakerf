@@ -552,7 +552,7 @@ class Mixer:
 # Modulation and demodulation
 
 def make_time(ns, t_max):
-    return np.linspace(0, t_max, ns)
+    return np.linspace(0, t_max, int(ns))
 
 def data2sym(data, n = 1): # convert string of 1's and 0's to symbols format
     # output symbols format: [x1, x2, ... xm], -k <= xi <= k, xi != 0, k = 2**(n-1)
@@ -702,7 +702,7 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
     q = sin_sample * V_sample
 
     m = -1
-    p_syms = np.zeros((n_sym, 2))
+    p_syms = np.zeros(n_sym)
 
     T_sym = 1/f_sym
     t_sym_end = min(t_sample) - 1
@@ -710,7 +710,8 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
     for idx in range(len(t_sample)):
         t = t_sample[idx]
         if t > t_sym_end:
-            if m > -1: p_syms[m][:] = [sumi, sumq]
+            if m > -1:
+                p_syms[m] = phase(sumi + 1j*sumq, unwrap = False, deg = True)
             m = m + 1
             t_sym_end = min(t_sample) + (m + 1) * T_sym
             sumi = 0
@@ -719,7 +720,7 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
         sumi = sumi + i[idx]
         sumq = sumq + q[idx]
 
-        if idx == len(t_sample) - 1: p_syms[m][:] = [sumi, sumq] # otherwise last symbol always 0
+        if idx == len(t_sample) - 1: p_syms[m] = phase(sumi + 1j*sumq, unwrap = False, deg = True) # otherwise last symbol always 0
 
     return p_syms
 

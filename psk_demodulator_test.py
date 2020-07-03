@@ -12,7 +12,7 @@ f_dev = 0
 f_sample = 100000
 m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '01'
-P_dBm = -110
+P_dBm = -120
 n = 3
 
 test_bits = 50
@@ -38,7 +38,7 @@ for i in range(n_tests):
 
     v1 = srf.Signal(f_sim * t_sim, t_sim)
     v1.update_Vt(srf.V_psk(v1.ts, fc, f_sym, random_data, P_dBm, n = n))
-    # v1.add_noise()
+    v1.add_noise()
 
     p_syms = srf.demod_psk(v1.Vt, v1.ts, fc, f_sym, n = n, f_sample = f_sample)#, quantize_func = srf.quantize_adc, V_full = V_pk, n_bits = 12)
 
@@ -65,6 +65,15 @@ plt.plot(np.arange(min(v1.ts), max(v1.ts), 1/f_sym) + 0.5/f_sym, p_syms)
 
 for i in range(len(random_data)):
     plt.axvline((i+1)*(1/f_sym), color = 'black', ls = '--')
+
+q = 2**n
+d_phi = 360/q # get phase step
+T_sym = 1/f_sym # get symbol time
+
+for i in range(q):
+    plt.axhline((i + 0.5) * d_phi - 180, color = 'black', ls = '--')
+
+
 
 plt.xlim(min(v1.ts), max(v1.ts))
 plt.title(' '.join([random_data[i:i+n] for i in range(0, test_bits, n)]))
