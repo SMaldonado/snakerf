@@ -691,10 +691,18 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
     V_sample = np.interp(t_sample, ts, Vt)
     V_quantize = quantize_func(V_sample, **kwargs)
 
-    p_syms = goertzel(V_quantize, t_sample, fc, f_sym, f_sample, f_dev = 0, n = 0) # n = 0 forces Goertzel to just run at a single frequency
-    syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(mag(p_syms), axis = 1)])
+    sin_sample = np.sin(f2w(fc) * t_sample)
+    cos_sample = np.cos(f2w(fc) * t_sample)
 
-    return (syms, p_syms)
+    i = cos_sample * V_sample
+    q = sin_sample * V_sample
+
+    return (i, q)
+
+    # p_syms = goertzel(V_quantize, t_sample, fc, f_sym, f_sample, f_dev = 0, n = 0) # n = 0 forces Goertzel to just run at a single frequency
+    # syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(mag(p_syms), axis = 1)])
+    #
+    # return (syms, p_syms)
 
 # Network voltages
 
