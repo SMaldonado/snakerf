@@ -691,13 +691,37 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
     V_sample = np.interp(t_sample, ts, Vt)
     V_quantize = quantize_func(V_sample, **kwargs)
 
+    samples_sym = f_sample/f_sym
+    N = int(samples_sym) + 1
+    n_sym = int((max(t_sample) - min(t_sample)) * f_sym) + 1
+
     sin_sample = np.sin(f2w(fc) * t_sample)
     cos_sample = np.cos(f2w(fc) * t_sample)
 
     i = cos_sample * V_sample
     q = sin_sample * V_sample
 
-    return (i, q)
+    m = -1
+    p_syms = np.zeros((n_sym, 2))
+
+    T_sym = 1/f_sym
+    t_sym_end = min(t_sample) - 1
+
+    for idx in range(len(t_sample)):
+        t = t_sample[idx]
+        if t > t_sym_end:
+            if m > -1: p_syms[m][:] = [sumi, sumq]
+            m = m + 1
+            t_sym_end = min(t_sample) + (m + 1) * T_sym
+            sumi = 0
+            sumq = 0
+
+        sumi = sumi + i[idx]
+        sumq = sumq + q[idx]
+
+        if idx == len(t_sample) - 1: p_syms[m][:] = [sumi, sumq] # otherwise last symbol always 0
+
+    return p_syms
 
     # p_syms = goertzel(V_quantize, t_sample, fc, f_sym, f_sample, f_dev = 0, n = 0) # n = 0 forces Goertzel to just run at a single frequency
     # syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(mag(p_syms), axis = 1)])
