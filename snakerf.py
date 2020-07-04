@@ -565,11 +565,13 @@ def data2sym(data, n = 1): # convert string of 1's and 0's to symbols format
 
     return [int(bs[i:i+n],2) - int(k) + int(bs[i]) for i in range(0, len(bs), n)]
 
-def sym2data(sym, n = 1):
+def sym2data(sym, n = 1, spaces = True):
     k = 2**(n-1) # number of different states per symbol
     if max(np.abs(sym)) > k: raise ValueError('symbol out of range')
 
-    return " ".join(["{:0{}b}".format(s+k-(1 if s>0 else 0), n) for s in sym])
+    joiner = " " if spaces else ""
+
+    return joiner.join(["{:0{}b}".format(int(s+k-(1 if s>0 else 0)), n) for s in sym])
 
 def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated signal (circular constellation), with carrier fc and symbol rate f_sym
     # expected data format: "0100100101..." (spaces permitted for readability, will be ignored)
@@ -711,7 +713,7 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
         t = t_sample[idx]
         if t > t_sym_end:
             if m > -1:
-                p_syms[m] = phase(sumi + 1j*sumq, unwrap = False, deg = True)
+                p_syms[m] = phase(sumq + 1j*sumi, unwrap = False, deg = True)
             m = m + 1
             t_sym_end = min(t_sample) + (m + 1) * T_sym
             sumi = 0
@@ -720,9 +722,13 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
         sumi = sumi + i[idx]
         sumq = sumq + q[idx]
 
-        if idx == len(t_sample) - 1: p_syms[m] = phase(sumi + 1j*sumq, unwrap = False, deg = True) # otherwise last symbol always 0
+        if idx == len(t_sample) - 1: p_syms[m] = phase(sumq + 1j*sumi, unwrap = False, deg = True) # otherwise last symbol always 0
 
-    return p_syms
+    # d_phi * np.array([syms[int(t/T_sym)] - 0.5*np.sign(syms[int(t/T_sym)])for t in t_sample])
+    syms = p_syms / (360 / 2**n) + (0.5 * np.sign(p_syms))
+    data = sym2data(np.round(syms), n, spaces = False)
+
+    return (data, syms)
 
     # p_syms = goertzel(V_quantize, t_sample, fc, f_sym, f_sample, f_dev = 0, n = 0) # n = 0 forces Goertzel to just run at a single frequency
     # syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(mag(p_syms), axis = 1)])
