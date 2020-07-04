@@ -12,10 +12,10 @@ f_dev = 0
 f_sample = 100000
 m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
-P_dBm = -130
+P_dBm = -125
 n = 2
 
-test_bits = 50
+test_bits = 500
 f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 
@@ -33,7 +33,7 @@ print(srf.dB(Eb_N0))
 V_pk = srf.dBm2Vp(P_dBm, 50)
 
 n_errs = 0
-n_tests = 1
+n_tests = 100
 for i in range(n_tests):
 
     v1 = srf.Signal(f_sim * t_sim, t_sim)
@@ -42,11 +42,11 @@ for i in range(n_tests):
 
     data, syms = srf.demod_psk(v1.Vt, v1.ts, fc, f_sym, n = n, f_sample = f_sample)#, quantize_func = srf.quantize_adc, V_full = V_pk, n_bits = 12)
 
-    # errs = ''.join(['0' if syms[i] == random_data[i] else '1' for i in range(len(syms))])
-    # print('{} / {}'.format(errs.count('1'), len(syms)))
-    # n_errs = n_errs + errs.count('1')
+    errs = ''.join(['0' if data[i] == random_data[i] else '1' for i in range(len(data))])
+    print('{} / {}'.format(errs.count('1'), len(data)))
+    n_errs = n_errs + errs.count('1')
 
-# print('{} / {} ({:e})'.format(n_errs, n_tests * test_bits, n_errs/(n_tests * test_bits)))
+print('{} / {} ({:e})'.format(n_errs, n_tests * test_bits, n_errs/(n_tests * test_bits)))
 
 ###############
 
