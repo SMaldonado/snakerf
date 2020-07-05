@@ -33,7 +33,7 @@ print(srf.dB(Eb_N0))
 V_pk = srf.dBm2Vp(P_dBm, 50)
 
 n_errs = 0
-n_tests = 100
+n_tests = 10
 for i in range(n_tests):
 
     v1 = srf.Signal(f_sim * t_sim, t_sim)

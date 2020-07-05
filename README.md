@@ -11,32 +11,34 @@ The intent of this package is to:
 
 ## Things that currently "work":
 - Flaky 2-port modeling, including "arbitrary" networks of passive components and _very_ flaky transmission lines
+- Approximately modeling microstrips and striplines at sufficiently low frequencies
 - Creating time domain representations of FSK, PSK, and MSK modulated signals
-- Modeling additive white Gaussian noise
+- Modeling additive white Gaussian noise and non-white background environmental noise
 - Converting between time-domain voltages and voltage/power spectra
 - Converting between decibels and linear quantities
 - Generating [Gold codes](https://en.wikipedia.org/wiki/Gold_code) up to length 2^15 + 1 (after which my laptop started throwing memory errors; your mileage may vary)
-- Demodulator for FSK
+- Demodulators for FSK and PSK
 
 ## Real goals
-- Demodulators for PSK, and MSK
+- Demodulator for MSK
 - Mixer/amplifier modeling with noise
 - Tool for designing filters using purchaseable component values
-- Modeling simple PCB features (microstrips)
 - Clean interface to simulate an entire signal path and model BER performance
 - Actual thorough test code
 - Sustained commit streak
 
 ## Aspirational goals
 - Cython accelerated math
-- Completely ransacking Saturn PCB's board modeling features
+- More nuanced transmission line modeling i.e. 2.5D simulation
 - Parametrically generating RF structures for PCBs
 - Mixer/amplifier nonlinearity modeling
 - Modulator/demodulator for QAM
 - Simulate FHSS
 - Playing nicely with scikit-rf
+- Importing/exporting SPICE netlists
 - This code actually being useful to someone else
 
 ## Known issues
 - "Power" spectra are very easy to use incorrectly; considering some significant restructuring
 - Despite now having lots of little functional blocks, interfaces between different pieces of code are currently bad
+- There's some evidence that noise modeling isn't quite right, possibly for subtle numerical reasons
