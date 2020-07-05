@@ -24,8 +24,8 @@ P_sig = srf.dBm2W(P_dBm)
 P_noise = srf.kB * srf.t0 * BW
 print(srf.W2dBm(P_noise))
 
-BW_c = (f_dev * (2**n)) + (2 * f_sym)
-bitrate = f_sym
+BW_c = 2 * f_sym
+bitrate = f_sym * n
 
 Eb_N0 = P_sig * BW_c / (P_noise * bitrate)
 print(srf.dB(Eb_N0))
@@ -33,12 +33,12 @@ print(srf.dB(Eb_N0))
 V_pk = srf.dBm2Vp(P_dBm, 50)
 
 n_errs = 0
-n_tests = 10
+n_tests = 1
 for i in range(n_tests):
 
     v1 = srf.Signal(f_sim * t_sim, t_sim)
     v1.update_Vt(srf.V_psk(v1.ts, fc, f_sym, random_data, P_dBm, n = n))
-    v1.add_noise()
+    # v1.add_noise()
 
     data, syms, p_syms = srf.demod_psk(v1.Vt, v1.ts, fc, f_sym, n = n, f_sample = f_sample)#, quantize_func = srf.quantize_adc, V_full = V_pk, n_bits = 12)
 
@@ -78,5 +78,6 @@ plt.xlim(min(v1.ts), max(v1.ts))
 plt.title(' '.join([random_data[i:i+n] for i in range(0, test_bits, n)]))
 
 plt.subplot(2,1,2)
-plt.plot(v1.ts, v1.Vt)
+# plt.plot(v1.ts, v1.Vt)
+srf.plot_power_spectrum(plt.gca(), v1.ts, v1.Vt, time = True)
 plt.show()
