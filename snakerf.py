@@ -746,11 +746,11 @@ def Vdiv_proto(Z1, Z2):
 
 Vdiv = np.vectorize(Vdiv_proto, otypes = [np.complex])
 
-def Pdiv_proto(Z1, Z2):
-    rtH = Vdiv_proto(Z1, Z2)
-    return rtH * mag(rtH)
-
-Pdiv = np.vectorize(Pdiv_proto, otypes = [np.complex])
+# def Pdiv_proto(Z1, Z2):
+#     rtH = Vdiv_proto(Z1, Z2)
+#     return rtH * mag(rtH)
+#
+# Pdiv = np.vectorize(Pdiv_proto, otypes = [np.complex])
 
 # see https://en.wikipedia.org/wiki/Two-port_network#Collapsing_a_two-port_to_a_one_port
 def Znetwork(series, shunt):
