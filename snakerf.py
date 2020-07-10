@@ -289,6 +289,7 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
         self.dt = t_max/ns
         self.ts = make_time(ns, t_max)
         self.fs = fft_fs(self.ts)
+        self.ws = f2w(self.fs)
         self.df = self.fs[1] - self.fs[0]
 
         if sig is None: # initialize to zero signal
@@ -535,6 +536,18 @@ def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
     # stripline:
     # Z0 = (60/sqrt(er)) * ln(3.8*h / (0.8*w + t))
     # td_l = 85 * sqrt(er)
+
+class Signal_Chain:
+    def __init__(self, fs, two_ports, Z_load = None):
+        for tp in np.asarray(two_ports):
+            if fs != tp.fs: raise raise ValueError('two port frequencies do not agree with provided frequencies')
+
+        self.fs = fs
+        self.two_ports = np.asarray(two_ports)
+        if Z_load = None:
+            self.Z_load = Zopen(f2w(fs))
+        else:
+            self.Z_load = Z_load
 
 # TODO: Port impedances/mismatch, nonlinearities, noise
 class Mixer:
