@@ -549,6 +549,13 @@ class Signal_Chain:
         else:
             self.Z_load = Z_load
 
+
+    def V_out(self):
+        b = np.eye(2, dtype = np.complex)
+        for two_port in self.two_ports:
+            b = two_port.b @ b
+            
+
 # TODO: Port impedances/mismatch, nonlinearities, noise
 class Mixer:
     def __init__(self, Z_port = [50,50,50], gain_dB = 0, NF_dB = 0):
