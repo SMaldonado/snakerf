@@ -540,11 +540,12 @@ def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
 class Signal_Chain:
     def __init__(self, fs, two_ports, Z_load = None):
         for tp in np.asarray(two_ports):
-            if fs != tp.fs: raise raise ValueError('two port frequencies do not agree with provided frequencies')
+            if fs != tp.fs: raise ValueError('two port frequencies do not agree with provided frequencies')
 
         self.fs = fs
         self.two_ports = np.asarray(two_ports)
-        if Z_load = None:
+        if Z_load == None:
+            
             self.Z_load = Zopen(f2w(fs))
         else:
             self.Z_load = Z_load
