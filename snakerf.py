@@ -545,7 +545,7 @@ class Signal_Chain:
         self.fs = fs
         self.two_ports = np.asarray(two_ports)
         if Z_load == None:
-            
+
             self.Z_load = Zopen(f2w(fs))
         else:
             self.Z_load = Z_load
@@ -760,14 +760,22 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
 
 # Network voltages
 
-# @np.vectorize
-def Vdiv_proto(Z1, Z2):
-    if Z1 == inf or Z2 == 0: return 0
-    if Z2 == inf: return 1
+def Vdiv(Z1, Z2):
+    Z1a = np.asarray(Z1)
+    Z2a = np.asarray(Z2)
 
-    return Z2/(Z1+Z2)
+    if len(Z1a) != len(Z2a): raise IndexError('Z1 and Z2 have different lengths')
 
-Vdiv = np.vectorize(Vdiv_proto, otypes = [np.complex])
+    out = np.zeros(len(Z1a), dtype = np.complex)
+
+    for i in range(len(Z1a))
+        if Z1a[i] == inf or Z2a[i] == 0: out[i] = 0
+        elif Z2a[i] == inf: out[i] = 1
+        else: out[i] = Z2a[i]/(Z1a[i]+Z2a[i])
+
+    return out
+
+# Vdiv = np.vectorize(Vdiv_proto, otypes = [np.complex])
 
 # def Pdiv_proto(Z1, Z2):
 #     rtH = Vdiv_proto(Z1, Z2)
