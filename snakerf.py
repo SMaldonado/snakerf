@@ -861,6 +861,23 @@ def plot_power_spectrum(ax, x, y, time = False, Z0 = 50, **kwargs):
 
     ax.xaxis.set_major_formatter(HzFormatter)
 
+def spice_plot(ax, x, y, plot_dBv = True, plot_phase = True, **kwargs):
+
+    if plot_dBv:
+        ax.semilogx(x, dBv(mag(y)), **kwargs)
+    else:
+        ax.semilogx(x, mag(y), **kwargs)
+
+    ax.xaxis.set_major_formatter(HzFormatter)
+
+    if plot_phase:
+        ax2 = ax.twinx()
+        if 'ls' not in kwargs.keys():
+            ax2.semilogx(x, phase(y, deg = True), ls = '--', **kwargs)
+        else:
+            ax2.semilogx(x, phase(y, deg = True), **kwargs)
+
+
 # Gold code generation
 
 def gold_codes(m):

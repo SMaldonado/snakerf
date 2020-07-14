@@ -9,12 +9,10 @@ from math import inf, pi, log2
 v1 = srf.Signal(25000, 0.001)
 v1.make_tone(45000, 0)
 
-stage1 = srf.Two_Port.from_network(v1.fs, [srf.L(1e-6, v1.ws)], [srf.par(srf.C(1e-9, v1.ws), srf.R(1000, v1.ws))])
+stage1 = srf.Two_Port.from_network(v1.fs, [srf.L(2e-6, v1.ws)], [srf.par(srf.C(2e-9, v1.ws), srf.R(500, v1.ws))])
 
-plt.semilogx(stage1.fs, srf.dBv(srf.mag(stage1.V_out())))
-plt.gca().xaxis.set_major_formatter(srf.HzFormatter)
-plt.twinx()
-plt.semilogx(stage1.fs, srf.phase(stage1.V_out()))
+fig = plt.figure()
+srf.spice_plot(plt.gca(), stage1.fs, stage1.V_out())
 
 # plt.subplot(2,1,1)
 # v1.plot_t(plt.gca())
