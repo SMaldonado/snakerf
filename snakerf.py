@@ -341,10 +341,10 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
 
 
 def _make_b_ser(Zser):
-    return np.array([[[1, -Z],[0, 1]] for Z in Zser])
+    return np.array([[[1, -Z],[0, 1]] for Z in np.asarray(Zser)])
 
 def _make_b_shunt(Zshunt):
-    return np.array([[[1, 0],[-Z2Y(Z), 1]] for Z in Zshunt])
+    return np.array([[[1, 0],[-Z2Y(Z), 1]] for Z in np.asarray(Zshunt)])
 
 def _make_b_tl(Z0, gamma, l):
     return np.array([[[np.cosh(y*l), Z*np.sinh(y*l)],[-Z2Y(Z)*np.sinh(y*l), np.cosh(y*l)]] for Z, y in zip(Z0, gamma)])
@@ -385,17 +385,16 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         b = self.b
 
-        if len(Zs) != len(self.fs): raise IndexError('source impedance and frequencies are not same length')
-
         if Zl is not None:
-            if len(Zl) != len(self.fs): raise IndexError('load impedance and frequencies are not same length')
+            if len(np.asarray(Zl)) != len(self.fs): raise IndexError('load impedance and frequencies are not same length')
             b = _make_b_shunt(Zl) @ b
 
         if Zs is not None:
+            if len(np.asarray(Zs)) != len(self.fs): raise IndexError('source impedance and frequencies are not same length')
             Z_in = self.Z_in()
             V1 = Vdiv(Zs, Z_in)
         else:
-            V1 = np.ones(self.fs)
+            V1 = np.ones(len(self.fs))
 
         V2 = V1 * det(b) / b[:, 1, 1]
         # V2 = V1 * det(b) / (b[:, 1, 1] - (b[:, 0, 1]/Zl))
@@ -768,7 +767,7 @@ def Vdiv(Z1, Z2):
 
     out = np.zeros(len(Z1a), dtype = np.complex)
 
-    for i in range(len(Z1a))
+    for i in range(len(Z1a)):
         if Z1a[i] == inf or Z2a[i] == 0: out[i] = 0
         elif Z2a[i] == inf: out[i] = 1
         else: out[i] = Z2a[i]/(Z1a[i]+Z2a[i])
