@@ -15,12 +15,21 @@ e0 = 8.854187e-12 # vacuum permittivity
 mu0 = 1.256637e-6 # vacuum permeability
 rho_cu = 1.72e-8 # copper resistivity, ohm*m
 
-@np.vectorize
 def par(Z1, Z2):
-    if Z1 == inf: return Z2
-    if Z2 == inf: return Z1
-    if Z1+Z2 == 0: return inf
-    return (Z1 * Z2)/(Z1 + Z2)
+    Z1a = np.asarray(Z1)
+    Z2a = np.asarray(Z2)
+
+    if len(Z1a) != len(Z2a): raise IndexError('Z1 and Z2 have different lengths')
+
+    out = np.zeros(len(Z1a), dtype = np.complex)
+
+    for i in range(len(Z1a)):
+        if Z1a[i] == inf: out[i] = Z2a[i]
+        elif Z2a[i] == inf: out[i] = Z1a[i]
+        elif Z1a[i] + Z2a[i] == 0: out[i] = inf
+        else: out[i] = (Z1a[i] * Z2a[i])/(Z1a[i] + Z2a[i])
+
+    return out
 
 def ser(Z1, Z2):
     return Z1 + Z2
