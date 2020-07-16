@@ -545,26 +545,29 @@ def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
     # Z0 = (60/sqrt(er)) * ln(3.8*h / (0.8*w + t))
     # td_l = 85 * sqrt(er)
 
-class Signal_Chain:
-    def __init__(self, fs, two_ports, Z_load = None):
+class Signal_Path:
+    def __init__(self, fs, two_ports, Z_source = None, Z_load = None):
         for tp in np.asarray(two_ports):
-            if fs != tp.fs: raise ValueError('two port frequencies do not agree with provided frequencies')
+            if fs != tp.fs: raise ValueError('two port frequencies do not agree with signal path frequencies')
 
         self.fs = fs
         self.two_ports = np.asarray(two_ports)
-        if Z_load == None:
+        self.Z_source = Z_source
+        self.Z_load = Z_load
 
-            self.Z_load = Zopen(f2w(fs))
-        else:
-            self.Z_load = Z_load
+    def V_out(self, Sig_in = None):
+        if Sig_in is not None:
+            if len(Sig_in.fs) != len(self.fs): raise ValueError('input signal frequencies do not agree with signal path frequencies')
 
-
-    def V_out(self, Zs = None):
         b = np.eye(2, dtype = np.complex)
         for two_port in self.two_ports:
             b = two_port.b @ b
 
-        return Two_Port(self.fs, b).V_out(Zs, self.Z_load)
+        V_out = Two_Port(self.fs, b).V_out(self.Z_source, self.Z_load)
+        if Sig_in is not None:
+            V_out = V_out * Sig_in.Vf
+
+
 
 
 # TODO: Port impedances/mismatch, nonlinearities, noise
