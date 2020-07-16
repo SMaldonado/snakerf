@@ -185,14 +185,27 @@ def fft_fs(t_sample):
 
 def fs2ts(fs):
     # effectively an inverse for https://numpy.org/doc/stable/reference/generated/numpy.fft.rfftfreq.html#numpy.fft.rfftfreq
-    f1 = fs[1]
-    fm = fs[-1]
-    dn = 1/f1
+    f1 = fs[1] # = 1 / (d * n)
+    fm = fs[-1] # = n / (2 * d * n) for even n, (n-1) / (2 * d * n) for odd n
+    dn = 1/f1 # = d * n
+    m = len(fs) # = (n / 2) + 1 for even n, ((n - 1) / 2) + 1 for odd n
 
-    m = len(fs)
-    km = fm/f1
+    even_n = 2 * (m - 1) # = n for even n, n - 1 for odd n
+    even_d = dn / (even_n) # = d for even n, d * (n / (n - 1)) for odd n
 
-    # ns tmax
+    if True: ns = even_n + 1 # odd n
+    else: ns = even_n
+    d = dn/ns
+    tmax = dn
+
+    print(dn)
+    print(even_n)
+    print(even_d)
+    # print(dn / even_n)
+    # print(ns)
+
+    return (int(ns), tmax)
+
 
 def Vf2Pf(Vf, Z0 = 50): # f-domain voltage to f-domain power
     return mag(Vf) * (Vf.real + 1j*Vf.imag) / (2*Z0)
