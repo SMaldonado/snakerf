@@ -183,6 +183,17 @@ def fft_fs(t_sample):
     timestep = (max(t_sample) - min(t_sample))/len(t_sample)
     return np.fft.rfftfreq(len(t_sample), d = timestep)
 
+def fs2ts(fs):
+    # effectively an inverse for https://numpy.org/doc/stable/reference/generated/numpy.fft.rfftfreq.html#numpy.fft.rfftfreq
+    f1 = fs[1]
+    fm = fs[-1]
+    dn = 1/f1
+
+    m = len(fs)
+    km = fm/f1
+
+    # ns tmax
+
 def Vf2Pf(Vf, Z0 = 50): # f-domain voltage to f-domain power
     return mag(Vf) * (Vf.real + 1j*Vf.imag) / (2*Z0)
 
@@ -566,6 +577,14 @@ class Signal_Path:
         V_out = Two_Port(self.fs, b).V_out(self.Z_source, self.Z_load)
         if Sig_in is not None:
             V_out = V_out * Sig_in.Vf
+
+        return V_out
+
+    def Sig_out(self, Sig_in = None):
+        V_out = self.V_out(Sig_in)
+
+        # return Signal(ns, t_max, sig = None, sig_Vt = True)
+
 
 
 
