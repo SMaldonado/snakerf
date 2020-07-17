@@ -188,21 +188,25 @@ def fs2ts(fs):
     f1 = fs[1] # = 1 / (d * n)
     fm = fs[-1] # = n / (2 * d * n) for even n, (n-1) / (2 * d * n) for odd n
     dn = 1/f1 # = d * n
-    m = len(fs) # = (n / 2) + 1 for even n, ((n - 1) / 2) + 1 for odd n
+    m = 2 * (len(fs) - 1) # = n for even n, n - 1 for odd n
 
-    even_n = 2 * (m - 1) # = n for even n, n - 1 for odd n
-    even_d = dn / (even_n) # = d for even n, d * (n / (n - 1)) for odd n
+    even_d = dn / m # = d for even n, d * (n / (n-1)) for odd n
+    odd_d = 0.5 / (fm + (1 / (2 * dn))) # = d * (n / n + 1) for even n, d for odd n
 
-    if True: ns = even_n + 1 # odd n
-    else: ns = even_n
+    odd_even = even_d / odd_d # = (n + 1) / n for even n, n / (n - 1) for odd n
+
+    print('~~~~~~~~~~~~')
+    print(even_d)
+    print(odd_d)
+    print(odd_even)
+    print(m)
+    print(odd_even * m)
+    print('~~~~~~~~~~~~')
+
+    if (odd_even * m).is_integer(): ns = m + 1 # odd n
+    else: ns = m # even n
     d = dn/ns
     tmax = dn
-
-    print(dn)
-    print(even_n)
-    print(even_d)
-    # print(dn / even_n)
-    # print(ns)
 
     return (int(ns), tmax)
 
