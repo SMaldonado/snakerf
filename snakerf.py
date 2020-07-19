@@ -16,8 +16,8 @@ mu0 = 1.256637e-6 # vacuum permeability
 rho_cu = 1.72e-8 # copper resistivity, ohm*m
 
 def par(Z1, Z2):
-    Z1a = np.asarray(Z1)
-    Z2a = np.asarray(Z2)
+    Z1a = np.atleast_1d(Z1)
+    Z2a = np.atleast_1d(Z2)
 
     if len(Z1a) != len(Z2a): raise IndexError('Z1 and Z2 have different lengths')
 
@@ -350,10 +350,10 @@ class Signal: # represents a nodal voltage in a given characteristic impedance
 
 
 def _make_b_ser(Zser):
-    return np.array([[[1, -Z],[0, 1]] for Z in np.asarray(Zser)])
+    return np.array([[[1, -Z],[0, 1]] for Z in np.atleast_1d(Zser)])
 
 def _make_b_shunt(Zshunt):
-    return np.array([[[1, 0],[-Z2Y(Z), 1]] for Z in np.asarray(Zshunt)])
+    return np.array([[[1, 0],[-Z2Y(Z), 1]] for Z in np.atleast_1d(Zshunt)])
 
 def _make_b_tl(Z0, gamma, l):
     return np.array([[[np.cosh(y*l), Z*np.sinh(y*l)],[-Z2Y(Z)*np.sinh(y*l), np.cosh(y*l)]] for Z, y in zip(Z0, gamma)])
@@ -395,11 +395,11 @@ class Two_Port: # Represents a noisy 2-port object with gain
         b = self.b
 
         if Zl is not None:
-            if len(np.asarray(Zl)) != len(self.fs): raise IndexError('load impedance and frequencies are not same length')
+            if len(np.atleast_1d(Zl)) != len(self.fs): raise IndexError('load impedance and frequencies are not same length')
             b = _make_b_shunt(Zl) @ b
 
         if Zs is not None:
-            if len(np.asarray(Zs)) != len(self.fs): raise IndexError('source impedance and frequencies are not same length')
+            if len(np.atleast_1d(Zs)) != len(self.fs): raise IndexError('source impedance and frequencies are not same length')
             Z_in = self.Z_in()
             V1 = Vdiv(Zs, Z_in)
         else:
@@ -780,8 +780,8 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
 # Network voltages
 
 def Vdiv(Z1, Z2):
-    Z1a = np.asarray(Z1)
-    Z2a = np.asarray(Z2)
+    Z1a = np.atleast_1d(Z1)
+    Z2a = np.atleast_1d(Z2)
 
     if len(Z1a) != len(Z2a): raise IndexError('Z1 and Z2 have different lengths')
 
