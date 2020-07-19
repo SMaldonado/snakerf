@@ -547,11 +547,11 @@ def RLGC_from_stripline(fs, Dk, Df, R_ins, h, w, t = 0.0014):
 
 class Signal_Path:
     def __init__(self, fs, two_ports, Z_source = None, Z_load = None):
-        for tp in np.asarray(two_ports):
-            if fs != tp.fs: raise ValueError('two port frequencies do not agree with signal path frequencies')
+        for tp in np.atleast_1d(two_ports):
+            if len(fs) != len(tp.fs): raise ValueError('two port frequencies do not agree with signal path frequencies')
 
         self.fs = fs
-        self.two_ports = np.asarray(two_ports)
+        self.two_ports = np.atleast_1d(two_ports)
         self.Z_source = Z_source
         self.Z_load = Z_load
 
@@ -569,13 +569,13 @@ class Signal_Path:
 
         return V_out
 
-    def Sig_out(self, Sig_in = None):
+    def Sig_out(self, Sig_in):
         V_out = self.V_out(Sig_in)
 
-        # return Signal(ns, t_max, sig = None, sig_Vt = True)
+        Sig_out = Sig_in.copy()
+        Sig_out.update_Vt(V_out)
 
-
-
+        return Sig_out
 
 
 # TODO: Port impedances/mismatch, nonlinearities, noise
