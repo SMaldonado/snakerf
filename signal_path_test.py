@@ -12,7 +12,7 @@ v1.make_tone(45000, 0)
 stage1 = srf.Two_Port.from_network(v1.fs, [srf.L(2e-6, v1.ws)], [srf.C(2e-9, v1.ws)])
 
 # print(np.asarray([stage1]))
-sig_path = srf.Signal_Path(v1.fs, stage1, Z_load = srf.R(500, v1.ws))
+sig_path = srf.Signal_Path(v1.fs, [stage1, stage1], Z_load = srf.R(500, v1.ws))
 
 fig = plt.figure()
 srf.spice_plot(plt.gca(), stage1.fs, sig_path.V_out())
