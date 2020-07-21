@@ -394,11 +394,13 @@ class Two_Port: # Represents a noisy 2-port object with gain
 
         b = self.b
 
+        if Zl is not None:
+            if len(np.atleast_1d(Zl)) != len(self.fs): raise IndexError('load impedance and frequencies are not same length')
+            b = _make_b_shunt(Zl) @ b
+
         if Zs is not None:
             if len(np.atleast_1d(Zs)) != len(self.fs): raise IndexError('source impedance and frequencies are not same length')
-
             if Zl is not None:
-                if len(np.atleast_1d(Zl)) != len(self.fs): raise IndexError('load impedance and frequencies are not same length')
                 Z_in = self.Z_in(Z_term = Zl)
             else:
                 Z_in = self.Z_in()
