@@ -662,6 +662,12 @@ def V_msk(t_sample, fc, f_sym, data, dBm): # create MSK modulated signal, n = 1,
     # Extremely verbose debug return
     # return (dBm2Vp(dBm) * (inverted * delta * -1) * np.sin((f2w(fc + (delta * f_dev)) * t_sample)), dBm2Vp(dBm) * inverted, dBm2Vp(dBm) * delta, np.array([dBm2Vp(dBm) * odd_bits[int(t/(2*T_sym))] for t in t_sample]), np.array([dBm2Vp(dBm) * even_bits[int((t+T_sym)/(2*T_sym))] for t in t_sample]), np.array([dBm2Vp(dBm) * data[int(t/T_sym)] for t in t_sample]))
 
+def V_qam(t_sample, fc, f_sym, data, dBm, n = 4): # create MSK modulated signal, n = 4
+    # expected data format: "0100100101..." (spaces permitted for readability, will be ignored)
+
+    if n // 2 != n / 2: raise ValueError('QAM n must be even')
+    syms = data2sym(data, n)
+
 def quantize_ideal(Vt): # ideal quantization function
     # quantized output is scaled from 0-1
 
