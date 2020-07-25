@@ -42,3 +42,4 @@ The intent of this package is to:
 - "Power" spectra are very easy to use incorrectly; considering some significant restructuring
 - Despite now having lots of little functional blocks, interfaces between different pieces of code are currently bad
 - There's some evidence that noise modeling isn't quite right, possibly for subtle numerical reasons
+- Modulation should use Gray code
