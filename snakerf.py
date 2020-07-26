@@ -666,7 +666,18 @@ def V_qam(t_sample, fc, f_sym, data, dBm, n = 4): # create MSK modulated signal,
     # expected data format: "0100100101..." (spaces permitted for readability, will be ignored)
 
     if n // 2 != n / 2: raise ValueError('QAM n must be even')
-    syms = data2sym(data, n)
+
+    bsl = data.split()
+    bsi = "".join(["".join([bsl[i+j] for j in range(n//2)]) for i in range(0,len(bsl),n//2)])
+    bsq = "".join(["".join([bsl[i+n//2+j] for j in range(n//2)]) for i in range(0,len(bsl),n//2)])
+    symsi = data2sym(bsi, n//2)
+    symsq = data2sym(bsq, n//2)
+
+    print(data)
+    print(bsi)
+    print(bsq)
+
+
 
 def quantize_ideal(Vt): # ideal quantization function
     # quantized output is scaled from 0-1
