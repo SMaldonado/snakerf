@@ -38,11 +38,8 @@ def mag(x):
     return np.abs(x)
 
 def phase(x, unwrap = True, deg = False):
-    if unwrap: angle = np.unwrap(np.angle(x))
-    else: angle = np.angle(x)
-
-    if deg: return rad2deg(angle)
-    else: return angle
+    if unwrap: angle = np.unwrap(np.angle(x), deg = deg)
+    else: angle = np.angle(x, deg = deg)
 
 def rms(x):
     return np.std(x)
@@ -667,11 +664,15 @@ def V_qam(t_sample, fc, f_sym, data, dBm, n = 4): # create MSK modulated signal,
 
     if n // 2 != n / 2: raise ValueError('QAM n must be even')
 
+    T_sym = 1/f_sym # get bit time
+
     bsl = list("".join(data.split()))
     bsi = "".join(["".join([bsl[i+j] for j in range(n//2)]) for i in range(0,len(bsl),n)])
     bsq = "".join(["".join([bsl[i+n//2+j] for j in range(n//2)]) for i in range(0,len(bsl),n)])
     symsi = data2sym(bsi, n//2)
     symsq = data2sym(bsq, n//2)
+
+    return dBm2Vp(dBm) * np.array([((i**2 + q**2)/(2 ** (n-2))) * np.cos(f2w(fc) + np.angle(i + q*1j)) for i,q in zip(symsi, symsq)]) # TODO: fix time
 
 
 
