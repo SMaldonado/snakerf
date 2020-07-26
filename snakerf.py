@@ -667,15 +667,11 @@ def V_qam(t_sample, fc, f_sym, data, dBm, n = 4): # create MSK modulated signal,
 
     if n // 2 != n / 2: raise ValueError('QAM n must be even')
 
-    bsl = data.split()
-    bsi = "".join(["".join([bsl[i+j] for j in range(n//2)]) for i in range(0,len(bsl),n//2)])
-    bsq = "".join(["".join([bsl[i+n//2+j] for j in range(n//2)]) for i in range(0,len(bsl),n//2)])
+    bsl = list("".join(data.split()))
+    bsi = "".join(["".join([bsl[i+j] for j in range(n//2)]) for i in range(0,len(bsl),n)])
+    bsq = "".join(["".join([bsl[i+n//2+j] for j in range(n//2)]) for i in range(0,len(bsl),n)])
     symsi = data2sym(bsi, n//2)
     symsq = data2sym(bsq, n//2)
-
-    print(data)
-    print(bsi)
-    print(bsq)
 
 
 
