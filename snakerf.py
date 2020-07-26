@@ -672,7 +672,7 @@ def V_qam(t_sample, fc, f_sym, data, dBm, n = 4): # create MSK modulated signal,
     symsi = data2sym(bsi, n//2)
     symsq = data2sym(bsq, n//2)
 
-    return dBm2Vp(dBm) * np.array([((i**2 + q**2)/(2 ** (n-2))) * np.cos(f2w(fc) + np.angle(i + q*1j)) for i,q in zip(symsi, symsq)]) # TODO: fix time
+    return dBm2Vp(dBm) * np.array([((symsi[int(t/T_sym)]**2 + symsq[int(t/T_sym)]**2)/(2 ** (n-2))) * np.cos((f2w(fc) * t) + np.angle(symsi[int(t/T_sym)] + symsq[int(t/T_sym)]*1j)) for t in t_sample])
 
 
 
