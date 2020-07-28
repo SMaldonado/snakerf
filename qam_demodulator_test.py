@@ -20,7 +20,16 @@ f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 v1 = srf.Signal(f_sim * t_sim, t_sim)
 
-srf.V_qam(v1.ts, fc, f_sym, random_data, 0, n = 4)
+t_sym_sample = np.arange(0, t_sim, 1/f_sym)
+v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, srf.V_qam(v1.ts, fc, f_sym, random_data, 0, n = 4)))
+
+print(v_qam_sample)
+print(np.cos(0))
+
+plt.plot(np.cos(srf.phase(v_qam_sample)), np.sin(srf.phase(v_qam_sample)))
+plt.show()
+
+
 
 #
 # test_bits = 500

@@ -38,7 +38,7 @@ def mag(x):
     return np.abs(x)
 
 def phase(x, unwrap = True, deg = False):
-    if unwrap: angle = np.unwrap(np.angle(x), deg = deg)
+    if unwrap: angle = np.unwrap(np.angle(x, deg = deg))
     else: angle = np.angle(x, deg = deg)
 
 def rms(x):
