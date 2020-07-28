@@ -6,7 +6,7 @@ from math import inf, pi, log2
 # f = np.logspace(5,9,1000)
 # w = srf.f2w(f)
 
-fc = 10000
+fc = 10002
 f_sym = 1000
 f_dev = 0
 f_sample = 25000
@@ -20,13 +20,15 @@ f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 v1 = srf.Signal(f_sim * t_sim, t_sim)
 
+v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, 0, n = 4)
 t_sym_sample = np.arange(0, t_sim, 1/f_sym)
-v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, srf.V_qam(v1.ts, fc, f_sym, random_data, 0, n = 4)))
+v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 
 print(v_qam_sample)
-print(np.cos(0))
 
-plt.plot(np.cos(srf.phase(v_qam_sample)), np.sin(srf.phase(v_qam_sample)))
+plt.scatter(np.cos(v_qam), np.sin(v_qam))
+plt.gca().set_aspect('equal')
+# plt.scatter(np.cos(srf.f2w(fc*t_sym_sample)) * v_qam_sample, np.sin(srf.f2w(fc*t_sym_sample)) * v_qam_sample)
 plt.show()
 
 

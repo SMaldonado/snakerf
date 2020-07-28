@@ -38,8 +38,10 @@ def mag(x):
     return np.abs(x)
 
 def phase(x, unwrap = True, deg = False):
-    if unwrap: angle = np.unwrap(np.angle(x, deg = deg))
+    if unwrap and len(np.atleast_1d(x)) > 1: angle = np.unwrap(np.angle(x, deg = deg))
     else: angle = np.angle(x, deg = deg)
+
+    return angle
 
 def rms(x):
     return np.std(x)
@@ -672,7 +674,10 @@ def V_qam(t_sample, fc, f_sym, data, dBm, n = 4): # create MSK modulated signal,
     symsi = data2sym(bsi, n//2)
     symsq = data2sym(bsq, n//2)
 
-    return dBm2Vp(dBm) * np.array([((symsi[int(t/T_sym)]**2 + symsq[int(t/T_sym)]**2)/(2 ** (n-2))) * np.cos((f2w(fc) * t) + np.angle(symsi[int(t/T_sym)] + symsq[int(t/T_sym)]*1j)) for t in t_sample])
+    phase_qam = np.array([symsi[int(t/T_sym)] * pi/2 - np.sign(symsi[int(t/T_sym)]) * pi/4 for t in t_sample])
+    # phase_qam = np.array([np.angle(symsi[int(t/T_sym)] + symsq[int(t/T_sym)]*1j) for t in t_sample])
+    return(phase_qam)
+    # return dBm2Vp(dBm) * np.array([((symsi[int(t/T_sym)]**2 + symsq[int(t/T_sym)]**2)/(2 ** (n-2))) * np.cos((f2w(fc) * t) + np.angle(symsi[int(t/T_sym)] + symsq[int(t/T_sym)]*1j)) for t in t_sample])
 
 
 
