@@ -26,7 +26,7 @@ v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 
 print(v_qam_sample)
 
-plt.scatter(np.cos(v_qam), np.sin(v_qam))
+plt.scatter(np.cos(np.angle(v_qam)), np.sin(np.angle(v_qam)))
 plt.gca().set_aspect('equal')
 # plt.scatter(np.cos(srf.f2w(fc*t_sym_sample)) * v_qam_sample, np.sin(srf.f2w(fc*t_sym_sample)) * v_qam_sample)
 plt.show()
