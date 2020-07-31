@@ -1,7 +1,7 @@
 import snakerf as srf
 import matplotlib.pyplot as plt
 import numpy as np
-from math import inf, pi, log2
+from math import inf, pi, log2, ceil
 
 # f = np.logspace(5,9,1000)
 # w = srf.f2w(f)
@@ -9,7 +9,6 @@ from math import inf, pi, log2
 fc = 10002
 f_sym = 1000
 f_dev = 0
-f_sample = 250000
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
 P_dBm = -123
@@ -24,7 +23,21 @@ v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, 0, n = 4)
 t_sym_sample = np.arange(0, t_sim, 1/f_sym)
 v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 
-plt.plot(v1.ts, v_qam)
+f, (ax1, ax2) = plt.subplots(2,1)#,sharex = True)
+ax1.plot(v1.ts, v_qam)
+
+# ax2.plot(v1.ts, v_qam * np.cos(srf.f2w(fc)*v1.ts), c = 'orange')
+# ax2.plot(v1.ts, v_qam * np.sin(srf.f2w(fc)*v1.ts), c = 'green')
+
+samples_sym = f_sim * t_sim / (test_bits/n)
+
+v_qam_iq = v_qam * (np.cos(srf.f2w(fc)*v1.ts) + 1j*np.sin(srf.f2w(fc)*v1.ts))
+v_qam_real = [np.mean([v_qam_iq[x].real for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get real mag per signal period
+v_qam_imag = [np.mean([v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get real mag per signal period
+
+ax2.plot(v_qam_real , c = 'orange')
+ax2.plot(v_qam_imag , c = 'green')
+
 # plt.scatter(srf.mag(v_qam) * np.cos(np.angle(v_qam)), srf.mag(v_qam) * np.sin(np.angle(v_qam)))
 # plt.gca().set_aspect('equal')
 # plt.scatter(np.cos(srf.f2w(fc*t_sym_sample)) * v_qam_sample, np.sin(srf.f2w(fc*t_sym_sample)) * v_qam_sample)
