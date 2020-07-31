@@ -10,7 +10,7 @@ fc = 10002
 f_sym = 1000
 f_dev = 0
 f_sample = 25000
-m = 9
+m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
 P_dBm = -123
 n = 4
@@ -20,13 +20,11 @@ f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 v1 = srf.Signal(f_sim * t_sim, t_sim)
 
-v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, 0, n = 4)
+v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, 0, n = 8)
 t_sym_sample = np.arange(0, t_sim, 1/f_sym)
 v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 
-print(v_qam_sample)
-
-plt.scatter(np.cos(np.angle(v_qam)), np.sin(np.angle(v_qam)))
+plt.scatter(srf.mag(v_qam) * np.cos(np.angle(v_qam)), srf.mag(v_qam) * np.sin(np.angle(v_qam)))
 plt.gca().set_aspect('equal')
 # plt.scatter(np.cos(srf.f2w(fc*t_sym_sample)) * v_qam_sample, np.sin(srf.f2w(fc*t_sym_sample)) * v_qam_sample)
 plt.show()

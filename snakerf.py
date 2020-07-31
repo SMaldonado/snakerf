@@ -668,9 +668,11 @@ def V_qam(t_sample, fc, f_sym, data, dBm, n = 4): # create MSK modulated signal,
 
     T_sym = 1/f_sym # get bit time
 
+
+
     bsl = list("".join(data.split()))
-    bsi = "".join(["".join([bsl[i+j] for j in range(n//2)]) for i in range(0,len(bsl),n)])
-    bsq = "".join(["".join([bsl[i+n//2+j] for j in range(n//2)]) for i in range(0,len(bsl),n)])
+    bsi = "".join(["".join([bsl[i+j] for j in range(n//2)]) for i in range(0,n*(len(bsl)//n),n)])
+    bsq = "".join(["".join([bsl[i+n//2+j] for j in range(n//2)]) for i in range(0,n*(len(bsl)//n),n)])
     symsi = data2sym(bsi, n//2)
     symsq = data2sym(bsq, n//2)
 
