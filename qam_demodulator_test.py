@@ -11,7 +11,7 @@ f_sym = 1000
 f_dev = 0
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
-P_dBm = -123
+P_dBm = 0
 n = 4
 
 test_bits = 500
@@ -19,7 +19,7 @@ f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 v1 = srf.Signal(f_sim * t_sim, t_sim)
 
-v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, 0, n = 4)
+v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, 0, n = n)
 t_sym_sample = np.arange(0, t_sim, 1/f_sym)
 v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 
@@ -38,7 +38,12 @@ v_qam_imag = [np.mean([v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)),
 ax2.plot(v_qam_real , c = 'orange')
 ax2.plot(v_qam_imag , c = 'green')
 
-print(srf.sym2data([int(x/0.025) for x in v_qam_real], 2))
+symsi_demod = [int(round(x/0.022) + np.sign(x))//2 for x in v_qam_real]
+symsq_demod = [int(round(x/0.022) + np.sign(x))//2 for x in v_qam_imag]
+data_demod = ' '.join([i+q for i,q in zip(srf.sym2data(symsi_demod, n, spaces = False), srf.sym2data(symsq_demod, n, spaces = False))])
+print(random_data[0:50])
+print('------')
+print(data_demod[0:50])
 
 # plt.scatter(srf.mag(v_qam) * np.cos(np.angle(v_qam)), srf.mag(v_qam) * np.sin(np.angle(v_qam)))
 # plt.gca().set_aspect('equal')
