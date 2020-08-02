@@ -38,6 +38,8 @@ v_qam_imag = [np.mean([v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)),
 ax2.plot(v_qam_real , c = 'orange')
 ax2.plot(v_qam_imag , c = 'green')
 
+print(srf.sym2data([int(x/0.025) for x in v_qam_real], 2))
+
 # plt.scatter(srf.mag(v_qam) * np.cos(np.angle(v_qam)), srf.mag(v_qam) * np.sin(np.angle(v_qam)))
 # plt.gca().set_aspect('equal')
 # plt.scatter(np.cos(srf.f2w(fc*t_sym_sample)) * v_qam_sample, np.sin(srf.f2w(fc*t_sym_sample)) * v_qam_sample)
