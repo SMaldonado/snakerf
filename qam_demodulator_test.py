@@ -40,7 +40,9 @@ ax2.plot(v_qam_imag , c = 'green')
 
 symsi_demod = [int(round(x/0.022) + np.sign(x))//2 for x in v_qam_real]
 symsq_demod = [int(round(x/0.022) + np.sign(x))//2 for x in v_qam_imag]
-data_demod = ' '.join([i+q for i,q in zip(srf.sym2data(symsi_demod, n, spaces = False), srf.sym2data(symsq_demod, n, spaces = False))])
+print(symsi_demod)
+print(symsq_demod)
+data_demod = ' '.join([i+'.'+q for i,q in zip(srf.sym2data(symsi_demod, n//2, spaces = False), srf.sym2data(symsq_demod, n//2, spaces = False))])
 print(random_data[0:50])
 print('------')
 print(data_demod[0:50])

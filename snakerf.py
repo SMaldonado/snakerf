@@ -617,7 +617,10 @@ def sym2data(sym, n = 1, spaces = True):
 
     joiner = " " if spaces else ""
 
-    return joiner.join(["{:0{}b}".format(int(s+k-(1 if s>0 else 0)), n) for s in sym])
+    s = sym[0]
+    print("{:0{:1}b}".format(int(s+k-(1 if s>0 else 0)), n))
+
+    return joiner.join(["{:0{:1}b}".format(int(s+k-(1 if s>0 else 0)), n) for s in sym])
 
 def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated signal (circular constellation), with carrier fc and symbol rate f_sym
     # expected data format: "0100100101..." (spaces permitted for readability, will be ignored)
