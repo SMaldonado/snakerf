@@ -33,13 +33,18 @@ samples_sym = f_sim * t_sim / (test_bits/n)
 
 v_qam_iq = v_qam * (np.cos(srf.f2w(fc)*v1.ts) + 1j*np.sin(srf.f2w(fc)*v1.ts))
 v_qam_real = [np.mean([v_qam_iq[x].real for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get real mag per signal period
-v_qam_imag = [np.mean([v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get real mag per signal period
+v_qam_imag = [np.mean([v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get imag mag per signal period
 
+symsi_demod = [round(x/0.022) for x in v_qam_real]
 ax2.plot(v_qam_real , c = 'orange')
 ax2.plot(v_qam_imag , c = 'green')
+ax2.twinx().plot(symsi_demod , c = 'red', ls = '--')
+plt.show()
+
 
 symsi_demod = [int(round(x/0.022) + np.sign(x))//2 for x in v_qam_real]
 symsq_demod = [-1 * int(round(x/0.022) + np.sign(x))//2 for x in v_qam_imag] # negative because j**2 = -1
+print(symsi_demod)
 bitsi_demod = srf.sym2data(symsi_demod, n//2)
 bitsq_demod = srf.sym2data(symsq_demod, n//2)
 
@@ -53,7 +58,7 @@ print(data_demod[0:100])
 # plt.scatter(srf.mag(v_qam) * np.cos(np.angle(v_qam)), srf.mag(v_qam) * np.sin(np.angle(v_qam)))
 # plt.gca().set_aspect('equal')
 # plt.scatter(np.cos(srf.f2w(fc*t_sym_sample)) * v_qam_sample, np.sin(srf.f2w(fc*t_sym_sample)) * v_qam_sample)
-# plt.show()
+
 
 
 
