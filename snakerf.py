@@ -618,8 +618,7 @@ def sym2data(sym, n = 1, spaces = True):
     joiner = " " if spaces else ""
 
     s = sym[0]
-    print("{:0{:1}b}".format(int(s+k-(1 if s>0 else 0)), n))
-
+    
     return joiner.join(["{:0{:1}b}".format(int(s+k-(1 if s>0 else 0)), n) for s in sym])
 
 def V_psk(t_sample, fc, f_sym, data, dBm, n = 1): # create (2**n)-PSK modulated signal (circular constellation), with carrier fc and symbol rate f_sym
@@ -676,15 +675,6 @@ def V_qam(t_sample, fc, f_sym, data, dBm, n = 4): # create MSK modulated signal,
     bsq = "".join(["".join([bsl[i+n//2+j] for j in range(n//2)]) for i in range(0,n*(len(bsl)//n),n)])
     symsi = data2sym(bsi, n//2)
     symsq = data2sym(bsq, n//2)
-
-    print(data[0:50])
-    print(bsl[0:50])
-    print('...........')
-    print(bsi[0:50])
-    print(bsq[0:50])
-    print(symsi[0:50])
-    print(symsq[0:50])
-    print('################')
 
     vector_qam = np.array([symsi[int(t/T_sym)] - 0.5*np.sign(symsi[int(t/T_sym)]) + 1j*(symsq[int(t/T_sym)] - 0.5*np.sign(symsq[int(t/T_sym)])) for t in t_sample])
     # phase_qam = np.array([np.angle(symsi[int(t/T_sym)] + symsq[int(t/T_sym)]*1j) for t in t_sample])

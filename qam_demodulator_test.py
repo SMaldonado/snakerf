@@ -9,7 +9,7 @@ from math import inf, pi, log2, ceil
 fc = 10002
 f_sym = 1000
 f_dev = 0
-m = 11
+m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
 P_dBm = 0
 n = 4
@@ -40,12 +40,15 @@ ax2.plot(v_qam_imag , c = 'green')
 
 symsi_demod = [int(round(x/0.022) + np.sign(x))//2 for x in v_qam_real]
 symsq_demod = [-1 * int(round(x/0.022) + np.sign(x))//2 for x in v_qam_imag] # negative because j**2 = -1
-print(symsi_demod[0:50])
-print(symsq_demod[0:50])
-data_demod = ' '.join([i+'.'+q for i,q in zip(srf.sym2data(symsi_demod, n//2, spaces = False), srf.sym2data(symsq_demod, n//2, spaces = False))])
-print(random_data[0:50])
-print('------')
-print(data_demod[0:50])
+bitsi_demod = srf.sym2data(symsi_demod, n//2)
+bitsq_demod = srf.sym2data(symsq_demod, n//2)
+
+data_demod = ''.join([i + q for i,q in zip(bitsi_demod.split(' '), bitsq_demod.split(' '))])
+
+# "".join(["".join([bitsi_demod[i+j] for j in range(n//2)]) for i in range(0,len(bits),n)])
+# data_demod = ' '.join([i+'.'+q for i,q in zip(srf.sym2data(symsi_demod, n//2, spaces = False), srf.sym2data(symsq_demod, n//2, spaces = False))])
+print(random_data[0:100])
+print(data_demod[0:100])
 
 # plt.scatter(srf.mag(v_qam) * np.cos(np.angle(v_qam)), srf.mag(v_qam) * np.sin(np.angle(v_qam)))
 # plt.gca().set_aspect('equal')
