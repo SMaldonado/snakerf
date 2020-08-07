@@ -12,7 +12,7 @@ f_dev = 0
 m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
 P_dBm = 0
-n = 4
+n = 8
 
 test_bits = 500
 f_sim = 2e5
