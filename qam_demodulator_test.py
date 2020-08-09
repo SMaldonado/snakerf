@@ -11,7 +11,7 @@ f_sym = 1000
 f_dev = 0
 m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
-P_dBm = -80
+P_dBm = 0
 n = 4
 
 test_bits = 500
@@ -23,7 +23,7 @@ v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n)
 t_sym_sample = np.arange(0, t_sim, 1/f_sym)
 v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 
-f, (ax1, ax2) = plt.subplots(2,1)#,sharex = True)
+f, (ax1, ax2, ax3) = plt.subplots(3,1)#,sharex = True)
 ax1.plot(v1.ts, v_qam)
 
 # ax2.plot(v1.ts, v_qam * np.cos(srf.f2w(fc)*v1.ts), c = 'orange')
@@ -33,13 +33,11 @@ samples_sym = f_sim * t_sim / (test_bits/n)
 
 v_qam_iq = v_qam * (np.cos(srf.f2w(fc)*v1.ts) + 1j*np.sin(srf.f2w(fc)*v1.ts))
 v_qam_real = [np.mean([v_qam_iq[x].real for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get real mag per signal period
-v_qam_imag = [np.mean([v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get imag mag per signal period
-
-print(max(v_qam_real))
-print(min(v_qam_real))
+v_qam_imag = [np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get imag mag per signal period
+# negative because j**2 = -1
 
 symsi_demod = [int(round(x/0.022) + np.sign(x))//2 for x in v_qam_real]
-symsq_demod = [-1 * int(round(x/0.022) + np.sign(x))//2 for x in v_qam_imag] # negative because j**2 = -1
+symsq_demod = [int(round(x/0.022) + np.sign(x))//2 for x in v_qam_imag]
 print(symsi_demod)
 bitsi_demod = srf.sym2data(symsi_demod, n//2)
 bitsq_demod = srf.sym2data(symsq_demod, n//2)
@@ -52,10 +50,11 @@ print(random_data[0:100])
 print(data_demod[0:100])
 
 symsi_demod = [round(x/0.022) for x in v_qam_real]
-# ax2.plot(v_qam_real , c = 'orange')
-# ax2.plot(v_qam_imag , c = 'green')
-ax2.plot(v_qam_iq.real)
-ax2.plot(-v_qam_iq.imag)
+ax2.plot(v_qam_iq.real, c = 'orange')
+ax2.plot(-v_qam_iq.imag, c = 'green')
+
+ax3.plot(v_qam_real , c = 'orange')
+ax3.plot(v_qam_imag , c = 'green')
 # ax2.twinx().plot(symsi_demod , c = 'red', ls = '--')
 plt.show()
 
