@@ -36,8 +36,8 @@ v_qam_real = [np.mean([v_qam_iq[x].real for x in range(int(ceil(samples_sym*i)),
 v_qam_imag = [np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get imag mag per signal period
 # negative because j**2 = -1
 
-symsi_demod = [int(round(x/0.022) + np.sign(x))//2 for x in v_qam_real]
-symsq_demod = [int(round(x/0.022) + np.sign(x))//2 for x in v_qam_imag]
+symsi_demod = [int(round(x/(0.25* srf.dBm2Vp(P_dBm))) + np.sign(x))//2 for x in v_qam_real]
+symsq_demod = [int(round(x/(0.25 * srf.dBm2Vp(P_dBm))) + np.sign(x))//2 for x in v_qam_imag]
 print(symsi_demod)
 bitsi_demod = srf.sym2data(symsi_demod, n//2)
 bitsq_demod = srf.sym2data(symsq_demod, n//2)
