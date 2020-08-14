@@ -680,9 +680,10 @@ def V_qam(t_sample, fc, f_sym, data, dBm, n = 4): # create MSK modulated signal,
     # phase_qam = np.array([np.angle(symsi[int(t/T_sym)] + symsq[int(t/T_sym)]*1j) for t in t_sample])
 
     print(max(mag(vector_qam)))
+    #  / ((2 ** (n-2)) - 0.5) * sqrt(2)
 
-    # return [np.cos(f2w(fc) * t_sample[i]) for i in range(len(t_sample))]
-    return dBm2Vp(dBm) * (mag(vector_qam)/(2**(n/2) - 0.5)) * [np.cos(f2w(fc) * t_sample[i] + phase(vector_qam[i])) for i in range(len(t_sample))]
+        # return [np.cos(f2w(fc) * t_sample[i]) for i in range(len(t_sample))]
+    return (dBm2Vp(dBm)) * (mag(vector_qam)/(2**(n/2) - 0.5)) * [np.cos(f2w(fc) * t_sample[i] + phase(vector_qam[i])) for i in range(len(t_sample))]
     # return dBm2Vp(dBm) * np.array([((symsi[int(t/T_sym)]**2 + symsq[int(t/T_sym)]**2)/(2 ** (n-2))) * np.cos((f2w(fc) * t) + np.angle(symsi[int(t/T_sym)] + symsq[int(t/T_sym)]*1j)) for t in t_sample])
 
 
