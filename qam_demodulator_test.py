@@ -10,7 +10,7 @@ fc = 10002
 f_sym = 1000
 f_dev = 0
 m = 9
-random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[2], 2**m - 1) + '0'
+random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
 P_dBm = 0
 n = 4
 
@@ -40,13 +40,10 @@ v_qam_imag = [np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym
 print(max(v_qam_real))
 # print((max(v_qam_real) - min(v_qam_real)) / (2**(n//2) - 1))
 
-print(srf.dBm2Vp(P_dBm))
-print((srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1))))
-
 # print([round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_real])
 symsi_demod = [round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_real]
 symsq_demod = [round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_imag]
-print(symsi_demod)
+
 bitsi_demod = srf.sym2data(symsi_demod, n//2)
 bitsq_demod = srf.sym2data(symsq_demod, n//2)
 
