@@ -23,7 +23,14 @@ v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n)
 t_sym_sample = np.arange(0, t_sim, 1/f_sym)
 v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 
-f, (ax1, ax2, ax3) = plt.subplots(3,1)#,sharex = True)
+# f, (ax1, ax2, ax3, ax4) = plt.subplots(4,1)#,sharex = True)
+f = plt.figure(figsize = (16,8))
+gs = f.add_gridspec(3, 6)
+ax1 = f.add_subplot(gs[0,:3])
+ax2 = f.add_subplot(gs[1,:3])
+ax3 = f.add_subplot(gs[2,:3])
+ax4 = f.add_subplot(gs[:,3:])
+
 ax1.plot(v1.ts, v_qam)
 
 samples_sym = f_sim * t_sim / (test_bits/n)
@@ -44,20 +51,18 @@ data_demod = ''.join([i + q for i,q in zip(bitsi_demod.split(' '), bitsq_demod.s
 print(random_data[0:100])
 print(data_demod[0:100])
 
-symsi_demod = [round(x/0.022) for x in v_qam_real]
 ax2.plot(v_qam_iq.real, c = 'orange')
 ax2.plot(-v_qam_iq.imag, c = 'green')
 
 ax3.plot(v_qam_real , c = 'orange')
 ax3.plot(v_qam_imag , c = 'green')
 
-plt.show()
-
-# plt.scatter(srf.mag(v_qam) * np.cos(np.angle(v_qam)), srf.mag(v_qam) * np.sin(np.angle(v_qam)))
-# plt.gca().set_aspect('equal')
+ax4.scatter(symsi_demod - 0.5*np.sign(symsi_demod), symsq_demod - 0.5*np.sign(symsq_demod))
+# ax4.scatter(srf.mag(v_qam) * np.cos(np.angle(v_qam)), srf.mag(v_qam) * np.sin(np.angle(v_qam)))
+ax4.set_aspect('equal')
 # plt.scatter(np.cos(srf.f2w(fc*t_sym_sample)) * v_qam_sample, np.sin(srf.f2w(fc*t_sym_sample)) * v_qam_sample)
 
-
+plt.show()
 
 
 #
