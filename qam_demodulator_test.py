@@ -26,9 +26,6 @@ v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 f, (ax1, ax2, ax3) = plt.subplots(3,1)#,sharex = True)
 ax1.plot(v1.ts, v_qam)
 
-# ax2.plot(v1.ts, v_qam * np.cos(srf.f2w(fc)*v1.ts), c = 'orange')
-# ax2.plot(v1.ts, v_qam * np.sin(srf.f2w(fc)*v1.ts), c = 'green')
-
 samples_sym = f_sim * t_sim / (test_bits/n)
 
 v_qam_iq = v_qam * (np.cos(srf.f2w(fc)*v1.ts) + 1j*np.sin(srf.f2w(fc)*v1.ts))
@@ -36,11 +33,6 @@ v_qam_real = [np.mean([v_qam_iq[x].real for x in range(int(ceil(samples_sym*i)),
 v_qam_imag = [np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get imag mag per signal period
 # negative because j**2 = -1
 
-# print(srf.dBm2Vp(P_dBm)/8)
-print(max(v_qam_real))
-# print((max(v_qam_real) - min(v_qam_real)) / (2**(n//2) - 1))
-
-# print([round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_real])
 symsi_demod = [round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_real]
 symsq_demod = [round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_imag]
 
@@ -49,8 +41,6 @@ bitsq_demod = srf.sym2data(symsq_demod, n//2)
 
 data_demod = ''.join([i + q for i,q in zip(bitsi_demod.split(' '), bitsq_demod.split(' '))])
 
-# "".join(["".join([bitsi_demod[i+j] for j in range(n//2)]) for i in range(0,len(bits),n)])
-# data_demod = ' '.join([i+'.'+q for i,q in zip(srf.sym2data(symsi_demod, n//2, spaces = False), srf.sym2data(symsq_demod, n//2, spaces = False))])
 print(random_data[0:100])
 print(data_demod[0:100])
 
@@ -60,7 +50,7 @@ ax2.plot(-v_qam_iq.imag, c = 'green')
 
 ax3.plot(v_qam_real , c = 'orange')
 ax3.plot(v_qam_imag , c = 'green')
-# ax2.twinx().plot(symsi_demod , c = 'red', ls = '--')
+
 plt.show()
 
 # plt.scatter(srf.mag(v_qam) * np.cos(np.angle(v_qam)), srf.mag(v_qam) * np.sin(np.angle(v_qam)))
