@@ -11,7 +11,7 @@ f_sym = 1000
 f_dev = 0
 m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = 0
+P_dBm = -110
 n = 4
 
 test_bits = 500
@@ -19,7 +19,7 @@ f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 v1 = srf.Signal(f_sim * t_sim, t_sim)
 
-v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n)
+v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n) + srf.Vt_thermal_noise(v1.ts, v1.fs)
 t_sym_sample = np.arange(0, t_sim, 1/f_sym)
 v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 
@@ -58,8 +58,9 @@ ax3.plot(v_qam_real , c = 'orange')
 ax3.plot(v_qam_imag , c = 'green')
 
 # ax4.scatter(symsi_demod - 0.5*np.sign(symsi_demod), symsq_demod - 0.5*np.sign(symsq_demod))
-mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2)
+mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))
 phase_v_qam = srf.phase(v_qam_real + 1j*v_qam_imag)
+print(max(mag_v_qam))
 ax4.scatter(mag_v_qam * np.cos(phase_v_qam), mag_v_qam * np.sin(phase_v_qam))
 ax4.set_aspect('equal')
 
