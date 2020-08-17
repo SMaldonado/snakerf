@@ -11,7 +11,7 @@ f_sym = 1000
 f_dev = 0
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = -110
+P_dBm = -120
 n = 4
 
 test_bits = 2000
@@ -45,8 +45,11 @@ sym_max = 2 ** ((n/2) - 1)
 mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (srf.dBm2Vrms(P_dBm - 6) / sym_max)
 phase_v_qam = srf.phase(v_qam_real + 1j*v_qam_imag)
 
-symsi_demod = [srf.bound(-sym_max, sym_max, round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1))))) for x in v_qam_real]
-symsq_demod = [srf.bound(-sym_max, sym_max, round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1))))) for x in v_qam_imag]
+i_demod = mag_v_qam * np.cos(phase_v_qam)
+q_demod = mag_v_qam * np.sin(phase_v_qam)
+
+symsi_demod = [srf.bound(-sym_max, sym_max, round(x)) for x in i_demod]
+symsq_demod = [srf.bound(-sym_max, sym_max, round(x)) for x in q_demod]
 
 bitsi_demod = srf.sym2data(symsi_demod, n//2)
 bitsq_demod = srf.sym2data(symsq_demod, n//2)
@@ -59,11 +62,11 @@ print(data_demod[0:100])
 ax2.plot(v_qam_iq.real, c = 'orange')
 ax2.plot(-v_qam_iq.imag, c = 'green')
 
-ax3.plot(v_qam_real , c = 'orange')
-ax3.plot(v_qam_imag , c = 'green')
+ax3.plot(i_demod , c = 'orange')
+ax3.plot(q_demod , c = 'green')
 
 # ax4.scatter(symsi_demod - 0.5*np.sign(symsi_demod), symsq_demod - 0.5*np.sign(symsq_demod))
-ax4.scatter(mag_v_qam * np.cos(phase_v_qam), mag_v_qam * np.sin(phase_v_qam))
+ax4.scatter(i_demod, q_demod)
 ax4.set_aspect('equal')
 
 plt.show()
