@@ -9,12 +9,12 @@ from math import inf, pi, log2, ceil
 fc = 10002
 f_sym = 1000
 f_dev = 0
-m = 9
+m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
 P_dBm = -120
 n = 4
 
-test_bits = 500
+test_bits = 2000
 f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 v1 = srf.Signal(f_sim * t_sim, t_sim)
@@ -40,27 +40,26 @@ v_qam_real = np.array([np.mean([v_qam_iq[x].real for x in range(int(ceil(samples
 v_qam_imag = np.array([np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)]) # get imag mag per signal period
 # negative because j**2 = -1
 
-symsi_demod = [round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_real]
-symsq_demod = [round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_imag]
+symsi_demod = [srf.bound(-(2 ** ((n/2) - 1)), 2 ** ((n/2) - 1), round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1))))) for x in v_qam_real]
+symsq_demod = [srf.bound(-(2 ** ((n/2) - 1)), 2 ** ((n/2) - 1), round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1))))) for x in v_qam_imag]
 
-# bitsi_demod = srf.sym2data(symsi_demod, n//2)
-# bitsq_demod = srf.sym2data(symsq_demod, n//2)
-#
-# data_demod = ''.join([i + q for i,q in zip(bitsi_demod.split(' '), bitsq_demod.split(' '))])
-#
-# print(random_data[0:100])
-# print(data_demod[0:100])
-#
-# ax2.plot(v_qam_iq.real, c = 'orange')
-# ax2.plot(-v_qam_iq.imag, c = 'green')
-#
-# ax3.plot(v_qam_real , c = 'orange')
-# ax3.plot(v_qam_imag , c = 'green')
+bitsi_demod = srf.sym2data(symsi_demod, n//2)
+bitsq_demod = srf.sym2data(symsq_demod, n//2)
+
+data_demod = ''.join([i + q for i,q in zip(bitsi_demod.split(' '), bitsq_demod.split(' '))])
+
+print(random_data[0:100])
+print(data_demod[0:100])
+
+ax2.plot(v_qam_iq.real, c = 'orange')
+ax2.plot(-v_qam_iq.imag, c = 'green')
+
+ax3.plot(v_qam_real , c = 'orange')
+ax3.plot(v_qam_imag , c = 'green')
 
 # ax4.scatter(symsi_demod - 0.5*np.sign(symsi_demod), symsq_demod - 0.5*np.sign(symsq_demod))
 mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))
 phase_v_qam = srf.phase(v_qam_real + 1j*v_qam_imag)
-print(max(mag_v_qam))
 ax4.scatter(mag_v_qam * np.cos(phase_v_qam), mag_v_qam * np.sin(phase_v_qam))
 ax4.set_aspect('equal')
 
