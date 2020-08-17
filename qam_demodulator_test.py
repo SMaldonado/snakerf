@@ -11,7 +11,7 @@ f_sym = 1000
 f_dev = 0
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = -120
+P_dBm = -110
 n = 4
 
 test_bits = 2000
@@ -40,8 +40,13 @@ v_qam_real = np.array([np.mean([v_qam_iq[x].real for x in range(int(ceil(samples
 v_qam_imag = np.array([np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)]) # get imag mag per signal period
 # negative because j**2 = -1
 
-symsi_demod = [srf.bound(-(2 ** ((n/2) - 1)), 2 ** ((n/2) - 1), round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1))))) for x in v_qam_real]
-symsq_demod = [srf.bound(-(2 ** ((n/2) - 1)), 2 ** ((n/2) - 1), round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1))))) for x in v_qam_imag]
+sym_max = 2 ** ((n/2) - 1)
+
+mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (srf.dBm2Vrms(P_dBm - 6) / sym_max)
+phase_v_qam = srf.phase(v_qam_real + 1j*v_qam_imag)
+
+symsi_demod = [srf.bound(-sym_max, sym_max, round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1))))) for x in v_qam_real]
+symsq_demod = [srf.bound(-sym_max, sym_max, round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1))))) for x in v_qam_imag]
 
 bitsi_demod = srf.sym2data(symsi_demod, n//2)
 bitsq_demod = srf.sym2data(symsq_demod, n//2)
@@ -58,8 +63,6 @@ ax3.plot(v_qam_real , c = 'orange')
 ax3.plot(v_qam_imag , c = 'green')
 
 # ax4.scatter(symsi_demod - 0.5*np.sign(symsi_demod), symsq_demod - 0.5*np.sign(symsq_demod))
-mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))
-phase_v_qam = srf.phase(v_qam_real + 1j*v_qam_imag)
 ax4.scatter(mag_v_qam * np.cos(phase_v_qam), mag_v_qam * np.sin(phase_v_qam))
 ax4.set_aspect('equal')
 
