@@ -11,7 +11,7 @@ f_sym = 1000
 f_dev = 0
 m = 9
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = -110
+P_dBm = -120
 n = 4
 
 test_bits = 500
@@ -43,19 +43,19 @@ v_qam_imag = np.array([np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(sa
 symsi_demod = [round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_real]
 symsq_demod = [round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_imag]
 
-bitsi_demod = srf.sym2data(symsi_demod, n//2)
-bitsq_demod = srf.sym2data(symsq_demod, n//2)
-
-data_demod = ''.join([i + q for i,q in zip(bitsi_demod.split(' '), bitsq_demod.split(' '))])
-
-print(random_data[0:100])
-print(data_demod[0:100])
-
-ax2.plot(v_qam_iq.real, c = 'orange')
-ax2.plot(-v_qam_iq.imag, c = 'green')
-
-ax3.plot(v_qam_real , c = 'orange')
-ax3.plot(v_qam_imag , c = 'green')
+# bitsi_demod = srf.sym2data(symsi_demod, n//2)
+# bitsq_demod = srf.sym2data(symsq_demod, n//2)
+#
+# data_demod = ''.join([i + q for i,q in zip(bitsi_demod.split(' '), bitsq_demod.split(' '))])
+#
+# print(random_data[0:100])
+# print(data_demod[0:100])
+#
+# ax2.plot(v_qam_iq.real, c = 'orange')
+# ax2.plot(-v_qam_iq.imag, c = 'green')
+#
+# ax3.plot(v_qam_real , c = 'orange')
+# ax3.plot(v_qam_imag , c = 'green')
 
 # ax4.scatter(symsi_demod - 0.5*np.sign(symsi_demod), symsq_demod - 0.5*np.sign(symsq_demod))
 mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))
