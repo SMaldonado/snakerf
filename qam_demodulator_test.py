@@ -24,7 +24,7 @@ t_sym_sample = np.arange(0, t_sim, 1/f_sym)
 v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 
 # f, (ax1, ax2, ax3, ax4) = plt.subplots(4,1)#,sharex = True)
-f = plt.figure(figsize = (16,8))
+f = plt.figure(figsize = (12,6))
 gs = f.add_gridspec(3, 6)
 ax1 = f.add_subplot(gs[0,:3])
 ax2 = f.add_subplot(gs[1,:3])
@@ -36,8 +36,8 @@ ax1.plot(v1.ts, v_qam)
 samples_sym = f_sim * t_sim / (test_bits/n)
 
 v_qam_iq = v_qam * (np.cos(srf.f2w(fc)*v1.ts) + 1j*np.sin(srf.f2w(fc)*v1.ts))
-v_qam_real = [np.mean([v_qam_iq[x].real for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get real mag per signal period
-v_qam_imag = [np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)] # get imag mag per signal period
+v_qam_real = np.array([np.mean([v_qam_iq[x].real for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)]) # get real mag per signal period
+v_qam_imag = np.array([np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)]) # get imag mag per signal period
 # negative because j**2 = -1
 
 symsi_demod = [round(x/(srf.dBm2Vrms(P_dBm - 6) / (2 ** ((n/2) - 1)))) for x in v_qam_real]
@@ -57,10 +57,11 @@ ax2.plot(-v_qam_iq.imag, c = 'green')
 ax3.plot(v_qam_real , c = 'orange')
 ax3.plot(v_qam_imag , c = 'green')
 
-ax4.scatter(symsi_demod - 0.5*np.sign(symsi_demod), symsq_demod - 0.5*np.sign(symsq_demod))
-# ax4.scatter(srf.mag(v_qam) * np.cos(np.angle(v_qam)), srf.mag(v_qam) * np.sin(np.angle(v_qam)))
+# ax4.scatter(symsi_demod - 0.5*np.sign(symsi_demod), symsq_demod - 0.5*np.sign(symsq_demod))
+mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2)
+phase_v_qam = srf.phase(v_qam_real + 1j*v_qam_imag)
+ax4.scatter(mag_v_qam * np.cos(phase_v_qam), mag_v_qam * np.sin(phase_v_qam))
 ax4.set_aspect('equal')
-# plt.scatter(np.cos(srf.f2w(fc*t_sym_sample)) * v_qam_sample, np.sin(srf.f2w(fc*t_sym_sample)) * v_qam_sample)
 
 plt.show()
 
