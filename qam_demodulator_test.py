@@ -33,28 +33,7 @@ ax4 = f.add_subplot(gs[:,3:])
 
 ax1.plot(v1.ts, v_qam)
 
-samples_sym = f_sim * t_sim / (test_bits/n)
-
-v_qam_iq = v_qam * (np.cos(srf.f2w(fc)*v1.ts) + 1j*np.sin(srf.f2w(fc)*v1.ts))
-v_qam_real = np.array([np.mean([v_qam_iq[x].real for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)]) # get real mag per signal period
-v_qam_imag = np.array([np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(test_bits//n)]) # get imag mag per signal period
-# negative because j**2 = -1
-
-sym_max = 2 ** ((n/2) - 1)
-
-mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (srf.dBm2Vrms(P_dBm - 6) / sym_max)
-phase_v_qam = srf.phase(v_qam_real + 1j*v_qam_imag)
-
-i_demod = mag_v_qam * np.cos(phase_v_qam)
-q_demod = mag_v_qam * np.sin(phase_v_qam)
-
-symsi_demod = [srf.bound(-sym_max, sym_max, round(x)) for x in i_demod]
-symsq_demod = [srf.bound(-sym_max, sym_max, round(x)) for x in q_demod]
-
-bitsi_demod = srf.sym2data(symsi_demod, n//2)
-bitsq_demod = srf.sym2data(symsq_demod, n//2)
-
-data_demod = ''.join([i + q for i,q in zip(bitsi_demod.split(' '), bitsq_demod.split(' '))])
+data_demod, v_qam_iq, i_demod, q_demod = srf.demod_qam(v1.Vt, v1.ts, fc, f_sym, n = n)
 
 print(random_data[0:100])
 print(data_demod[0:100])

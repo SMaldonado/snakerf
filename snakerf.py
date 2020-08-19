@@ -1,5 +1,5 @@
 import math
-from math import e, pi, inf
+from math import e, pi, inf, ceil
 from cmath import exp
 import numpy as np
 from numpy import log2, log, log10, rad2deg, deg2rad, sqrt
@@ -805,6 +805,37 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
     # syms = ''.join(['{0:0{1:d}b}'.format(est, n) for est in np.argmax(mag(p_syms), axis = 1)])
     #
     # return (syms, p_syms)
+
+def demod_qam(Vt, ts, fc, f_sym, n = 4, f_sample = 10000, quantize_func = quantize_ideal, **kwargs):
+
+    t_sample = np.arange(min(ts), max(ts), 1/f_sample)
+    V_sample = np.interp(t_sample, ts, Vt)
+    V_quantize = quantize_func(V_sample, **kwargs)
+
+    samples_sym = f_sample / f_sym
+    n_samples = int(max(t_sample) * f_sym)
+
+    v_qam_iq = V_quantize * (np.cos(f2w(fc) * t_sample) + 1j * np.sin(f2w(fc) * t_sample))
+    v_qam_real = np.array([np.mean([v_qam_iq[x].real for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(n_samples)]) # get real mag per signal period
+    v_qam_imag = np.array([np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(n_samples)]) # get imag mag per signal period
+    # negative because j**2 = -1
+
+    sym_max = 2 ** ((n/2) - 1)
+
+    mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (dBm2Vrms(-2) / sym_max) # TODO: test and fix -2
+    phase_v_qam = phase(v_qam_real + 1j*v_qam_imag)
+
+    i_demod = mag_v_qam * np.cos(phase_v_qam)
+    q_demod = mag_v_qam * np.sin(phase_v_qam)
+
+    symsi_demod = [bound(-sym_max, sym_max, round(x)) for x in i_demod]
+    symsq_demod = [bound(-sym_max, sym_max, round(x)) for x in q_demod]
+
+    bitsi_demod = sym2data(symsi_demod, n//2)
+    bitsq_demod = sym2data(symsq_demod, n//2)
+
+    data_demod = ''.join([i + q for i,q in zip(bitsi_demod.split(' '), bitsq_demod.split(' '))])
+    return (data_demod, v_qam_iq, i_demod, q_demod)
 
 # Network voltages
 
