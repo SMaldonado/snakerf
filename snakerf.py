@@ -806,11 +806,15 @@ def demod_psk(Vt, ts, fc, f_sym, n = 1, f_sample = 10000, quantize_func = quanti
     #
     # return (syms, p_syms)
 
-def demod_qam(Vt, ts, fc, f_sym, n = 4, f_sample = 10000, quantize_func = quantize_ideal, **kwargs):
+def demod_qam(Vt, ts, fc, f_sym, n = 4, f_sample = 100000, quantize_func = quantize_ideal, **kwargs):
 
     t_sample = np.arange(min(ts), max(ts), 1/f_sample)
+    print(t_sample)
     V_sample = np.interp(t_sample, ts, Vt)
+    print(V_sample)
     V_quantize = quantize_func(V_sample, **kwargs)
+
+    print(V_quantize)
 
     samples_sym = f_sample / f_sym
     n_samples = int(max(t_sample) * f_sym)

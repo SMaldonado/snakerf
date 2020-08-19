@@ -11,7 +11,7 @@ f_sym = 1000
 f_dev = 0
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = -120
+P_dBm = 0
 n = 4
 
 test_bits = 2000
@@ -19,7 +19,7 @@ f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 v1 = srf.Signal(f_sim * t_sim, t_sim)
 
-v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n) + srf.Vt_thermal_noise(v1.ts, v1.fs)
+v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n) # + srf.Vt_thermal_noise(v1.ts, v1.fs)
 t_sym_sample = np.arange(0, t_sim, 1/f_sym)
 v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
 
