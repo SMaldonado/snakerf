@@ -8,20 +8,20 @@ from math import inf, pi, log2, ceil
 
 fc = 10002
 f_sym = 1000
-f_dev = 0
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = 0
+P_dBm = -100
 n = 4
 
-test_bits = 2000
+test_bits = 500
 f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 v1 = srf.Signal(f_sim * t_sim, t_sim)
 
-v_qam = srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n) # + srf.Vt_thermal_noise(v1.ts, v1.fs)
+v1.update_Vt(srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n)) # + srf.Vt_thermal_noise(v1.ts, v1.fs)
+v1.add_noise()
 t_sym_sample = np.arange(0, t_sim, 1/f_sym)
-v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v_qam))
+v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v1.Vt))
 
 # f, (ax1, ax2, ax3, ax4) = plt.subplots(4,1)#,sharex = True)
 f = plt.figure(figsize = (12,6))
@@ -31,7 +31,7 @@ ax2 = f.add_subplot(gs[1,:3])
 ax3 = f.add_subplot(gs[2,:3])
 ax4 = f.add_subplot(gs[:,3:])
 
-ax1.plot(v1.ts, v_qam)
+ax1.plot(v1.ts, v1.Vt)
 
 data_demod, v_qam_iq, i_demod, q_demod = srf.demod_qam(v1.Vt, v1.ts, fc, f_sym, n = n)
 
