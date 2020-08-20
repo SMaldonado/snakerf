@@ -10,7 +10,7 @@ fc = 10002
 f_sym = 1000
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = -100
+P_dBm = 0
 n = 4
 
 test_bits = 500
@@ -20,8 +20,8 @@ v1 = srf.Signal(f_sim * t_sim, t_sim)
 
 v1.update_Vt(srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n)) # + srf.Vt_thermal_noise(v1.ts, v1.fs)
 v1.add_noise()
-t_sym_sample = np.arange(0, t_sim, 1/f_sym)
-v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v1.Vt))
+# t_sym_sample = np.arange(0, t_sim, 1/f_sym)
+# v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v1.Vt))
 
 # f, (ax1, ax2, ax3, ax4) = plt.subplots(4,1)#,sharex = True)
 f = plt.figure(figsize = (12,6))

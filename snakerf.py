@@ -815,14 +815,14 @@ def demod_qam(Vt, ts, fc, f_sym, n = 4, f_sample = 100000, quantize_func = quant
     samples_sym = f_sample / f_sym
     n_samples = int(max(t_sample) * f_sym)
 
-    v_qam_iq = V_quantize * (np.cos(f2w(fc) * t_sample) + 1j * np.sin(f2w(fc) * t_sample))
+    v_qam_iq = (V_quantize - 0.5) * (np.cos(f2w(fc) * t_sample) + 1j * np.sin(f2w(fc) * t_sample))
     v_qam_real = np.array([np.mean([v_qam_iq[x].real for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(n_samples)]) # get real mag per signal period
     v_qam_imag = np.array([np.mean([-1 * v_qam_iq[x].imag for x in range(int(ceil(samples_sym*i)), int(ceil(samples_sym*(i+1))), 1)]) for i in range(n_samples)]) # get imag mag per signal period
     # negative because j**2 = -1
 
     sym_max = 2 ** ((n/2) - 1)
 
-    mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (dBm2Vrms(-2) / sym_max) # TODO: test and fix -2
+    mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (dBm2Vrms(Vp2dBm(0.5) - 6) / sym_max) # TODO: fix for general-case quantizer
     phase_v_qam = phase(v_qam_real + 1j*v_qam_imag)
 
     i_demod = mag_v_qam * np.cos(phase_v_qam)
