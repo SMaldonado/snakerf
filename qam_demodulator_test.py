@@ -19,7 +19,7 @@ t_sim = test_bits / (f_sym * n)
 v1 = srf.Signal(f_sim * t_sim, t_sim)
 
 v1.update_Vt(srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n)) # + srf.Vt_thermal_noise(v1.ts, v1.fs)
-v1.add_noise()
+# v1.add_noise()
 # t_sym_sample = np.arange(0, t_sim, 1/f_sym)
 # v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v1.Vt))
 

@@ -828,7 +828,9 @@ def demod_qam(Vt, ts, fc, f_sym, n = 4, f_sample = 100000, quantize_func = quant
     i_demod = mag_v_qam * np.cos(phase_v_qam)
     q_demod = mag_v_qam * np.sin(phase_v_qam)
 
-    symsi_demod = [bound(-sym_max, sym_max, round(x)) for x in i_demod]
+    step = sym_max / (2*sym_max - 1)
+
+    symsi_demod = [bound(-sym_max, sym_max, round(((x/step) + np.sign(x)) / 2)) for x in i_demod]
     symsq_demod = [bound(-sym_max, sym_max, round(x)) for x in q_demod]
 
     bitsi_demod = sym2data(symsi_demod, n//2)
