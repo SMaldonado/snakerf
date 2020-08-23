@@ -10,7 +10,7 @@ fc = 10002
 f_sym = 1000
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = 0
+P_dBm = -100
 n = 4
 
 test_bits = 500
@@ -19,7 +19,7 @@ t_sim = test_bits / (f_sym * n)
 v1 = srf.Signal(f_sim * t_sim, t_sim)
 
 v1.update_Vt(srf.V_qam(v1.ts, fc, f_sym, random_data, P_dBm, n = n)) # + srf.Vt_thermal_noise(v1.ts, v1.fs)
-# v1.add_noise()
+v1.add_noise()
 # t_sym_sample = np.arange(0, t_sim, 1/f_sym)
 # v_qam_sample = np.array(np.interp(t_sym_sample, v1.ts, v1.Vt))
 
@@ -35,8 +35,24 @@ ax1.plot(v1.ts, v1.Vt)
 
 data_demod, v_qam_iq, i_demod, q_demod = srf.demod_qam(v1.Vt, v1.ts, fc, f_sym, n = n)
 
-print(random_data[0:100])
-print(data_demod[0:100])
+# n_errs = 0
+# n_tests = 25
+# for i in range(n_tests):
+#
+#     v1 = srf.Signal(f_sim * t_sim, t_sim)
+#     v1.update_Vt(srf.V_psk(v1.ts, fc, f_sym, random_data, P_dBm, n = n))
+#     v1.add_noise()
+#
+#     data, syms, p_syms = srf.demod_psk(v1.Vt, v1.ts, fc, f_sym, n = n, f_sample = f_sample)#, quantize_func = srf.quantize_adc, V_full = V_pk, n_bits = 12)
+#
+errs = ''.join(['0' if data_demod[i] == random_data[i] else '1' for i in range(len(data_demod))])
+print('{} / {}'.format(errs.count('1'), len(data_demod)))
+# n_errs = n_errs + errs.count('1')
+#
+# print('{} / {} ({:e})'.format(n_errs, n_tests * test_bits, n_errs/(n_tests * test_bits)))
+
+# print(random_data[0:100])
+# print(data_demod[0:100])
 
 ax2.plot(v_qam_iq.real, c = 'orange')
 ax2.plot(-v_qam_iq.imag, c = 'green')
