@@ -822,13 +822,15 @@ def demod_qam(Vt, ts, fc, f_sym, n = 4, f_sample = 100000, quantize_func = quant
 
     sym_max = 2 ** ((n/2) - 1)
 
-    mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (dBm2Vrms(Vp2dBm(0.5) - 6) / sym_max) # TODO: fix for general-case quantizer
+    mag_v_qam = np.sqrt(v_qam_real**2 + v_qam_imag**2) / (max(np.sqrt(v_qam_real**2 + v_qam_imag**2)) / sym_max) # TODO: fix for general-case quantizer
     phase_v_qam = phase(v_qam_real + 1j*v_qam_imag)
 
     i_demod = mag_v_qam * np.cos(phase_v_qam)
     q_demod = mag_v_qam * np.sin(phase_v_qam)
 
     step = sym_max / (2*sym_max - 1)
+
+    print(list(((i_demod/step) + np.sign(i_demod))))
 
     symsi_demod = [bound(-sym_max, sym_max, round(((x/step) + np.sign(x)) / 2)) for x in i_demod]
     symsq_demod = [bound(-sym_max, sym_max, round(x)) for x in q_demod]

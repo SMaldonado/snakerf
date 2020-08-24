@@ -10,7 +10,7 @@ fc = 10002
 f_sym = 1000
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = -100
+P_dBm = -110
 n = 4
 
 test_bits = 500
