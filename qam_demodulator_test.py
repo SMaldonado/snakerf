@@ -10,7 +10,7 @@ fc = 10002
 f_sym = 1000
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = -110
+P_dBm = 0
 n = 4
 
 test_bits = 500
@@ -34,6 +34,7 @@ ax4 = f.add_subplot(gs[:,3:])
 ax1.plot(v1.ts, v1.Vt)
 
 data_demod, v_qam_iq, i_demod, q_demod = srf.demod_qam(v1.Vt, v1.ts, fc, f_sym, n = n)
+print(random_data[:100])
 
 # n_errs = 0
 # n_tests = 25

@@ -830,15 +830,22 @@ def demod_qam(Vt, ts, fc, f_sym, n = 4, f_sample = 100000, quantize_func = quant
 
     step = sym_max / (2*sym_max - 1)
 
-    print(list(((i_demod/step) + np.sign(i_demod))))
+    # print(list(((i_demod/step) + np.sign(i_demod))))
+
+    print(((i_demod/step)) / 2)
 
     symsi_demod = [bound(-sym_max, sym_max, round(((x/step) + np.sign(x)) / 2)) for x in i_demod]
-    symsq_demod = [bound(-sym_max, sym_max, round(x)) for x in q_demod]
+    symsq_demod = [bound(-sym_max, sym_max, round(((x/step) + np.sign(x)) / 2)) for x in q_demod]
+
+    print(symsi_demod)
 
     bitsi_demod = sym2data(symsi_demod, n//2)
     bitsq_demod = sym2data(symsq_demod, n//2)
 
+    print(bitsi_demod)
+
     data_demod = ''.join([i + q for i,q in zip(bitsi_demod.split(' '), bitsq_demod.split(' '))])
+    print(data_demod[0:100])
     return (data_demod, v_qam_iq, i_demod, q_demod)
 
 # Network voltages
