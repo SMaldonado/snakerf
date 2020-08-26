@@ -10,8 +10,8 @@ fc = 10002
 f_sym = 1000
 m = 11
 random_data = '{0:0{1:d}b}'.format(srf.gold_codes(m)[5], 2**m - 1) + '0'
-P_dBm = 0
-n = 6
+P_dBm = -110
+n = 4
 
 test_bits = 500
 f_sim = 2e5
@@ -65,15 +65,15 @@ ax3.plot(q_demod , c = 'green')
 ax4.scatter(i_demod, q_demod)
 ax4.set_aspect('equal')
 
-sym_max = 2 ** ((n/2) - 1)
+sym_max = int(2 ** ((n/2) - 1))
 divs = 2*sym_max - 1
 max_i = max(i_demod)
 max_q = max(q_demod)
 
-for i in range(n+1):
-    ax4.axvline((2*i - n) * max_i/divs, c = 'black', ls = '--')
-for q in range(n+1):
-    ax4.axhline((2*q - n) * max_q/divs, c = 'black', ls = '--')
+for i in range(divs):
+    ax4.axvline((2*(i + 0.5) - divs) * max_i/divs, c = 'black', ls = '--')
+for q in range(divs):
+    ax4.axhline((2*(q + 0.5) - divs) * max_q/divs, c = 'black', ls = '--')
 
 
 plt.show()
