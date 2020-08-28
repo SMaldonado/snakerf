@@ -12,12 +12,12 @@ The intent of this package is to:
 ## Things that currently "work":
 - Flaky 2-port modeling, including "arbitrary" networks of passive components and _very_ flaky transmission lines
 - Approximately modeling microstrips and striplines at sufficiently low frequencies
-- Creating time domain representations of FSK, PSK, and MSK modulated signals
+- Creating time domain representations of FSK, PSK, MSK, and QAM modulated signals
 - Modeling additive white Gaussian noise and non-white background environmental noise
 - Converting between time-domain voltages and voltage/power spectra
 - Converting between decibels and linear quantities
 - Generating [Gold codes](https://en.wikipedia.org/wiki/Gold_code) up to length 2^15 + 1 (after which my laptop started throwing memory errors; your mileage may vary)
-- Demodulators for FSK and PSK
+- Demodulators for FSK, PSK, and QAM
 
 ## Real goals
 - Demodulator for MSK
@@ -32,7 +32,6 @@ The intent of this package is to:
 - More nuanced transmission line modeling i.e. 2.5D simulation
 - Parametrically generating RF structures for PCBs
 - Mixer/amplifier nonlinearity modeling
-- Modulator/demodulator for QAM
 - Simulate FHSS
 - Playing nicely with scikit-rf
 - Importing/exporting SPICE netlists
