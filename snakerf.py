@@ -967,7 +967,8 @@ def gold_codes(m):
     # see https://web.archive.org/web/2 0070112230234/http://paginas.fe.up.pt/~hmiranda/cm/Pseudo_Noise_Sequences.pdf page 14
     # See also https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.max_len_seq.html#scipy.signal.max_len_seq
 
-    if m % 4 == 0 or m >= 16: return 'fail - invalid m'
+    if m % 4 == 0: raise ValueError('m cannot be divisible by 4')
+    if m <= 2 or m >= 16: raise ValueError('m out of valid range')
 
     N = 2**m - 1
 
