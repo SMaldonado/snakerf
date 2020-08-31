@@ -19,7 +19,7 @@ test_bits = 500
 f_sim = 2e5
 t_sim = test_bits / (f_sym * n)
 
-BW = f_sim / 2
+BW = f_sim
 P_sig = srf.dBm2W(P_dBm)
 print(P_sig)
 P_noise = srf.kB * srf.t0 * BW
